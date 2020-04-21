@@ -13,23 +13,23 @@
 
 obj_t * player;
 
-
-
-
 void UpdatePlayer (obj_t * pl)
 {
-    int newx, newy;
-
-    newx = pl->x + pl->dx;
-    newy = pl->y + pl->dy;
-
-    if ( (currentmap.foreground[newy][newy].flags & OF_SOLID) == 0 )
+    // move player
+    if (pl->dx || pl->dy)
     {
-        pl->x = newx;
-        pl->y = newy;
+        int newx, newy;
+        
+        newx = pl->x + pl->dx;
+        newy = pl->y + pl->dy;
+        if ( !(currentmap.foreground[newy][newx].flags & OF_SOLID) )
+        {
+            pl->x = newx;
+            pl->y = newy;
+        }
+        pl->dx = 0;
+        pl->dy = 0;
     }
-    pl->dx = 0;
-    pl->dy = 0;
 }
 
 

@@ -7,7 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		30677F852447BE7C001691FA /* font.c in Sources */ = {isa = PBXBuildFile; fileRef = 30677F842447BE7C001691FA /* font.c */; };
+		30B66E6D2434D88F009E264F /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 30D0F6CC24329DC4006C507E /* SDL2.framework */; };
+		30B66E7324353184009E264F /* map.c in Sources */ = {isa = PBXBuildFile; fileRef = 30B66E7224353184009E264F /* map.c */; };
+		30B66E7624353200009E264F /* obj.c in Sources */ = {isa = PBXBuildFile; fileRef = 30B66E7524353200009E264F /* obj.c */; };
+		30B66E7924353253009E264F /* glyph.c in Sources */ = {isa = PBXBuildFile; fileRef = 30B66E7824353253009E264F /* glyph.c */; };
+		30B66E832436C08C009E264F /* editor.c in Sources */ = {isa = PBXBuildFile; fileRef = 30B66E822436C08C009E264F /* editor.c */; };
+		30B66E872436C1AB009E264F /* argv.c in Sources */ = {isa = PBXBuildFile; fileRef = 30B66E852436C1AB009E264F /* argv.c */; };
+		30B66E8A2437FAF5009E264F /* player.c in Sources */ = {isa = PBXBuildFile; fileRef = 30B66E892437FAF5009E264F /* player.c */; };
+		30CF276C244DFD82004DF52F /* action.c in Sources */ = {isa = PBXBuildFile; fileRef = 30CF276B244DFD82004DF52F /* action.c */; };
 		30D0F6C224324038006C507E /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 30D0F6C124324038006C507E /* main.c */; };
+		30D0F6CA24329CEA006C507E /* video.c in Sources */ = {isa = PBXBuildFile; fileRef = 30D0F6C924329CEA006C507E /* video.c */; };
+		30D0F6D224329EEE006C507E /* azki.c in Sources */ = {isa = PBXBuildFile; fileRef = 30D0F6D124329EEE006C507E /* azki.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -23,8 +34,29 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		30677F842447BE7C001691FA /* font.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = font.c; sourceTree = "<group>"; };
+		30B66E702434DCC9009E264F /* Azki.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Azki.entitlements; sourceTree = "<group>"; };
+		30B66E7124353184009E264F /* map.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = map.h; sourceTree = "<group>"; };
+		30B66E7224353184009E264F /* map.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = map.c; sourceTree = "<group>"; };
+		30B66E7424353200009E264F /* obj.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = obj.h; sourceTree = "<group>"; };
+		30B66E7524353200009E264F /* obj.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = obj.c; sourceTree = "<group>"; };
+		30B66E7724353253009E264F /* glyph.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = glyph.h; sourceTree = "<group>"; };
+		30B66E7824353253009E264F /* glyph.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = glyph.c; sourceTree = "<group>"; };
+		30B66E812436C08C009E264F /* editor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = editor.h; sourceTree = "<group>"; };
+		30B66E822436C08C009E264F /* editor.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = editor.c; sourceTree = "<group>"; };
+		30B66E852436C1AB009E264F /* argv.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = argv.c; sourceTree = "<group>"; };
+		30B66E862436C1AB009E264F /* argv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = argv.h; sourceTree = "<group>"; };
+		30B66E882437FAF5009E264F /* player.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = player.h; sourceTree = "<group>"; };
+		30B66E892437FAF5009E264F /* player.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = player.c; sourceTree = "<group>"; };
+		30CF276A244DFD82004DF52F /* action.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = action.h; sourceTree = "<group>"; };
+		30CF276B244DFD82004DF52F /* action.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = action.c; sourceTree = "<group>"; };
 		30D0F6BE24324038006C507E /* Azki */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Azki; sourceTree = BUILT_PRODUCTS_DIR; };
 		30D0F6C124324038006C507E /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		30D0F6C824329CEA006C507E /* video.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = video.h; sourceTree = "<group>"; };
+		30D0F6C924329CEA006C507E /* video.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = video.c; sourceTree = "<group>"; };
+		30D0F6CC24329DC4006C507E /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = ../../../../../Library/Frameworks/SDL2.framework; sourceTree = "<group>"; };
+		30D0F6D024329EEE006C507E /* azki.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = azki.h; sourceTree = "<group>"; };
+		30D0F6D124329EEE006C507E /* azki.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = azki.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -32,17 +64,26 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				30B66E6D2434D88F009E264F /* SDL2.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		30B66E842436C17B009E264F /* maps */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = maps;
+			sourceTree = "<group>";
+		};
 		30D0F6B524324037006C507E = {
 			isa = PBXGroup;
 			children = (
 				30D0F6C024324038006C507E /* Azki */,
 				30D0F6BF24324038006C507E /* Products */,
+				30D0F6CB24329DC3006C507E /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -57,9 +98,38 @@
 		30D0F6C024324038006C507E /* Azki */ = {
 			isa = PBXGroup;
 			children = (
+				30B66E842436C17B009E264F /* maps */,
+				30B66E702434DCC9009E264F /* Azki.entitlements */,
 				30D0F6C124324038006C507E /* main.c */,
+				30D0F6C824329CEA006C507E /* video.h */,
+				30D0F6C924329CEA006C507E /* video.c */,
+				30D0F6D024329EEE006C507E /* azki.h */,
+				30D0F6D124329EEE006C507E /* azki.c */,
+				30B66E7124353184009E264F /* map.h */,
+				30B66E7224353184009E264F /* map.c */,
+				30B66E7424353200009E264F /* obj.h */,
+				30B66E7524353200009E264F /* obj.c */,
+				30B66E7724353253009E264F /* glyph.h */,
+				30B66E7824353253009E264F /* glyph.c */,
+				30B66E812436C08C009E264F /* editor.h */,
+				30B66E822436C08C009E264F /* editor.c */,
+				30B66E862436C1AB009E264F /* argv.h */,
+				30B66E852436C1AB009E264F /* argv.c */,
+				30B66E882437FAF5009E264F /* player.h */,
+				30B66E892437FAF5009E264F /* player.c */,
+				30677F842447BE7C001691FA /* font.c */,
+				30CF276A244DFD82004DF52F /* action.h */,
+				30CF276B244DFD82004DF52F /* action.c */,
 			);
 			path = Azki;
+			sourceTree = "<group>";
+		};
+		30D0F6CB24329DC3006C507E /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				30D0F6CC24329DC4006C507E /* SDL2.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -88,7 +158,7 @@
 		30D0F6B624324037006C507E /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1130;
+				LastUpgradeCheck = 1140;
 				ORGANIZATIONNAME = "Thomas Foster";
 				TargetAttributes = {
 					30D0F6BD24324038006C507E = {
@@ -119,7 +189,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				30677F852447BE7C001691FA /* font.c in Sources */,
+				30B66E832436C08C009E264F /* editor.c in Sources */,
+				30B66E7924353253009E264F /* glyph.c in Sources */,
+				30B66E872436C1AB009E264F /* argv.c in Sources */,
+				30B66E7624353200009E264F /* obj.c in Sources */,
+				30B66E7324353184009E264F /* map.c in Sources */,
 				30D0F6C224324038006C507E /* main.c in Sources */,
+				30D0F6CA24329CEA006C507E /* video.c in Sources */,
+				30B66E8A2437FAF5009E264F /* player.c in Sources */,
+				30CF276C244DFD82004DF52F /* action.c in Sources */,
+				30D0F6D224329EEE006C507E /* azki.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -162,7 +242,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_C_LANGUAGE_STANDARD = ansi;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -220,7 +300,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_C_LANGUAGE_STANDARD = ansi;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -238,9 +318,16 @@
 		30D0F6C624324038006C507E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Azki/Azki.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = D54ZHB8K4R;
-				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_HARDENED_RUNTIME = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+				);
+				GCC_C_LANGUAGE_STANDARD = ansi;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -248,9 +335,16 @@
 		30D0F6C724324038006C507E /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Azki/Azki.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = D54ZHB8K4R;
-				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_HARDENED_RUNTIME = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+				);
+				GCC_C_LANGUAGE_STANDARD = ansi;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

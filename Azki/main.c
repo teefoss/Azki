@@ -9,6 +9,7 @@
 /*
  TODO:
  Player movement via keys[] input w/ delay
+ Limit framerate
  
  BUGS:
  
