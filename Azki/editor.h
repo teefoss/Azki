@@ -11,6 +11,14 @@
 
 #include "map.h"
 
+typedef enum {
+    LAYER_FG,
+    LAYER_BG,
+    LAYER_BOTH
+} layer_t;
+
+extern layer_t showlayer;
+
 void EditorLoop (void);
 
 #endif /* editor_h */

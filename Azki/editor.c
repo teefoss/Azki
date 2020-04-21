@@ -22,16 +22,22 @@ typedef struct
     SDL_Rect rect;
 } grid_t;
 
-enum {
-    LAYER_FG,
-    LAYER_BG
-} layer;
-
 static grid_t grid;
 static objtype_t cursor = TYPE_PLAYER;
 static char lowermsg[100];
+static layer_t layer;
 
-static char *layer_msg[] = { "(Editing Foreground)", "(Editing Background)" };
+layer_t showlayer;
+
+static char *layer_msg[] = {
+    "(Editing Foreground)",
+    "(Editing Background)"
+};
+static char *show_msg[] = {
+    "Showing: FG   ",
+    "Showing:    BG",
+    "Showing: FG BG"
+};
 
 
 
@@ -217,7 +223,7 @@ void EditorMouseDown (SDL_Point * mousept, SDL_Point * mousetile)
         {
             currentmap.foreground[mousetile->y][mousetile->x] = NewObject(cursor, mousetile->x, mousetile->y);
         }
-        else
+        else if (layer == LAYER_BG)
         {
             currentmap.background[mousetile->y][mousetile->x] = NewObject(cursor, mousetile->x, mousetile->y);
         }
@@ -258,6 +264,12 @@ void EditorLoop (void)
         }
         
         grid.shown = keys[SDL_SCANCODE_TAB];
+        if (keys[SDL_SCANCODE_F])
+            showlayer = LAYER_FG;
+        else if (keys[SDL_SCANCODE_B])
+            showlayer = LAYER_BG;
+        else
+            showlayer = LAYER_BOTH;
         
         mousestate = SDL_GetMouseState(&mousept.x, &mousept.y);
         mousept.x /= windowed_scale; // TODO: fix for just current scale
@@ -274,23 +286,32 @@ void EditorLoop (void)
         // HUD
         if (!grid.shown)
         {
+            int msg_x;
+            char mouseinfo[100];
+            
             PrintMapName();
             
             // layer
-            int msg_x = TopHUD.x + maprect.w - (int)strlen(layer_msg[layer]) * GLYPH_SIZE;
+            msg_x = TopHUD.x + maprect.w - (int)strlen(layer_msg[layer]) * GLYPH_SIZE;
             TextColor(layer == LAYER_FG ? YELLOW : BROWN);
             PrintString(layer_msg[layer], msg_x, TopHUD.y);
-            
+                        
             // lower HUD
             TextColor(MAGENTA);
             PrintString(lowermsg, BottomHUD.x, BottomHUD.y);
+            
+            // print mouse map coordinates
+            if (SDL_PointInRect(&mousept, &maprect))
+                sprintf(mouseinfo, "%s (%2d, %2d)", show_msg[showlayer], mousetile.x, mousetile.y);
+            else
+                sprintf(mouseinfo, "%s (--, --)", show_msg[showlayer]);
+            LOG(mouseinfo, BRIGHTWHITE);
         }
         
         // draw map cursor
         if (!grid.shown && SDL_PointInRect(&mousept, &maprect))
         {
             int sh;
-            char mouseinfo[100];
             
             // display a helpful box so we know we're editing the bg
             SDL_RenderSetViewport(renderer, &maprect);
@@ -327,10 +348,6 @@ void EditorLoop (void)
                           sh);
             }
             SDL_RenderSetViewport(renderer, NULL);
-            
-            // print mouse map coordinates
-            sprintf(mouseinfo, "%d, %d", mousetile.x, mousetile.y);
-            LOG(mouseinfo, BRIGHTWHITE);
         }
 
         if (grid.shown)

@@ -12,6 +12,7 @@
 
 #include "map.h"
 #include "video.h"
+#include "editor.h"
 
 #define MAP_NAME_FMT "maps/%d.map"
 
@@ -231,8 +232,18 @@ void DrawMap (map_t *map)
     int i;
     for (i=0 ; i<MAP_W*MAP_H ; i++)
     {
-        DrawObject(bkg++);
-        DrawObject(obj++);
+        if (state == GS_PLAY)
+        {
+            DrawObject(bkg++);
+            DrawObject(obj++);
+        }
+        else if (state == GS_EDITOR)
+        {
+            if (showlayer == LAYER_BG || showlayer == LAYER_BOTH)
+                DrawObject(bkg++);
+            if (showlayer == LAYER_FG || showlayer == LAYER_BOTH)
+                DrawObject(obj++);
+        }
     }
 //    for (tiley=0 ; tiley<MAP_H ; tiley++)
 //    {
