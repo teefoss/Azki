@@ -11,6 +11,8 @@
 #include "video.h"
 #include "player.h"
 
+#define MS_PER_FRAME 17
+
 int     state;
 map_t   currentmap;
 map_t * world;
@@ -25,6 +27,7 @@ void PlayLoop (void)
     SDL_Event event;
     int x, y;
     obj_t *obj;
+    int frame_start, frame_end, dt;
     
     // initialize object list
     obj = &currentmap.foreground[0][0];
@@ -47,6 +50,8 @@ void PlayLoop (void)
     tics = 0;
     do
     {
+        frame_start = SDL_GetTicks();
+        
         while (SDL_PollEvent(&event))
         {
             if (event.type == SDL_QUIT)
@@ -119,8 +124,14 @@ void PlayLoop (void)
         PrintMapName();
         Refresh();
         
-        SDL_Delay(10);
         tics++;
+        frame_end = SDL_GetTicks();
+        dt = frame_end - frame_start;
+        if (keys[SDL_SCANCODE_I])
+            printf("frame took %d ms, waiting %d ms...\n", dt, MS_PER_FRAME - dt);
+        if (dt < MS_PER_FRAME)
+            SDL_Delay(MS_PER_FRAME - dt);
+
     } while (state == GS_PLAY);
     
     List_RemoveAll();

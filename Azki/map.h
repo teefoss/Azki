@@ -20,14 +20,6 @@
 #define MAP_H           29
 #define MAP_NAME_LEN    MAP_W
 
-// direction
-typedef enum {
-    DIR_UP,
-    DIR_RIGHT,
-    DIR_DOWN,
-    DIR_LEFT
-} dir_t;
-
 typedef struct map_s
 {
     int num;

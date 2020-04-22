@@ -12,5 +12,6 @@
 #include "obj.h"
 
 void A_UpdateWater (obj_t *water);
+void A_UpdateSpider (obj_t *sp);
 
 #endif /* action_h */

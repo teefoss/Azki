@@ -9,7 +9,17 @@
 #ifndef obj_h
 #define obj_h
 
+#include <stdbool.h>
 #include "glyph.h"
+
+typedef enum
+{
+    DIR_EAST,
+    DIR_NORTH,
+    DIR_WEST,
+    DIR_SOUTH,
+    NUMDIRS
+} dir_t;
 
 typedef enum
 {
@@ -22,6 +32,7 @@ typedef enum
     TYPE_ROCK4,
     TYPE_WATER,
     TYPE_GRASS,
+    TYPE_SPIDER,
     NUMTYPES
 } objtype_t;
 
@@ -73,6 +84,8 @@ typedef struct objdef_s
 
 extern obj_t *objlist;
 extern objdef_t objdefs[];
+
+bool TryMove (obj_t *obj, int x, int y);
 
 obj_t   NewObject (objtype_t type, int x, int y);
 void DrawObject (obj_t *obj);

@@ -11,7 +11,7 @@
 #include "video.h"
 #include "action.h"
 
-// linked list of active (mobile) entities
+// singly linked list of active (mobile) entities
 obj_t *objlist;
 
 // { flags, maxhealth, update }
@@ -83,7 +83,35 @@ objdef_t objdefs[NUMTYPES] =
         .name = "Grass",
         .update = NULL
     },
+    
+    {   // TYPE_SPIDER
+        .glyph = { '*', GRAY, TRANSP },
+        .flags = OF_ENTITY,
+        .maxhealth = 20,
+        .name = "Spider",
+        .update = A_UpdateSpider
+    },
 };
+
+
+
+
+bool TryMove (obj_t *obj, int x, int y)
+{
+    // keep object within map
+    if ( x < 0 || x >= MAP_W || y < 0 || y >= MAP_H )
+        return false;
+
+    // move if dest is not solid
+    if ( !(currentmap.foreground[y][x].flags & OF_SOLID) )
+    {
+        obj->x = x;
+        obj->y = y;
+        return true;
+    }
+    
+    return false;
+}
 
 
 
@@ -93,19 +121,15 @@ List_AddObject (obj_t *add)
 {
     obj_t *new;
     
+    printf("adding object: %s\n", objdefs[add->type].name);
     new = malloc(sizeof(obj_t));
+    if (!new)
+        Error("List_AddObject: error, could not alloc mem");
     *new = *add;
     
-    if (objlist)
-    {
-        objlist = new;
-        new->next = NULL;
-    }
-    else
-    {
-        new->next = objlist;
-        objlist = new;
-    }
+    new->next = objlist;
+    objlist = new;
+        
     return new;
 }
 
@@ -114,6 +138,9 @@ void
 List_RemoveObject (obj_t *rem)
 {
     obj_t * prev;
+    
+    if (!rem)
+        Error("List_RemoveObject: error, tried to remove NULL object!");
     
     // the first and only
     if (rem == objlist && !rem->next)
@@ -148,17 +175,21 @@ List_RemoveAll (void)
 {
     obj_t * obj;
     obj_t * temp;
+    int i;
     
     if (!objlist)
         return;
     
+    i = 0;
     obj = objlist;
     while (obj) {
         temp = obj;
         obj = obj->next;
         free(temp);
+        i++;
     };
     objlist = NULL;
+    printf("List_RemoveAll: removed %i objects\n", i);
 }
 
 

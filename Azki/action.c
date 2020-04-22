@@ -27,3 +27,41 @@ void A_UpdateWater (obj_t *water)
         water->tics = 50; // length wave stays
     }
 }
+
+
+void A_UpdateSpider (obj_t *sp)
+{
+    int dir;
+    bool moved;
+    
+    if (sp->tics)
+    {
+        sp->tics--;
+        return;
+    }
+    
+    // move spider in a random direction
+    dir = random() % 4;
+    switch (dir)
+    {
+        case DIR_EAST:
+            moved = TryMove(sp, sp->x + 1, sp->y);
+            break;
+        case DIR_NORTH:
+            moved = TryMove(sp, sp->x, sp->y - 1);
+            break;
+        case DIR_WEST:
+            moved = TryMove(sp, sp->x - 1, sp->y);
+            break;
+        case DIR_SOUTH:
+            moved = TryMove(sp, sp->x, sp->y + 1);
+            break;
+            
+        default:
+            break;
+    }
+    
+    // reset timer if no collision
+    if (moved)
+        sp->tics = (random() % 30) + 30;
+}
