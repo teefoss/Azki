@@ -189,6 +189,11 @@ void EditorKeyDown (SDL_KeyCode key)
             layer ^= 1;
             break;
             
+        // switch to erase
+        case SDLK_x:
+            cursor = TYPE_NONE;
+            break;
+            
         // save map
         case SDLK_s:
             if (CTRL)
