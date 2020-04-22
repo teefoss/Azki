@@ -15,21 +15,19 @@ obj_t * player;
 
 void UpdatePlayer (obj_t * pl)
 {
+    static int movetics = 0;
+    
+    if (movetics)
+        movetics--;
+    
     // move player
-    if (pl->dx || pl->dy)
+    if ( (pl->dx || pl->dy) && !movetics )
     {
-        int newx, newy;
-        
-        newx = pl->x + pl->dx;
-        newy = pl->y + pl->dy;
-        if ( !(currentmap.foreground[newy][newx].flags & OF_SOLID) )
-        {
-            pl->x = newx;
-            pl->y = newy;
-        }
-        pl->dx = 0;
-        pl->dy = 0;
+        if ( TryMove(pl, pl->x + pl->dx, pl->y + pl->dy) )
+            movetics = 15;
     }
+    pl->dx = 0;
+    pl->dy = 0;
 }
 
 

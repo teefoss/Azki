@@ -84,25 +84,22 @@ void PlayLoop (void)
                         SetScale(windowed_scale + 1);
                         break;
                         
-                    case SDLK_UP:
-                        player->dy = -1;
-                        break;
-                    case SDLK_DOWN:
-                        player->dy = 1;
-                        break;
-                    case SDLK_LEFT:
-                        player->dx = -1;
-                        break;
-                    case SDLK_RIGHT:
-                        player->dx = 1;
-                        break;
-                        
                     default:
                         break;
                 }
             }
         }
-        
+
+        if (keys[SDL_SCANCODE_W])
+            player->dy = -1;
+        if (keys[SDL_SCANCODE_S])
+            player->dy = 1;
+        if (keys[SDL_SCANCODE_A])
+            player->dx = -1;
+        if (keys[SDL_SCANCODE_D])
+            player->dx = 1;
+
+            
         // UPDATE
         if (!objlist)
             Error("PlayLoop: objlist is empty!");
