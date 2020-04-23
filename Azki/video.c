@@ -24,6 +24,8 @@ int windowed_scale = 1;
 float fullscreen_scale = 1.0f;
 bool fullscreen = false;
 
+static bool video_started = false;
+
 static const SDL_Color colors[] =
 {
     {  28,  28,  30, 255 }, //  0 Black
@@ -172,14 +174,14 @@ void LOG (const char *message, int color)
 
 void ShutdownVideo (void)
 {
-    if (window)
-        SDL_DestroyWindow(window);
-    if (renderer)
-        SDL_DestroyRenderer(renderer);
-    if (font_table)
-        SDL_DestroyTexture(font_table);
-    if (shadow_table)
-        SDL_DestroyTexture(shadow_table);
+    if (!video_started)
+        return;
+    
+    SDL_DestroyWindow(window);
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyTexture(font_table);
+    SDL_DestroyTexture(shadow_table);
+    
     SDL_QuitSubSystem(SDL_INIT_VIDEO);    
 }
 
@@ -286,4 +288,5 @@ void StartVideo (void)
 #endif
 
     CreateFontTable();
+    video_started = true;
 }

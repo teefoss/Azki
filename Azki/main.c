@@ -7,7 +7,17 @@
 //
 
 /*
+ Influences:
+    Kye: environmental puzzles
+    Blockworld, Bryte: block pushing
+    Zelda, DOOM: Combat
+ 
+ IDEAS:
+    Water is death, unless pool floats
+ 
  TODO:
+    Handle player death - lives
+    collectible items
  
  BUGS:
  
@@ -17,7 +27,6 @@
 #include <stdlib.h>
 #include <time.h>
 #include <SDL2/SDL.h>
-
 #include <unistd.h>
 
 #include "azki.h"
@@ -31,6 +40,7 @@ const uint8_t * keys;
 
 void Error (const char * message)
 {
+    Quit();
     printf("%s (%s)\n", message, SDL_GetError());
     exit(1);
 }
@@ -78,8 +88,8 @@ int main(int argc, char ** argv)
     } else {
         state = GS_PLAY;
         if ( !LoadMap(1, &currentmap) ) {
-#ifdef DEVELOPMENT
-            NewMap(1, &currentmap);
+#ifdef DEBUG
+            NewMap(1, &currentmap); // in dev, create a new map if none found
             state = GS_EDITOR;
 #elif
             Error("Could not load starting map!");

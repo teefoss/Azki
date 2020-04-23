@@ -31,9 +31,13 @@ typedef enum
     TYPE_ROCK3,
     TYPE_ROCK4,
     TYPE_WATER,
-    TYPE_GRASS,
+    TYPE_GRASS1,
+    TYPE_GRASS2,
+    TYPE_GRASS3,
+    TYPE_GRASS4,
     TYPE_SPIDER,
     TYPE_BULLET,
+    TYPE_NESSIE,
     NUMTYPES
 } objtype_t;
 

@@ -70,19 +70,42 @@ objdef_t objdefs[NUMTYPES] =
 
     {   // TYPE_WATER
         .glyph = { CHAR_NUL, BRIGHTBLUE, BLUE },
-        .flags = OF_NOEDITOR,
+        .flags = 0,
         .maxhealth = 0,
         .name = "Water",
         .update = A_UpdateWater
     },
     
-    {   // TYPE_GRASS
+    {   // TYPE_GRASS1
         .glyph = { 176, GREEN, TRANSP },
         .flags = 0,
         .maxhealth = 0,
-        .name = "Grass",
+        .name = "Grass 1",
         .update = NULL
     },
+    {   // TYPE_GRASS2
+        .glyph = { 176, BRIGHTGREEN, TRANSP },
+        .flags = 0,
+        .maxhealth = 0,
+        .name = "Grass 2",
+        .update = NULL
+    },
+    {   // TYPE_GRASS3
+        .glyph = { 177, GREEN, TRANSP },
+        .flags = 0,
+        .maxhealth = 0,
+        .name = "Grass 3",
+        .update = NULL
+    },
+    {   // TYPE_GRASS4
+        .glyph = { 177, BRIGHTGREEN, TRANSP },
+        .flags = 0,
+        .maxhealth = 0,
+        .name = "Grass 4",
+        .update = NULL
+    },
+
+
     
     {   // TYPE_SPIDER
         .glyph = { '*', GRAY, TRANSP },
@@ -99,6 +122,15 @@ objdef_t objdefs[NUMTYPES] =
         .name = "Bullet",
         .update = A_UpdateBullet
     },
+    
+    {   // TYPE_NESSIE
+        .glyph = { 244, BRIGHTGREEN, BLUE },
+        .flags = OF_ENTITY,
+        .maxhealth = 40,
+        .name = "Nessie",
+        .update = NULL
+    },
+
 };
 
 

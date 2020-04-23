@@ -12,8 +12,6 @@
 #include "glyph.h"
 #include "map.h"
 
-#define DEVELOPMENT
-
 #define CTRL (keys[SDL_SCANCODE_LCTRL] || keys[SDL_SCANCODE_RCTRL])
 
 enum
