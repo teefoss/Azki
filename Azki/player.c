@@ -19,12 +19,21 @@ void UpdatePlayer (obj_t * pl)
     
     if (movetics)
         movetics--;
+    if (pl->cooldown)
+        pl->cooldown--;
     
     // move player
     if ( (pl->dx || pl->dy) && !movetics )
     {
         if ( TryMove(pl, pl->x + pl->dx, pl->y + pl->dy) )
-            movetics = 15;
+            movetics = 10;
+    }
+    if (!keys[SDL_SCANCODE_W] &&
+        !keys[SDL_SCANCODE_A] &&
+        !keys[SDL_SCANCODE_S] &&
+        !keys[SDL_SCANCODE_D])
+    {
+        movetics = 0;
     }
     pl->dx = 0;
     pl->dy = 0;

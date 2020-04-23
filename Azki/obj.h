@@ -33,15 +33,16 @@ typedef enum
     TYPE_WATER,
     TYPE_GRASS,
     TYPE_SPIDER,
+    TYPE_BULLET,
     NUMTYPES
 } objtype_t;
 
 typedef enum
 {
-    OF_SOLID    = 0x01,
-    OF_PUSHABLE = 0x02,
-    OF_EDITOR   = 0x04, // show glyph in editor only
-    OF_ENTITY   = 0x08, // add to object list
+    OF_SOLID        = 0x01,
+    OF_PUSHABLE     = 0x02,
+    OF_NOEDITOR     = 0x04, // don't show glyph in editor
+    OF_ENTITY       = 0x08, // add to object list
 } objflags_t;
 
 struct objdef_s;
@@ -50,6 +51,7 @@ typedef struct obj_s
 {
     objtype_t   type;
     glyph_t     glyph;
+    enum        { objst_remove, objst_active } state;
     
     // object's current location (map tile)
     int         x, y;
@@ -62,8 +64,9 @@ typedef struct obj_s
     int         health;
     int         armor;
     
-    // animation
+    // animation and timers
     int         tics;
+    int         cooldown;
     
     void (* update)(struct obj_s *obj);
     void (* contact)(struct obj_s *obj1, struct obj_s *obj2);
@@ -85,12 +88,14 @@ typedef struct objdef_s
 extern obj_t *objlist;
 extern objdef_t objdefs[];
 
+int RunTimer (obj_t *obj);
 bool TryMove (obj_t *obj, int x, int y);
 
 obj_t   NewObject (objtype_t type, int x, int y);
 void DrawObject (obj_t *obj);
 
 obj_t * List_AddObject (obj_t *add);
+obj_t * List_RemoveObject (obj_t *rem);
 void    List_RemoveAll (void);
 void    List_DrawObjects (void);
 

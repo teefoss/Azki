@@ -12,6 +12,7 @@
 #include "editor.h"
 #include "azki.h"
 #include "video.h"
+#include "obj.h"
 
 // object selection grid
 typedef struct
@@ -26,6 +27,9 @@ static grid_t grid;
 static objtype_t cursor = TYPE_PLAYER;
 static char lowermsg[100];
 static layer_t layer;
+
+static int EDITOR_NUMTYPES;
+static objtype_t *objtypes;
 
 layer_t showlayer;
 
@@ -42,13 +46,42 @@ static char *show_msg[] = {
 
 
 //
+// InitEditorObjects
+// Create an array of objtype_t that only includes those
+// with flag OT_NOEDITOR
+//
+void InitEditorObjects ()
+{
+    int         i;
+    objtype_t   *ot;
+
+    EDITOR_NUMTYPES = NUMTYPES;
+
+    for ( i=0 ; i<NUMTYPES ; i++ )
+    {
+        if ( objdefs[i].flags & OF_NOEDITOR )
+            EDITOR_NUMTYPES--;
+    }
+    
+    objtypes = calloc(EDITOR_NUMTYPES, sizeof(*objtypes));
+    
+    ot = objtypes;
+    for ( i=0 ; i<NUMTYPES ; i++ )
+    {
+        if ( !(objdefs[i].flags & OF_NOEDITOR) )
+            *ot++ = i;
+    }
+}
+
+
+//
 //  MakeSelectionGrid
 //  Initialize the selection grid
 //
 void MakeSelectionGrid ()
 {
     grid.cols = game_res.w / TILE_SIZE;
-    grid.rows = NUMTYPES / grid.cols + 1;
+    grid.rows = EDITOR_NUMTYPES / grid.cols + 1;
     grid.rect.x = 0;
     grid.rect.y = game_res.h - grid.rows * TILE_SIZE;
     grid.rect.w = game_res.w;
@@ -59,30 +92,42 @@ void MakeSelectionGrid ()
 
 objtype_t TypeAtGridTile (SDL_Point * mousept)
 {
-    objtype_t type;
+    int i; // index in objtypes[]
     int x, y;
     
     x = mousept->x / TILE_SIZE;
     y = (mousept->y / TILE_SIZE) - (game_res.h / TILE_SIZE - grid.rows);
 
-    type = x + y * grid.cols;
-    if (type >= NUMTYPES)   // if clicked on an empty tile,
-        type = cursor;      // don't change the current selection
-    return type;
+    i = x + y * grid.cols;
+    
+    if (i >= EDITOR_NUMTYPES)   // if clicked on an empty tile,
+        return cursor;      // don't change the current selection
+    return objtypes[i];
 }
 
 
 SDL_Point GridTileForType (objtype_t type)
 {
-    SDL_Point tile = { type % grid.cols, type / grid.cols};
+    int i = 0;
+
+    while ( objtypes[i] != type)
+        i++;
+    
+    SDL_Point tile = { i % grid.cols, i / grid.cols};
     return tile;
 }
 
 
 
+
+//
+//  DrawSelectionGrid
+//  The grid is shown, draw it and the HUD info.
+//
 void DrawSelectionGrid (SDL_Point * mousept)
 {
     int type;
+    int i;
     int x, y;
     SDL_Point mousetile;
     SDL_Rect selbox;
@@ -92,18 +137,20 @@ void DrawSelectionGrid (SDL_Point * mousept)
     SDL_SetRenderDrawColor(renderer, 14, 14, 14, 255);
     SDL_RenderFillRect(renderer, &grid.rect);
     
-    // draw all object types in the selection grid
+    // draw all editor object types in the selection grid
     type = 0;
     x = 0;
     y = grid.rect.y;
-    for ( ; type<NUMTYPES ; type++, x+=TILE_SIZE )
+    for (i=0 ; type<EDITOR_NUMTYPES ; i++, x+=TILE_SIZE )
     {
-        if (x >= game_res.w)
+        type = objtypes[i];
+        
+        if ( x >= game_res.w )
         {
             x = 0;
             y += TILE_SIZE;
         }
-        if (type == TYPE_NONE)
+        if ( type == TYPE_NONE )
             DrawGlyph(&(glyph_t){'E',RED,TRANSP}, x, y, TRANSP);
         else
             DrawGlyph(&objdefs[type].glyph, x, y, TRANSP);
@@ -126,8 +173,17 @@ void DrawSelectionGrid (SDL_Point * mousept)
         objtype_t hover = TypeAtGridTile(mousept);
         TextColor(BRIGHTGREEN);
         PrintString(objdefs[hover].name, TopHUD.x, TopHUD.y);
-    } else {
-        SDL_Point selected_tile = GridTileForType(cursor);
+    }
+    else // show current selection
+    {
+        objtype_t *ot;
+     
+        // can't use cursor type - look it up:
+        ot = objtypes;
+        while ( *ot != cursor)
+            ot++;
+        
+        SDL_Point selected_tile = GridTileForType(*ot);
         selbox = (SDL_Rect){
             selected_tile.x * TILE_SIZE,
             (selected_tile.y * TILE_SIZE) + grid.rect.y,
@@ -251,9 +307,9 @@ void EditorLoop (void)
     uint32_t    mousestate;
     SDL_Point   mousept;
     SDL_Point   mousetile;
-    extern objdef_t objdefs[];
     
     memset(lowermsg, 0, sizeof(lowermsg));
+    InitEditorObjects();
     MakeSelectionGrid();
     layer = LAYER_FG;
         

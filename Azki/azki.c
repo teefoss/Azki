@@ -10,6 +10,7 @@
 #include "azki.h"
 #include "video.h"
 #include "player.h"
+#include "action.h"
 
 #define MS_PER_FRAME 17
 
@@ -98,6 +99,15 @@ void PlayLoop (void)
             player->dx = -1;
         if (keys[SDL_SCANCODE_D])
             player->dx = 1;
+        
+        if (keys[SDL_SCANCODE_UP] && !player->cooldown)
+            A_SpawnBullet(player, DIR_NORTH, 20);
+        if (keys[SDL_SCANCODE_DOWN] && !player->cooldown)
+            A_SpawnBullet(player, DIR_SOUTH, 20);
+        if (keys[SDL_SCANCODE_LEFT] && !player->cooldown)
+            A_SpawnBullet(player, DIR_WEST, 20);
+        if (keys[SDL_SCANCODE_RIGHT] && !player->cooldown)
+            A_SpawnBullet(player, DIR_EAST, 20);
 
             
         // UPDATE
@@ -110,7 +120,16 @@ void PlayLoop (void)
                 obj->update(obj);
             obj = obj->next;
         } while (obj);
-        
+
+        // remove removables
+        obj = objlist;
+        do {
+            if ( obj->state == objst_remove )
+                obj = List_RemoveObject(obj);
+            else
+                obj = obj->next;
+        } while (obj);
+
         
         Clear(0, 0, 0);
         TextColor(RED);

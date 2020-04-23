@@ -8,8 +8,6 @@
 
 /*
  TODO:
- Player movement via keys[] input w/ delay
- Limit framerate
  
  BUGS:
  
@@ -20,7 +18,6 @@
 #include <time.h>
 #include <SDL2/SDL.h>
 
-//#include <fcntl.h>
 #include <unistd.h>
 
 #include "azki.h"

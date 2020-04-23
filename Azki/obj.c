@@ -70,7 +70,7 @@ objdef_t objdefs[NUMTYPES] =
 
     {   // TYPE_WATER
         .glyph = { CHAR_NUL, BRIGHTBLUE, BLUE },
-        .flags = 0,
+        .flags = OF_NOEDITOR,
         .maxhealth = 0,
         .name = "Water",
         .update = A_UpdateWater
@@ -91,8 +91,24 @@ objdef_t objdefs[NUMTYPES] =
         .name = "Spider",
         .update = A_UpdateSpider
     },
+    
+    {   // TYPE_BULLET
+        .glyph = { CHAR_DOT1, BRIGHTWHITE, TRANSP },
+        .flags = OF_ENTITY|OF_NOEDITOR,
+        .maxhealth = 0,
+        .name = "Bullet",
+        .update = A_UpdateBullet
+    },
 };
 
+
+
+int RunTimer (obj_t *obj)
+{
+    if (obj->tics)
+        obj->tics--;
+    return obj->tics;
+}
 
 
 
@@ -127,6 +143,7 @@ List_AddObject (obj_t *add)
         Error("List_AddObject: error, could not alloc mem");
     *new = *add;
     
+    new->state = objst_active;
     new->next = objlist;
     objlist = new;
         
@@ -134,21 +151,32 @@ List_AddObject (obj_t *add)
 }
 
 
-void
+//
+// List_RemoveObject
+// Remove object and return the next object in the list
+//
+obj_t *
 List_RemoveObject (obj_t *rem)
 {
     obj_t * prev;
+    obj_t * ret;
     
     if (!rem)
         Error("List_RemoveObject: error, tried to remove NULL object!");
     
     // the first and only
     if (rem == objlist && !rem->next)
+    {
         objlist = NULL;
+        ret = NULL;
+    }
     
     // the first of multiple
     else if (rem == objlist && rem->next)
+    {
         objlist = rem->next;
+        ret = rem->next;
+    }
 
     // it's somewhere down the list
     else
@@ -160,12 +188,19 @@ List_RemoveObject (obj_t *rem)
 
         // at the end
         if (!rem->next)
+        {
             prev->next = NULL;
+            ret = NULL;
+        }
         else // somewhere in the middle
+        {
             prev->next = rem->next;
+            ret = rem->next;
+        }
     }
     free(rem);
     rem = NULL;
+    return ret;
 }
 
 

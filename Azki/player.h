@@ -13,7 +13,6 @@
 
 extern obj_t *player;
 
-void DrawPlayer (void);
 void UpdatePlayer (obj_t * pl);
 
 #endif /* player_h */
