@@ -22,21 +22,24 @@ objdef_t objdefs[NUMTYPES] =
         .flags = 0,
         .maxhealth = 0,
         .name = "None",
-        .update = NULL
+        .update = NULL,
+        .contact = NULL,
     },
     {   // TYPE_PLAYER,
         .glyph = { CHAR_FACE_SOLID, BRIGHTBLUE, TRANSP },
         .flags = OF_ENTITY,
         .maxhealth = 100,
         .name = "Player",
-        .update = UpdatePlayer
+        .update = P_UpdatePlayer,
+        .contact = NULL
     },
     {   // TYPE_TREE
         .glyph = { CHAR_CLUB, GREEN, TRANSP },
         .flags = OF_SOLID,
         .maxhealth = 0,
         .name = "Tree",
-        .update = NULL
+        .update = NULL,
+        .contact = NULL,
     },
     
     {   // TYPE_ROCK1,
@@ -44,28 +47,32 @@ objdef_t objdefs[NUMTYPES] =
         .flags = OF_SOLID,
         .maxhealth = 0,
         .name = "Rock 1",
-        .update = NULL
+        .update = NULL,
+        .contact = NULL,
     },
     {   // TYPE_ROCK2,
         .glyph = { 177, WHITE, BLACK },
         .flags = OF_SOLID,
         .maxhealth = 0,
         .name = "Rock 2",
-        .update = NULL
+        .update = NULL,
+        .contact = NULL,
     },
     {   // TYPE_ROCK3,
         .glyph = { 178, GRAY, BLACK },
         .flags = OF_SOLID,
         .maxhealth = 0,
         .name = "Rock 3",
-        .update = NULL
+        .update = NULL,
+        .contact = NULL,
     },
     {   // TYPE_ROCK4,
         .glyph = { 178, WHITE, BLACK },
         .flags = OF_SOLID,
         .maxhealth = 0,
         .name = "Rock 4",
-        .update = NULL
+        .update = NULL,
+        .contact = NULL,
     },
 
     {   // TYPE_WATER
@@ -73,7 +80,8 @@ objdef_t objdefs[NUMTYPES] =
         .flags = 0,
         .maxhealth = 0,
         .name = "Water",
-        .update = A_UpdateWater
+        .update = A_UpdateWater,
+        .contact = NULL
     },
     
     {   // TYPE_GRASS1
@@ -81,28 +89,32 @@ objdef_t objdefs[NUMTYPES] =
         .flags = 0,
         .maxhealth = 0,
         .name = "Grass 1",
-        .update = NULL
+        .update = NULL,
+        .contact = NULL
     },
     {   // TYPE_GRASS2
         .glyph = { 176, BRIGHTGREEN, TRANSP },
         .flags = 0,
         .maxhealth = 0,
         .name = "Grass 2",
-        .update = NULL
+        .update = NULL,
+        .contact = NULL
     },
     {   // TYPE_GRASS3
         .glyph = { 177, GREEN, TRANSP },
         .flags = 0,
         .maxhealth = 0,
         .name = "Grass 3",
-        .update = NULL
+        .update = NULL,
+        .contact = NULL
     },
     {   // TYPE_GRASS4
         .glyph = { 177, BRIGHTGREEN, TRANSP },
         .flags = 0,
         .maxhealth = 0,
         .name = "Grass 4",
-        .update = NULL
+        .update = NULL,
+        .contact = NULL
     },
 
 
@@ -112,23 +124,17 @@ objdef_t objdefs[NUMTYPES] =
         .flags = OF_ENTITY,
         .maxhealth = 20,
         .name = "Spider",
-        .update = A_UpdateSpider
+        .update = A_UpdateSpider,
+        .contact = NULL
     },
-    
-    {   // TYPE_BULLET
-        .glyph = { CHAR_DOT1, BRIGHTWHITE, TRANSP },
-        .flags = OF_ENTITY|OF_NOEDITOR,
-        .maxhealth = 0,
-        .name = "Bullet",
-        .update = A_UpdateBullet
-    },
-    
+        
     {   // TYPE_NESSIE
-        .glyph = { 244, BRIGHTGREEN, BLUE },
+        .glyph = { 244, BRIGHTGREEN, TRANSP },
         .flags = OF_ENTITY,
         .maxhealth = 40,
         .name = "Nessie",
-        .update = NULL
+        .update = A_NessieUpdate,
+        .contact = NULL
     },
 
 };
@@ -169,7 +175,7 @@ List_AddObject (obj_t *add)
 {
     obj_t *new;
     
-    printf("adding object: %s\n", objdefs[add->type].name);
+    printf("adding object: %d\n", add->type);
     new = malloc(sizeof(obj_t));
     if (!new)
         Error("List_AddObject: error, could not alloc mem");
@@ -307,7 +313,7 @@ void DrawObject (obj_t *obj)
 //  NewObject
 //  Initialize a new object from its objdef_t at (x, y)
 //
-obj_t NewObject (objtype_t type, int x, int y)
+obj_t NewObjectFromDef (objtype_t type, int x, int y)
 {
     obj_t new;
     
@@ -322,7 +328,7 @@ obj_t NewObject (objtype_t type, int x, int y)
     new.health = objdefs[type].maxhealth;
     new.flags = objdefs[type].flags;
     new.update = objdefs[type].update;
-    new.contact = NULL; // TODO: add contact functions
+    new.contact = objdefs[type].contact;
     
     return new;
 }

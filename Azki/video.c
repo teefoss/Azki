@@ -48,6 +48,30 @@ static const SDL_Color colors[] =
     { 255,   0, 255, 255 }  // 17 Transparent
 };
 
+
+static int frame_start;
+static int frame_end;
+static int dt;
+
+void StartFrame (void)
+{
+    frame_start = SDL_GetTicks();
+}
+
+int LimitFrameRate (int fps)
+{
+    int ms_per_frame;
+    
+    ms_per_frame = roundf( 1000.0f / (float)fps );
+    frame_end = SDL_GetTicks();
+    
+    dt = frame_end - frame_start;
+    if (dt < ms_per_frame)
+        SDL_Delay(ms_per_frame - dt);
+    
+    return dt;
+}
+
 void TextColor (int c)
 {
     fgcolor = c;

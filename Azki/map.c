@@ -27,6 +27,7 @@ char *mapnames[] =
     " ",
     "Forest Edge",
     "The Dark Forest",
+    "Test Map",
 };
 
 
@@ -106,8 +107,8 @@ bool LoadMap (int mapnum, map_t * map)
     {
         for (x=0 ; x<MAP_W ; x++)
         {
-            map->background[y][x] = NewObject(mapdata.background[y][x], x, y);
-            map->foreground[y][x] = NewObject(mapdata.foreground[y][x], x, y);
+            map->background[y][x] = NewObjectFromDef(mapdata.background[y][x], x, y);
+            map->foreground[y][x] = NewObjectFromDef(mapdata.foreground[y][x], x, y);
         }
     }
     
@@ -188,8 +189,8 @@ bool NewMap (int num, map_t * map)
     {
         for (x=0 ; x<MAP_W ; x++)
         {
-            map->foreground[y][x] = NewObject(TYPE_NONE, x, y);
-            map->background[y][x] = NewObject(TYPE_NONE, x, y);
+            map->foreground[y][x] = NewObjectFromDef(TYPE_NONE, x, y);
+            map->background[y][x] = NewObjectFromDef(TYPE_NONE, x, y);
             mapdata.foreground[y][x] = TYPE_NONE;
             mapdata.background[y][x] = TYPE_NONE;
         }

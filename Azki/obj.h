@@ -36,9 +36,11 @@ typedef enum
     TYPE_GRASS3,
     TYPE_GRASS4,
     TYPE_SPIDER,
-    TYPE_BULLET,
     TYPE_NESSIE,
-    NUMTYPES
+    NUMTYPES,
+    
+    // objects with no objdef_t get A_Spawn'd
+    TYPE_BULLET,
 } objtype_t;
 
 typedef enum
@@ -55,13 +57,13 @@ typedef struct obj_s
 {
     objtype_t   type;
     glyph_t     glyph;
-    enum        { objst_remove, objst_active } state;
+    enum        { objst_remove, objst_active, objst_inactive } state;
     
     // object's current location (map tile)
     int         x, y;
     
     // object's speed
-    int         dx, dy;
+    int       dx, dy;
     
     // object's properties and stats
     int         flags;
@@ -95,7 +97,7 @@ extern objdef_t objdefs[];
 int RunTimer (obj_t *obj);
 bool TryMove (obj_t *obj, int x, int y);
 
-obj_t   NewObject (objtype_t type, int x, int y);
+obj_t   NewObjectFromDef (objtype_t type, int x, int y);
 void DrawObject (obj_t *obj);
 
 obj_t * List_AddObject (obj_t *add);

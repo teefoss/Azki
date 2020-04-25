@@ -10,10 +10,20 @@
 #include "azki.h"
 #include "video.h"
 #include "glyph.h"
+#include "action.h"
 
 obj_t * player;
 
-void UpdatePlayer (obj_t * pl)
+void P_FireBullet (dir_t dir)
+{
+    int damage;
+        
+    damage = rand() % 3 + 5;
+    A_FireBulletDir(player, dir, damage);
+    player->cooldown = 20;
+}
+
+void P_UpdatePlayer (obj_t * pl)
 {
     static int movetics = 0;
     

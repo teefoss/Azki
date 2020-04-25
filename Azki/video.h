@@ -45,6 +45,9 @@ extern SDL_Texture * shadow_table;
 extern int windowed_scale;
 extern SDL_Rect game_res;
 
+void StartFrame (void);
+int  LimitFrameRate (int fps);
+
 void StartVideo (void);
 void ShutdownVideo (void);
 void ToggleFullscreen (void);

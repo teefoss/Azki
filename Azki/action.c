@@ -10,6 +10,7 @@
 #include "action.h"
 #include "azki.h"
 #include "video.h"
+#include "player.h"
 
 void A_UpdateWater (obj_t *water)
 {
@@ -58,47 +59,132 @@ void A_UpdateSpider (obj_t *sp)
 
 
 
+#pragma mark - TYPE_BULLET
+
+void A_BulletSpawn (int x, int y, int dx, int dy, int damage)
+{
+    obj_t bl;
+    
+    memset(&bl, 0, sizeof(bl));
+    bl.type = TYPE_BULLET;
+    bl.glyph = (glyph_t){ CHAR_DOT1, YELLOW, TRANSP };
+    bl.x = x;
+    bl.y = y;
+    bl.dx = dx;
+    bl.dy = dy;
+    bl.health = damage;
+    bl.update = A_UpdateBullet;
+    bl.contact = A_BulletContact;
+        
+    List_AddObject(&bl);
+}
+
+void A_FireBulletDir (obj_t *src, dir_t dir, int damage)
+{
+    switch (dir) {
+        case DIR_EAST:
+            A_BulletSpawn(src->x + 1, src->y, 1, 0, damage);
+            break;
+        case DIR_NORTH:
+            A_BulletSpawn(src->x, src->y - 1, 0, -1, damage);
+            break;
+        case DIR_WEST:
+            A_BulletSpawn(src->x - 1, src->y, -1, 0, damage);
+            break;
+        case DIR_SOUTH:
+            A_BulletSpawn(src->x, src->y + 1, 0, 1, damage);
+            break;
+            
+        default:
+            break;
+    }
+}
+
+
+void A_FireBulletTarget (obj_t *from, obj_t *to, int damage)
+{
+    float dist;
+    float dx, dy;
+    float xstep, ystep;
+    
+    dx = to->x - from->x;
+    dy = to->y - from->y;
+    dist = sqrt(dx*dx + dy*dy);
+    xstep = dx / dist;
+    ystep = dy / dist;
+    
+    A_BulletSpawn(from->x, from->y, xstep, ystep, damage);
+}
+
 void A_UpdateBullet (obj_t *b)
 {
+    obj_t * hit;
+    
     if (RunTimer(b)) return;
     
     if ( TryMove(b, b->x + b->dx, b->y + b->dy) )
     {
         b->tics = 5;
     }
-    else
+    else // handle foreground collision
     {
+        hit = &currentmap.foreground[b->y + b->dy][b->x + b->dx];
+        switch (hit->type) {
+            case TYPE_TREE:
+                hit->glyph.fg_color = BROWN;
+                break;
+            default:
+                break;
+        }
         b->state = objst_remove;
     }
 }
 
-
-void A_SpawnBullet (obj_t *src, dir_t dir, int cooldown)
+void A_BulletContact (obj_t *b, obj_t *hit)
 {
-    obj_t bl;
-    
-    switch (dir)
-    {
-        case DIR_EAST:
-            bl = NewObject(TYPE_BULLET, src->x + 1, src->y);
-            bl.dx = 1;
+    switch (hit->type) {
+        case TYPE_SPIDER:
+            hit->health -= b->health ;
             break;
-        case DIR_NORTH:
-            bl = NewObject(TYPE_BULLET, src->x, src->y - 1);
-            bl.dy = -1;
-            break;
-        case DIR_WEST:
-            bl = NewObject(TYPE_BULLET, src->x - 1, src->y);
-            bl.dx = -1;
-            break;
-        case DIR_SOUTH:
-            bl = NewObject(TYPE_BULLET, src->x, src->y + 1);
-            bl.dy = 1;
-            break;
+            
         default:
             break;
     }
+    b->state = objst_remove;
+}
+
+
+void A_NessieUpdate (obj_t *n)
+{
+    const int len_above = 120;
+
+    if (n->tics)
+        n->tics--;
+
+    // timer has run down, flip state
+    if (n->tics == 0)
+    {
+        if (n->state == objst_active)
+        {
+            n->state = objst_inactive;
+            n->tics = random() % 90 + 240;
+        }
+        else if (n->state == objst_inactive)
+        {
+            n->state = objst_active;
+            n->tics = len_above;
+        }
+    }
     
-    List_AddObject(&bl);
-    src->cooldown = cooldown;
+    // update based on state
+    if (n->state == objst_active)
+    {
+        n->glyph.character = objdefs[n->type].glyph.character;
+        if (n->tics == len_above / 2)
+            A_FireBulletTarget(n, player, 5);
+    }
+    else if (n->state == objst_inactive)
+    {
+        n->glyph.character = CHAR_NUL;
+    }
 }

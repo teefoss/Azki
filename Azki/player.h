@@ -13,6 +13,7 @@
 
 extern obj_t *player;
 
-void UpdatePlayer (obj_t * pl);
+void P_FireBullet (dir_t dir);
+void P_UpdatePlayer (obj_t * pl);
 
 #endif /* player_h */

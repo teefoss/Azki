@@ -22,104 +22,147 @@ obj_t   objects;
 int tics;
 
 
-
-void PlayLoop (void)
+//
+// InitializeObjectList
+// Look through FG and BG layer for entities
+// and create objlist
+//
+void InitializeObjectList (void)
 {
-    SDL_Event event;
-    int x, y;
     obj_t *obj;
-    int frame_start, frame_end, dt;
+    int i;
     
-    // initialize object list
     obj = &currentmap.foreground[0][0];
-    for (y=0 ; y<MAP_H ; y++)
+    for (i=0 ; i<MAP_W*MAP_H ; i++, obj++)
     {
-        for (x=0 ; x<MAP_W ; x++)
+        if (obj->flags & OF_ENTITY)
         {
-            if (obj->flags & OF_ENTITY)
-            {
-                if (obj->type == TYPE_PLAYER)
-                    player = List_AddObject(obj);
-                else
-                    List_AddObject(obj);
-            }
-            obj++;
+            if (obj->type == TYPE_PLAYER)
+                player = List_AddObject(obj);
+            else
+                List_AddObject(obj);
         }
     }
     
+    if (player == NULL)
+        Error("PlayLoop: oops! no player start?");
+}
+
+
+void DoGameInput (void)
+{
+    SDL_Event event;
+    
+    while (SDL_PollEvent(&event))
+    {
+        if (event.type == SDL_QUIT)
+            Quit();
+        
+        else if (event.type == SDL_KEYDOWN)
+        {
+            switch (event.key.keysym.sym)
+            {
+                case SDLK_ESCAPE:
+                    Quit();
+                    break;
+                    
+                case SDLK_f:
+                    if (CTRL)
+                        ToggleFullscreen();
+                    break;
+                case SDLK_BACKSLASH:
+                    ToggleFullscreen();
+                    break;
+                    
+                case SDLK_BACKQUOTE:
+                    state = GS_EDITOR;
+                    break;
+                    
+                case SDLK_MINUS:
+                    SetScale(windowed_scale - 1);
+                    break;
+                case SDLK_EQUALS:
+                    SetScale(windowed_scale + 1);
+                    break;
+                    
+                default:
+                    break;
+            }
+        }
+    }
+
+    // player movement
+    if (keys[SDL_SCANCODE_W])
+        player->dy = -1;
+    if (keys[SDL_SCANCODE_S])
+        player->dy = 1;
+    if (keys[SDL_SCANCODE_A])
+        player->dx = -1;
+    if (keys[SDL_SCANCODE_D])
+        player->dx = 1;
+    
+    // player shoot
+    if (keys[SDL_SCANCODE_UP] && !player->cooldown)
+        P_FireBullet(DIR_NORTH);
+    if (keys[SDL_SCANCODE_DOWN] && !player->cooldown)
+        P_FireBullet(DIR_SOUTH);
+    if (keys[SDL_SCANCODE_LEFT] && !player->cooldown)
+        P_FireBullet(DIR_WEST);
+    if (keys[SDL_SCANCODE_RIGHT] && !player->cooldown)
+        P_FireBullet(DIR_EAST);
+}
+
+
+
+void PlayLoop (void)
+{
+    obj_t *obj, *check;
+    
+    InitializeObjectList();
     
     tics = 0;
     do
     {
-        frame_start = SDL_GetTicks();
-        
-        while (SDL_PollEvent(&event))
-        {
-            if (event.type == SDL_QUIT)
-                Quit();
-            
-            else if (event.type == SDL_KEYDOWN)
-            {
-                switch (event.key.keysym.sym)
-                {
-                    case SDLK_ESCAPE:
-                        Quit();
-                        break;
-                        
-                    case SDLK_f:
-                        if (CTRL)
-                            ToggleFullscreen();
-                        break;
-                    case SDLK_BACKSLASH:
-                        ToggleFullscreen();
-                        break;
-                        
-                    case SDLK_BACKQUOTE:
-                        state = GS_EDITOR;
-                        break;
-                        
-                    case SDLK_MINUS:
-                        SetScale(windowed_scale - 1);
-                        break;
-                    case SDLK_EQUALS:
-                        SetScale(windowed_scale + 1);
-                        break;
-                        
-                    default:
-                        break;
-                }
-            }
-        }
-
-        if (keys[SDL_SCANCODE_W])
-            player->dy = -1;
-        if (keys[SDL_SCANCODE_S])
-            player->dy = 1;
-        if (keys[SDL_SCANCODE_A])
-            player->dx = -1;
-        if (keys[SDL_SCANCODE_D])
-            player->dx = 1;
-        
-        if (keys[SDL_SCANCODE_UP] && !player->cooldown)
-            A_SpawnBullet(player, DIR_NORTH, 20);
-        if (keys[SDL_SCANCODE_DOWN] && !player->cooldown)
-            A_SpawnBullet(player, DIR_SOUTH, 20);
-        if (keys[SDL_SCANCODE_LEFT] && !player->cooldown)
-            A_SpawnBullet(player, DIR_WEST, 20);
-        if (keys[SDL_SCANCODE_RIGHT] && !player->cooldown)
-            A_SpawnBullet(player, DIR_EAST, 20);
-
+        StartFrame();
+        DoGameInput();
             
         // UPDATE
-        if (!objlist)
-            Error("PlayLoop: objlist is empty!");
-        
+                
+        // update positions
         obj = objlist;
         do {
             if (obj->update)
                 obj->update(obj);
             obj = obj->next;
         } while (obj);
+        
+#if 1
+        // handle any collisions
+        obj = objlist;
+        do {
+            if (obj->state)
+            {
+                check = obj->next;
+                while (check)
+                {
+                    if (check->state &&
+                        check->x == obj->x &&
+                        check->y == obj->y)
+                    {
+                        if (obj->contact)
+                            obj->contact(obj, check);
+                        if (check->contact)
+                            check->contact(check, obj);
+                        
+                        if (!obj->state) // check removed obj
+                            break;
+                    }
+                    check = check->next;
+                }
+            }
+            obj = obj->next;
+        } while (obj);
+#endif
 
         // remove removables
         obj = objlist;
@@ -141,12 +184,7 @@ void PlayLoop (void)
         Refresh();
         
         tics++;
-        frame_end = SDL_GetTicks();
-        dt = frame_end - frame_start;
-        if (keys[SDL_SCANCODE_I])
-            printf("frame took %d ms, waiting %d ms...\n", dt, MS_PER_FRAME - dt);
-        if (dt < MS_PER_FRAME)
-            SDL_Delay(MS_PER_FRAME - dt);
+        LimitFrameRate(60);
 
     } while (state == GS_PLAY);
     

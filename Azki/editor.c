@@ -28,9 +28,6 @@ static objtype_t cursor = TYPE_PLAYER;
 static char lowermsg[100];
 static layer_t layer;
 
-static int EDITOR_NUMTYPES;
-static objtype_t *objtypes;
-
 layer_t showlayer;
 
 static char *layer_msg[] = {
@@ -45,34 +42,6 @@ static char *show_msg[] = {
 
 
 
-//
-// InitEditorObjects
-// Create an array of objtype_t that only includes those
-// with flag OT_NOEDITOR
-//
-void InitEditorObjects ()
-{
-    int         i;
-    objtype_t   *ot;
-
-    EDITOR_NUMTYPES = NUMTYPES;
-
-    for ( i=0 ; i<NUMTYPES ; i++ )
-    {
-        if ( objdefs[i].flags & OF_NOEDITOR )
-            EDITOR_NUMTYPES--;
-    }
-    
-    objtypes = calloc(EDITOR_NUMTYPES, sizeof(*objtypes));
-    
-    ot = objtypes;
-    for ( i=0 ; i<NUMTYPES ; i++ )
-    {
-        if ( !(objdefs[i].flags & OF_NOEDITOR) )
-            *ot++ = i;
-    }
-}
-
 
 //
 //  MakeSelectionGrid
@@ -81,7 +50,7 @@ void InitEditorObjects ()
 void MakeSelectionGrid ()
 {
     grid.cols = game_res.w / TILE_SIZE;
-    grid.rows = EDITOR_NUMTYPES / grid.cols + 1;
+    grid.rows = NUMTYPES / grid.cols + 1;
     grid.rect.x = 0;
     grid.rect.y = game_res.h - grid.rows * TILE_SIZE;
     grid.rect.w = game_res.w;
@@ -92,28 +61,23 @@ void MakeSelectionGrid ()
 
 objtype_t TypeAtGridTile (SDL_Point * mousept)
 {
-    int i; // index in objtypes[]
+    int type;
     int x, y;
     
     x = mousept->x / TILE_SIZE;
     y = (mousept->y / TILE_SIZE) - (game_res.h / TILE_SIZE - grid.rows);
 
-    i = x + y * grid.cols;
+    type = x + y * grid.cols;
     
-    if (i >= EDITOR_NUMTYPES)   // if clicked on an empty tile,
+    if (type >= NUMTYPES)   // if clicked on an empty tile,
         return cursor;      // don't change the current selection
-    return objtypes[i];
+    return type;
 }
 
 
 SDL_Point GridTileForType (objtype_t type)
 {
-    int i = 0;
-
-    while ( objtypes[i] != type)
-        i++;
-    
-    SDL_Point tile = { i % grid.cols, i / grid.cols};
+    SDL_Point tile = { type % grid.cols, type / grid.cols};
     return tile;
 }
 
@@ -127,7 +91,6 @@ SDL_Point GridTileForType (objtype_t type)
 void DrawSelectionGrid (SDL_Point * mousept)
 {
     int type;
-    int i;
     int x, y;
     SDL_Point mousetile;
     SDL_Rect selbox;
@@ -141,9 +104,9 @@ void DrawSelectionGrid (SDL_Point * mousept)
     type = 0;
     x = 0;
     y = grid.rect.y;
-    for (i=0 ; type<EDITOR_NUMTYPES ; i++, x+=TILE_SIZE )
+    for (type=0 ; type<NUMTYPES ; type++, x+=TILE_SIZE )
     {
-        type = objtypes[i];
+        //type = objtypes[i];
         
         if ( x >= game_res.w )
         {
@@ -176,14 +139,16 @@ void DrawSelectionGrid (SDL_Point * mousept)
     }
     else // show current selection
     {
+#if 0
         objtype_t *ot;
      
         // can't use cursor type - look it up:
         ot = objtypes;
         while ( *ot != cursor)
             ot++;
+#endif
         
-        SDL_Point selected_tile = GridTileForType(*ot);
+        SDL_Point selected_tile = GridTileForType(cursor);
         selbox = (SDL_Rect){
             selected_tile.x * TILE_SIZE,
             (selected_tile.y * TILE_SIZE) + grid.rect.y,
@@ -277,17 +242,16 @@ void EditorKeyDown (SDL_KeyCode key)
 
 void EditorMouseDown (SDL_Point * mousept, SDL_Point * mousetile)
 {
+    obj_t *obj;
+    
     // place an object on map if editing
     if (!grid.shown && SDL_PointInRect(mousept, &maprect))
     {
+        obj = &currentmap.foreground[mousetile->y][mousetile->x];
         if (layer == LAYER_FG)
-        {
-            currentmap.foreground[mousetile->y][mousetile->x] = NewObject(cursor, mousetile->x, mousetile->y);
-        }
+            *obj = NewObjectFromDef(cursor, mousetile->x, mousetile->y);
         else if (layer == LAYER_BG)
-        {
-            currentmap.background[mousetile->y][mousetile->x] = NewObject(cursor, mousetile->x, mousetile->y);
-        }
+            *obj = NewObjectFromDef(cursor, mousetile->x, mousetile->y);
         mapdirty = true;
     }
     
@@ -309,7 +273,6 @@ void EditorLoop (void)
     SDL_Point   mousetile;
     
     memset(lowermsg, 0, sizeof(lowermsg));
-    InitEditorObjects();
     MakeSelectionGrid();
     layer = LAYER_FG;
         
