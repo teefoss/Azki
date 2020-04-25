@@ -37,7 +37,6 @@ extern char filename[80];
 extern SDL_Rect maprect;
 extern SDL_Point TopHUD;
 extern SDL_Point BottomHUD;
-extern char *mapnames[];
 extern bool mapdirty;
 
 int PrintMapName (void);
@@ -48,6 +47,6 @@ bool NewMap (int num, map_t * map);
 bool SaveMap (map_t * map);
 
 void DrawMap (map_t *map);
-const char *MapName (int x, int y);
+char *MapName (int mapnum);
 
 #endif /* map_h */

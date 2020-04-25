@@ -32,6 +32,20 @@ char *mapnames[] =
 
 
 
+//
+// MapName
+// returns the name for given map number
+//
+char *MapName (int mapnum)
+{
+    int numnames;
+
+    numnames = sizeof(mapnames) / sizeof(mapnames[0]);
+    if (mapnum > numnames)
+        return NULL;
+    return mapnames[mapnum];
+}
+
 
 //
 // PrintMapName
@@ -42,16 +56,21 @@ int PrintMapName (void)
 {
     char mapnum[4];
     int offset;
+    char *name;
     
     snprintf(mapnum, 4, "%d", currentmap.num);
     TextColor(WHITE);
     PrintString(mapnum, TopHUD.x, TopHUD.y);
     
-    offset = (int)strlen(mapnum) * TILE_SIZE + TILE_SIZE;
-    TextColor(RED);
-    PrintString(mapnames[currentmap.num], TopHUD.x + offset, TopHUD.y);
+    name = MapName(currentmap.num);
+    if (name)
+    {
+        offset = (int)strlen(mapnum) * TILE_SIZE + TILE_SIZE;
+        TextColor(RED);
+        PrintString(name, TopHUD.x + offset, TopHUD.y);
+    }
 
-    return (int)strlen(mapnum) + (int)strlen(mapnames[currentmap.num]) + 1;
+    return (int)strlen(mapnum) + (int)strlen(name) + 1;
 }
 
 
