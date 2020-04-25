@@ -61,9 +61,11 @@ void A_UpdateSpider (obj_t *sp)
 
 #pragma mark - TYPE_BULLET
 
-void A_BulletSpawn (int x, int y, int dx, int dy, int damage)
+void A_BulletSpawn (int x, int y, float dx, float dy, int damage)
 {
     obj_t bl;
+    
+    printf("spawn bullet with dx %.2f, dy %.2f\n", dx, dy);
     
     memset(&bl, 0, sizeof(bl));
     bl.type = TYPE_BULLET;
@@ -101,7 +103,15 @@ void A_FireBulletDir (obj_t *src, dir_t dir, int damage)
 }
 
 
-void A_FireBulletTarget (obj_t *from, obj_t *to, int damage)
+
+
+
+//
+// A_FireBulletTarget
+// Fire a bullet toward obj 'to'. vmult is a velocity multiplier to
+// adjust the speed
+//
+void A_FireBulletTarget (obj_t *from, obj_t *to, int damage, float vmult)
 {
     float dist;
     float dx, dy;
@@ -110,8 +120,8 @@ void A_FireBulletTarget (obj_t *from, obj_t *to, int damage)
     dx = to->x - from->x;
     dy = to->y - from->y;
     dist = sqrt(dx*dx + dy*dy);
-    xstep = dx / dist;
-    ystep = dy / dist;
+    xstep = dx / dist * vmult;
+    ystep = dy / dist * vmult;
     
     A_BulletSpawn(from->x, from->y, xstep, ystep, damage);
 }
@@ -119,6 +129,7 @@ void A_FireBulletTarget (obj_t *from, obj_t *to, int damage)
 void A_UpdateBullet (obj_t *b)
 {
     obj_t * hit;
+    int x, y;
     
     if (RunTimer(b)) return;
     
@@ -128,7 +139,9 @@ void A_UpdateBullet (obj_t *b)
     }
     else // handle foreground collision
     {
-        hit = &currentmap.foreground[b->y + b->dy][b->x + b->dx];
+        x = b->x + b->dx;
+        y = b->y + b->dy;
+        hit = &currentmap.foreground[y][x];
         switch (hit->type) {
             case TYPE_TREE:
                 hit->glyph.fg_color = BROWN;
@@ -138,6 +151,7 @@ void A_UpdateBullet (obj_t *b)
         }
         b->state = objst_remove;
     }
+    printf("moved bullet to %.2f, %.2f\n", b->x, b->y);
 }
 
 void A_BulletContact (obj_t *b, obj_t *hit)
@@ -150,7 +164,7 @@ void A_BulletContact (obj_t *b, obj_t *hit)
         default:
             break;
     }
-    b->state = objst_remove;
+    //b->state = objst_remove;
 }
 
 
@@ -181,7 +195,7 @@ void A_NessieUpdate (obj_t *n)
     {
         n->glyph.character = objdefs[n->type].glyph.character;
         if (n->tics == len_above / 2)
-            A_FireBulletTarget(n, player, 5);
+            A_FireBulletTarget(n, player, 5, 0.5f);
     }
     else if (n->state == objst_inactive)
     {

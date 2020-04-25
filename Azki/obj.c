@@ -150,14 +150,14 @@ int RunTimer (obj_t *obj)
 
 
 
-bool TryMove (obj_t *obj, int x, int y)
+bool TryMove (obj_t *obj, float x, float y)
 {
     // keep object within map
     if ( x < 0 || x >= MAP_W || y < 0 || y >= MAP_H )
         return false;
 
     // move if dest is not solid
-    if ( !(currentmap.foreground[y][x].flags & OF_SOLID) )
+    if ( !(currentmap.foreground[(int)y][(int)x].flags & OF_SOLID) )
     {
         obj->x = x;
         obj->y = y;
@@ -201,6 +201,7 @@ List_RemoveObject (obj_t *rem)
     
     if (!rem)
         Error("List_RemoveObject: error, tried to remove NULL object!");
+    printf("removed type %d\n", rem->type);
     
     // the first and only
     if (rem == objlist && !rem->next)

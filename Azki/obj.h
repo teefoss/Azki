@@ -60,10 +60,11 @@ typedef struct obj_s
     enum        { objst_remove, objst_active, objst_inactive } state;
     
     // object's current location (map tile)
-    int         x, y;
+    // this will be an interger value most of the time(!)
+    float       x, y;
     
     // object's speed
-    int       dx, dy;
+    float       dx, dy;
     
     // object's properties and stats
     int         flags;
@@ -95,7 +96,7 @@ extern obj_t *objlist;
 extern objdef_t objdefs[];
 
 int RunTimer (obj_t *obj);
-bool TryMove (obj_t *obj, int x, int y);
+bool TryMove (obj_t *obj, float x, float y);
 
 obj_t   NewObjectFromDef (objtype_t type, int x, int y);
 void DrawObject (obj_t *obj);
