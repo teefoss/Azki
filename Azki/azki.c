@@ -24,23 +24,28 @@ int tics;
 
 //
 // InitializeObjectList
-// Look through FG and BG layer for entities
-// and create objlist
+// Look through FG and BG layer for entities,
+// add to list, and remove from layer
 //
 void InitializeObjectList (void)
 {
     obj_t *obj;
-    int i;
+    int i, x, y;
     
     obj = &currentmap.foreground[0][0];
     for (i=0 ; i<MAP_W*MAP_H ; i++, obj++)
     {
         if (obj->flags & OF_ENTITY)
         {
+            x = obj->x;
+            y = obj->y;
+            
             if (obj->type == TYPE_PLAYER)
                 player = List_AddObject(obj);
             else
                 List_AddObject(obj);
+            
+            *obj = NewObjectFromDef(TYPE_NONE, x, y); // remove it
         }
     }
     

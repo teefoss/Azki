@@ -247,11 +247,16 @@ void EditorMouseDown (SDL_Point * mousept, SDL_Point * mousetile)
     // place an object on map if editing
     if (!grid.shown && SDL_PointInRect(mousept, &maprect))
     {
-        obj = &currentmap.foreground[mousetile->y][mousetile->x];
         if (layer == LAYER_FG)
+        {
+            obj = &currentmap.foreground[mousetile->y][mousetile->x];
             *obj = NewObjectFromDef(cursor, mousetile->x, mousetile->y);
+        }
         else if (layer == LAYER_BG)
+        {
+            obj = &currentmap.background[mousetile->y][mousetile->x];
             *obj = NewObjectFromDef(cursor, mousetile->x, mousetile->y);
+        }
         mapdirty = true;
     }
     
@@ -275,6 +280,7 @@ void EditorLoop (void)
     memset(lowermsg, 0, sizeof(lowermsg));
     MakeSelectionGrid();
     layer = LAYER_FG;
+    LoadMap(currentmap.num, &currentmap); // entities were removed in play, reload
         
     while (state == GS_EDITOR)
     {
