@@ -10,9 +10,11 @@
 #define azki_h
 
 #include "glyph.h"
-#include "map.h"
 
 #define CTRL (keys[SDL_SCANCODE_LCTRL] || keys[SDL_SCANCODE_RCTRL])
+
+typedef int tile;
+typedef int pixel;
 
 enum
 {
@@ -21,8 +23,6 @@ enum
 };
 
 extern int state;
-extern map_t currentmap;
-extern map_t * world;
 extern const uint8_t * keys;
 
 extern int tics;

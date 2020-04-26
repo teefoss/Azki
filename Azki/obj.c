@@ -10,11 +10,11 @@
 #include "player.h"
 #include "video.h"
 #include "action.h"
+#include "map.h"
 
 // singly linked list of active (mobile) entities
 obj_t *objlist;
 
-// { flags, maxhealth, update }
 objdef_t objdefs[NUMTYPES] =
 {
     {   // TYPE_NONE,
@@ -31,7 +31,7 @@ objdef_t objdefs[NUMTYPES] =
         .maxhealth = 100,
         .name = "Player",
         .update = P_UpdatePlayer,
-        .contact = NULL
+        .contact = P_PlayerContact
     },
     {   // TYPE_TREE
         .glyph = { CHAR_CLUB, GREEN, TRANSP },
@@ -137,6 +137,29 @@ objdef_t objdefs[NUMTYPES] =
         .contact = NULL
     },
 
+    {   // NUMTYPES (placeholder)
+        .glyph = { CHAR_NUL, TRANSP, TRANSP },0,0,"",NULL,NULL
+    },
+    
+    //==========================================================================
+
+    {   // TYPE_PROJ_BALL
+        .glyph = { CHAR_DOT1, YELLOW, TRANSP },
+        .flags = OF_ENTITY,
+        .maxhealth = 10,
+        .name = "Ball Projectile",
+        .update = A_UpdateBullet,
+        .contact = A_ProjectileContact
+    },
+    
+    {   // TYPE_PROJ_RING
+        .glyph = { 9, MAGENTA, TRANSP },
+        .flags = OF_ENTITY,
+        .maxhealth = 0,
+        .name = "Ring Projectile",
+        .update = A_UpdateBullet,
+        .contact = A_ProjectileContact
+    },
 };
 
 
@@ -157,7 +180,7 @@ bool TryMove (obj_t *obj, float x, float y)
         return false;
 
     // move if dest is not solid
-    if ( !(currentmap.foreground[(int)y][(int)x].flags & OF_SOLID) )
+    if ( !(map.foreground[(int)y][(int)x].flags & OF_SOLID) )
     {
         obj->x = x;
         obj->y = y;
@@ -314,7 +337,7 @@ void DrawObject (obj_t *obj)
 //  NewObject
 //  Initialize a new object from its objdef_t at (x, y)
 //
-obj_t NewObjectFromDef (objtype_t type, int x, int y)
+obj_t NewObjectFromDef (objtype_t type, tile x, tile y)
 {
     obj_t new;
     
@@ -326,7 +349,7 @@ obj_t NewObjectFromDef (objtype_t type, int x, int y)
     
     // initial default definition values
     new.glyph = objdefs[type].glyph;
-    new.health = objdefs[type].maxhealth;
+    new.hp = objdefs[type].maxhealth;
     new.flags = objdefs[type].flags;
     new.update = objdefs[type].update;
     new.contact = objdefs[type].contact;

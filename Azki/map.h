@@ -33,11 +33,12 @@ typedef struct
     objtype_t background[MAP_H][MAP_W];
 } mapdata_t;
 
-extern char filename[80];
-extern SDL_Rect maprect;
-extern SDL_Point TopHUD;
-extern SDL_Point BottomHUD;
-extern bool mapdirty;
+extern map_t        map;
+extern char         filename[80];
+extern SDL_Rect     maprect;
+extern SDL_Point    TopHUD;
+extern SDL_Point    BottomHUD;
+extern bool         mapdirty;
 
 int PrintMapName (void);
 void NextLevel (int incr);

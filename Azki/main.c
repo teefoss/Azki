@@ -82,16 +82,16 @@ int main(int argc, char ** argv)
         state = GS_EDITOR;
         sscanf(argv[i+1], "%d", &mapnum);
         
-        if (!LoadMap(mapnum, &currentmap)) {
-            if ( !NewMap(mapnum, &currentmap) ) {
+        if (!LoadMap(mapnum, &map)) {
+            if ( !NewMap(mapnum, &map) ) {
                 Error("Could not create new map!");
             }
         }
     } else {
         state = GS_PLAY;
-        if ( !LoadMap(1, &currentmap) ) {
+        if ( !LoadMap(1, &map) ) {
 #ifdef DEBUG
-            NewMap(1, &currentmap); // in dev, create a new map if none found
+            NewMap(1, &map); // in dev, create a new map if none found
             state = GS_EDITOR;
 #elif
             Error("Could not load starting map!");

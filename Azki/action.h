@@ -14,9 +14,8 @@
 void A_UpdateWater (obj_t *water);
 void A_UpdateSpider (obj_t *sp);
 
-void A_FireBulletDir (obj_t *src, dir_t dir, int damage);
 void A_UpdateBullet (obj_t *b);
-void A_BulletContact (obj_t *b, obj_t *hit);
+void A_ProjectileContact (obj_t *b, obj_t *hit);
 
 void A_NessieUpdate (obj_t *n);
 

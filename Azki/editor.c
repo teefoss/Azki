@@ -14,6 +14,12 @@
 #include "video.h"
 #include "obj.h"
 
+enum
+{
+    VIEW_EDIT,      // map visiable and editing
+    VIEW_CHARS      // table of ascii chars displayed
+} view;
+
 // object selection grid
 typedef struct
 {
@@ -50,7 +56,7 @@ static char *show_msg[] = {
 void MakeSelectionGrid ()
 {
     grid.cols = game_res.w / TILE_SIZE;
-    grid.rows = NUMTYPES / grid.cols + 1;
+    grid.rows = NUMLAYERTYPES / grid.cols + 1;
     grid.rect.x = 0;
     grid.rect.y = game_res.h - grid.rows * TILE_SIZE;
     grid.rect.w = game_res.w;
@@ -69,7 +75,7 @@ objtype_t TypeAtGridTile (SDL_Point * mousept)
 
     type = x + y * grid.cols;
     
-    if (type >= NUMTYPES)   // if clicked on an empty tile,
+    if (type >= NUMLAYERTYPES)   // if clicked on an empty tile,
         return cursor;      // don't change the current selection
     return type;
 }
@@ -104,7 +110,7 @@ void DrawSelectionGrid (SDL_Point * mousept)
     type = 0;
     x = 0;
     y = grid.rect.y;
-    for (type=0 ; type<NUMTYPES ; type++, x+=TILE_SIZE )
+    for (type=0 ; type<NUMLAYERTYPES ; type++, x+=TILE_SIZE )
     {
         //type = objtypes[i];
         
@@ -166,6 +172,108 @@ void DrawSelectionGrid (SDL_Point * mousept)
 
 
 
+void DrawCursor (SDL_Point *mousetile)
+{
+
+    {
+        int sh;
+        
+        // display a helpful box so we know we're editing the bg
+        SDL_RenderSetViewport(renderer, &maprect);
+        if (layer == LAYER_BG)
+        {
+            SDL_Rect helpful = {
+                mousetile->x * TILE_SIZE - 2,
+                mousetile->y * TILE_SIZE - 2,
+                TILE_SIZE + 4,
+                TILE_SIZE + 4
+            };
+            SetPaletteColor(BROWN);
+            SDL_RenderDrawRect(renderer, &helpful);
+        }
+        
+        // draw cursor
+        if (cursor == TYPE_NONE)
+        {
+            SDL_Rect erasebox = {
+                mousetile->x * TILE_SIZE,
+                mousetile->y * TILE_SIZE,
+                TILE_SIZE,
+                TILE_SIZE
+            };
+            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+            SDL_RenderDrawRect(renderer, &erasebox);
+        }
+        else
+        {
+            sh = (SDL_GetTicks() % 600) < 300 ? RED : BLACK; // flip shadow
+            DrawGlyph(&objdefs[cursor].glyph,
+                      mousetile->x*TILE_SIZE,
+                      mousetile->y*TILE_SIZE,
+                      sh);
+        }
+        SDL_RenderSetViewport(renderer, NULL);
+    }
+}
+
+
+void DrawEditorHUD (SDL_Point *mousept, SDL_Point *mousetile)
+{
+    int msg_x;
+    char mouseinfo[100];
+    
+    PrintMapName();
+    
+    // layer
+    msg_x = TopHUD.x + maprect.w - (int)strlen(layer_msg[layer]) * GLYPH_SIZE;
+    TextColor(layer == LAYER_FG ? YELLOW : BROWN);
+    PrintString(layer_msg[layer], msg_x, TopHUD.y);
+                
+    // lower HUD
+    TextColor(MAGENTA);
+    PrintString(lowermsg, BottomHUD.x, BottomHUD.y);
+    
+    // print mouse map coordinates
+    if (SDL_PointInRect(mousept, &maprect))
+        sprintf(mouseinfo, "%s (%2d, %2d)", show_msg[showlayer], mousetile->x, mousetile->y);
+    else
+        sprintf(mouseinfo, "%s (--, --)", show_msg[showlayer]);
+    LOG(mouseinfo, BRIGHTWHITE);
+}
+
+
+void DrawChars (SDL_Point *mousept)
+{
+    int x, y, c;
+    SDL_Rect r;
+    char buf[4];
+    
+    r.x = (mousept->x / TILE_SIZE) * TILE_SIZE;
+    r.y = (mousept->y / TILE_SIZE) * TILE_SIZE;
+    r.w = TILE_SIZE;
+    r.h = TILE_SIZE;
+    c = 0;
+    for ( y=0 ; y<16 ; y++ )
+    {
+        for ( x=0 ; x<16 ; x++)
+        {
+            TextColor(BRIGHTWHITE);
+            PrintChar(c++, x * TILE_SIZE, y * TILE_SIZE);
+            if (r.x < 128 && r.y < 128)
+            {
+                SetPaletteColor(RED);
+                SDL_RenderDrawRect(renderer, &r);
+            }
+        }
+    }
+    
+    TextColor(RED);
+    snprintf(buf, 4, "%d", r.y/TILE_SIZE * 16 + r.x/TILE_SIZE);
+    PrintString(buf, 17*TILE_SIZE, 0);
+}
+
+
+
 
 
 
@@ -219,7 +327,7 @@ void EditorKeyDown (SDL_KeyCode key)
         case SDLK_s:
             if (CTRL)
             {
-                if ( SaveMap(&currentmap) )
+                if ( SaveMap(&map) )
                     strcpy(lowermsg, "Map saved!");
                 else
                     strcpy(lowermsg, "Error saving map!");
@@ -228,7 +336,7 @@ void EditorKeyDown (SDL_KeyCode key)
             
         // switch to play
         case SDLK_BACKQUOTE:
-            SaveMap(&currentmap);
+            SaveMap(&map);
             state = GS_PLAY;
             break;
             
@@ -249,12 +357,12 @@ void EditorMouseDown (SDL_Point * mousept, SDL_Point * mousetile)
     {
         if (layer == LAYER_FG)
         {
-            obj = &currentmap.foreground[mousetile->y][mousetile->x];
+            obj = &map.foreground[mousetile->y][mousetile->x];
             *obj = NewObjectFromDef(cursor, mousetile->x, mousetile->y);
         }
         else if (layer == LAYER_BG)
         {
-            obj = &currentmap.background[mousetile->y][mousetile->x];
+            obj = &map.background[mousetile->y][mousetile->x];
             *obj = NewObjectFromDef(cursor, mousetile->x, mousetile->y);
         }
         mapdirty = true;
@@ -280,7 +388,7 @@ void EditorLoop (void)
     memset(lowermsg, 0, sizeof(lowermsg));
     MakeSelectionGrid();
     layer = LAYER_FG;
-    LoadMap(currentmap.num, &currentmap); // entities were removed in play, reload
+    LoadMap(map.num, &map); // entities were removed in play, reload
         
     while (state == GS_EDITOR)
     {
@@ -294,6 +402,8 @@ void EditorLoop (void)
         }
         
         grid.shown = keys[SDL_SCANCODE_TAB];
+        view = keys[SDL_SCANCODE_G] ? VIEW_CHARS : VIEW_EDIT;
+        
         if (keys[SDL_SCANCODE_F])
             showlayer = LAYER_FG;
         else if (keys[SDL_SCANCODE_B])
@@ -307,82 +417,25 @@ void EditorLoop (void)
         mousetile.x = (mousept.x - maprect.x) / TILE_SIZE;
         mousetile.y = (mousept.y - maprect.y) / TILE_SIZE;
 
-        if (mousestate & SDL_BUTTON_LMASK)
+        if (mousestate & SDL_BUTTON_LMASK && view == VIEW_EDIT)
             EditorMouseDown(&mousept, &mousetile);
 
         Clear(0, 0, 0);
-        DrawMap(&currentmap);
         
-        // HUD
-        if (!grid.shown)
+        if (view == VIEW_EDIT)
         {
-            int msg_x;
-            char mouseinfo[100];
-            
-            PrintMapName();
-            
-            // layer
-            msg_x = TopHUD.x + maprect.w - (int)strlen(layer_msg[layer]) * GLYPH_SIZE;
-            TextColor(layer == LAYER_FG ? YELLOW : BROWN);
-            PrintString(layer_msg[layer], msg_x, TopHUD.y);
-                        
-            // lower HUD
-            TextColor(MAGENTA);
-            PrintString(lowermsg, BottomHUD.x, BottomHUD.y);
-            
-            // print mouse map coordinates
+            DrawMap(&map);
+            DrawEditorHUD(&mousept, &mousetile);
             if (SDL_PointInRect(&mousept, &maprect))
-                sprintf(mouseinfo, "%s (%2d, %2d)", show_msg[showlayer], mousetile.x, mousetile.y);
-            else
-                sprintf(mouseinfo, "%s (--, --)", show_msg[showlayer]);
-            LOG(mouseinfo, BRIGHTWHITE);
+                DrawCursor(&mousetile);
+            if (grid.shown)
+                DrawSelectionGrid(&mousept);
         }
-        
-        // draw map cursor
-        if (!grid.shown && SDL_PointInRect(&mousept, &maprect))
+        else if (view == VIEW_CHARS)
         {
-            int sh;
-            
-            // display a helpful box so we know we're editing the bg
-            SDL_RenderSetViewport(renderer, &maprect);
-            if (layer == LAYER_BG)
-            {
-                SDL_Rect helpful = {
-                    mousetile.x * TILE_SIZE - 2,
-                    mousetile.y * TILE_SIZE - 2,
-                    TILE_SIZE + 4,
-                    TILE_SIZE + 4
-                };
-                SetPaletteColor(BROWN);
-                SDL_RenderDrawRect(renderer, &helpful);
-            }
-            
-            // draw cursor
-            if (cursor == TYPE_NONE)
-            {
-                SDL_Rect erasebox = {
-                    mousetile.x * TILE_SIZE,
-                    mousetile.y * TILE_SIZE,
-                    TILE_SIZE,
-                    TILE_SIZE
-                };
-                SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-                SDL_RenderDrawRect(renderer, &erasebox);
-            }
-            else
-            {
-                sh = (SDL_GetTicks() % 600) < 300 ? RED : BLACK; // flip shadow
-                DrawGlyph(&objdefs[cursor].glyph,
-                          mousetile.x*TILE_SIZE,
-                          mousetile.y*TILE_SIZE,
-                          sh);
-            }
-            SDL_RenderSetViewport(renderer, NULL);
+            DrawChars(&mousept);
         }
 
-        if (grid.shown)
-            DrawSelectionGrid(&mousept);
-        
         Refresh();
         SDL_Delay(10);
     }

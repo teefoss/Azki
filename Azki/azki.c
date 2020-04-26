@@ -11,14 +11,11 @@
 #include "video.h"
 #include "player.h"
 #include "action.h"
+#include "map.h"
 
 #define MS_PER_FRAME 17
 
-int     state;
-map_t   currentmap;
-map_t * world;
-obj_t   objects;
-
+int state;
 int tics;
 
 
@@ -32,7 +29,7 @@ void InitializeObjectList (void)
     obj_t *obj;
     int i, x, y;
     
-    obj = &currentmap.foreground[0][0];
+    obj = &map.foreground[0][0];
     for (i=0 ; i<MAP_W*MAP_H ; i++, obj++)
     {
         if (obj->flags & OF_ENTITY)
@@ -118,6 +115,20 @@ void DoGameInput (void)
 }
 
 
+void DrawPlayerHealthHUD (void)
+{
+    char buf[80];
+    sprintf(buf, "Health %3d", player->hp);
+    if (player->hp >= 66)
+        TextColor(BRIGHTGREEN);
+    else if (player->hp >= 33 && player->hp < 66)
+        TextColor(YELLOW);
+    else if (player->hp >= 0 && player->hp < 33)
+        TextColor(RED);
+    PrintString(buf, maprect.x, BottomHUD.y);
+}
+
+
 
 void PlayLoop (void)
 {
@@ -182,7 +193,8 @@ void PlayLoop (void)
         Clear(0, 0, 0);
         TextColor(RED);
         
-        DrawMap(&currentmap);
+        DrawPlayerHealthHUD();
+        DrawMap(&map);
         List_DrawObjects();
         
         PrintMapName();

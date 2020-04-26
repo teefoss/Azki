@@ -10,7 +10,9 @@
 #define obj_h
 
 #include <stdbool.h>
+
 #include "glyph.h"
+#include "azki.h"
 
 typedef enum
 {
@@ -23,6 +25,7 @@ typedef enum
 
 typedef enum
 {
+    // layer types - appear in editor
     TYPE_NONE,
     TYPE_PLAYER,
     TYPE_TREE,
@@ -37,10 +40,12 @@ typedef enum
     TYPE_GRASS4,
     TYPE_SPIDER,
     TYPE_NESSIE,
-    NUMTYPES,
+    NUMLAYERTYPES,
     
-    // objects with no objdef_t get A_Spawn'd
-    TYPE_BULLET,
+    // misc objects that don't appear in editor (projectiles etc.)
+    TYPE_PROJ_BALL,
+    TYPE_PROJ_RING,
+    NUMTYPES
 } objtype_t;
 
 typedef enum
@@ -60,7 +65,7 @@ typedef struct obj_s
     enum        { objst_remove, objst_active, objst_inactive } state;
     
     // object's current location (map tile)
-    // this will be an interger value most of the time(!)
+    // this will be used as an interger value most of the time
     float       x, y;
     
     // object's speed
@@ -68,15 +73,18 @@ typedef struct obj_s
     
     // object's properties and stats
     int         flags;
-    int         health;
+    int         hp;     // hit points (health or damage)
     int         armor;
     
     // animation and timers
     int         tics;
     int         cooldown;
     
+    // update and contact functions, called every frame
     void (* update)(struct obj_s *obj);
     void (* contact)(struct obj_s *obj1, struct obj_s *obj2);
+    
+    // linked list
     struct obj_s *next;
 } obj_t;
 
@@ -98,7 +106,7 @@ extern objdef_t objdefs[];
 int RunTimer (obj_t *obj);
 bool TryMove (obj_t *obj, float x, float y);
 
-obj_t   NewObjectFromDef (objtype_t type, int x, int y);
+obj_t   NewObjectFromDef (objtype_t type, tile x, tile y);
 void DrawObject (obj_t *obj);
 
 obj_t * List_AddObject (obj_t *add);

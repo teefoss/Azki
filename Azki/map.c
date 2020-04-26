@@ -16,9 +16,10 @@
 
 #define MAP_NAME_FMT "maps/%d.map"
 
-SDL_Rect maprect;
-SDL_Point TopHUD;
-SDL_Point BottomHUD;
+map_t       map;
+SDL_Rect    maprect;
+SDL_Point   TopHUD;
+SDL_Point   BottomHUD;
 
 bool mapdirty = false;
 
@@ -58,11 +59,11 @@ int PrintMapName (void)
     int offset;
     char *name;
     
-    snprintf(mapnum, 4, "%d", currentmap.num);
+    snprintf(mapnum, 4, "%d", map.num);
     TextColor(WHITE);
     PrintString(mapnum, TopHUD.x, TopHUD.y);
     
-    name = MapName(currentmap.num);
+    name = MapName(map.num);
     if (name)
     {
         offset = (int)strlen(mapnum) * TILE_SIZE + TILE_SIZE;
@@ -84,11 +85,11 @@ void NextLevel (int incr)
 {
     int next;
     
-    next = currentmap.num + incr;
+    next = map.num + incr;
     while (next > 0 && next <= 100)
     {
         printf("trying to load %d...\n", next);
-        if ( LoadMap(next, &currentmap) )
+        if ( LoadMap(next, &map) )
             return;
         else
             next += incr;

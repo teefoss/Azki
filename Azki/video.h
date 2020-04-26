@@ -58,6 +58,7 @@ void SetRGBColor (uint8_t r, uint8_t g, uint8_t b);
 void SetScale (int scl);
 void TextColor (int c);
 void PrintString (const char *s, int tilex, int tiley);
+void PrintChar (char c, int winx, int winy);
 void LOG (const char *message, int color);
 
 void FillRect (int x, int y, int w, int h);

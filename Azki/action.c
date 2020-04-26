@@ -11,6 +11,7 @@
 #include "azki.h"
 #include "video.h"
 #include "player.h"
+#include "map.h"
 
 void A_UpdateWater (obj_t *water)
 {
@@ -61,45 +62,22 @@ void A_UpdateSpider (obj_t *sp)
 
 #pragma mark - TYPE_BULLET
 
-void A_BulletSpawn (int x, int y, float dx, float dy, int damage)
+void
+A_SpawnProjectile
+( objtype_t type,
+  tile x,
+  tile y,
+  float dx,
+  float dy,
+  int damage )
 {
-    obj_t bl;
+    obj_t proj;
     
-    printf("spawn bullet with dx %.2f, dy %.2f\n", dx, dy);
-    
-    memset(&bl, 0, sizeof(bl));
-    bl.type = TYPE_BULLET;
-    bl.glyph = (glyph_t){ CHAR_DOT1, YELLOW, TRANSP };
-    bl.x = x;
-    bl.y = y;
-    bl.dx = dx;
-    bl.dy = dy;
-    bl.health = damage;
-    bl.update = A_UpdateBullet;
-    bl.contact = A_BulletContact;
-        
-    List_AddObject(&bl);
-}
+    proj = NewObjectFromDef(type, x, y);
+    proj.dx = dx;
+    proj.dy = dy;
 
-void A_FireBulletDir (obj_t *src, dir_t dir, int damage)
-{
-    switch (dir) {
-        case DIR_EAST:
-            A_BulletSpawn(src->x + 1, src->y, 1, 0, damage);
-            break;
-        case DIR_NORTH:
-            A_BulletSpawn(src->x, src->y - 1, 0, -1, damage);
-            break;
-        case DIR_WEST:
-            A_BulletSpawn(src->x - 1, src->y, -1, 0, damage);
-            break;
-        case DIR_SOUTH:
-            A_BulletSpawn(src->x, src->y + 1, 0, 1, damage);
-            break;
-            
-        default:
-            break;
-    }
+    List_AddObject(&proj);
 }
 
 
@@ -107,41 +85,46 @@ void A_FireBulletDir (obj_t *src, dir_t dir, int damage)
 
 
 //
-// A_FireBulletTarget
-// Fire a bullet toward obj 'to'. vmult is a velocity multiplier to
+// A_ShootProjectile
+// Fire a projectile from src to dst. vmult is a velocity multiplier to
 // adjust the speed
 //
-void A_FireBulletTarget (obj_t *from, obj_t *to, int damage, float vmult)
+void
+A_ShootProjectile
+( objtype_t type,
+  obj_t *src,
+  obj_t *dst,
+  int damage,
+  float vmult )
 {
     float dist;
     float dx, dy;
     float xstep, ystep;
     
-    dx = to->x - from->x;
-    dy = to->y - from->y;
+    dx = dst->x - src->x;
+    dy = dst->y - src->y;
     dist = sqrt(dx*dx + dy*dy);
     xstep = dx / dist * vmult;
     ystep = dy / dist * vmult;
     
-    A_BulletSpawn(from->x, from->y, xstep, ystep, damage);
+    A_SpawnProjectile(type, src->x, src->y, xstep, ystep, damage);
 }
+
+
 
 void A_UpdateBullet (obj_t *b)
 {
     obj_t * hit;
-    int x, y;
+    int checkx, checky;
     
     if (RunTimer(b)) return;
     
-    if ( TryMove(b, b->x + b->dx, b->y + b->dy) )
+    if ( !TryMove(b, b->x + b->dx, b->y + b->dy) )
     {
-        b->tics = 5;
-    }
-    else // handle foreground collision
-    {
-        x = b->x + b->dx;
-        y = b->y + b->dy;
-        hit = &currentmap.foreground[y][x];
+        // handle foreground collision
+        checkx = b->x + b->dx;
+        checky = b->y + b->dy;
+        hit = &map.foreground[checky][checkx];
         switch (hit->type) {
             case TYPE_TREE:
                 hit->glyph.fg_color = BROWN;
@@ -149,16 +132,16 @@ void A_UpdateBullet (obj_t *b)
             default:
                 break;
         }
+        // always remove when a projectile hits a solid layer obj
         b->state = objst_remove;
     }
-    printf("moved bullet to %.2f, %.2f\n", b->x, b->y);
 }
 
-void A_BulletContact (obj_t *b, obj_t *hit)
+void A_ProjectileContact (obj_t *proj, obj_t *hit)
 {
     switch (hit->type) {
         case TYPE_SPIDER:
-            hit->health -= b->health ;
+            hit->hp -= proj->hp ;
             break;
             
         default:
@@ -168,37 +151,43 @@ void A_BulletContact (obj_t *b, obj_t *hit)
 }
 
 
+
+
+# define NESSIE_TIME    120 // how long nessie stays above water
+
 void A_NessieUpdate (obj_t *n)
 {
-    const int len_above = 120;
+    int damage;
 
-    if (n->tics)
-        n->tics--;
-
-    // timer has run down, flip state
-    if (n->tics == 0)
+    // flip state
+    if ( !RunTimer(n) )
     {
         if (n->state == objst_active)
         {
+            // dive
             n->state = objst_inactive;
             n->tics = random() % 90 + 240;
         }
         else if (n->state == objst_inactive)
         {
+            // surface
             n->state = objst_active;
-            n->tics = len_above;
+            n->tics = NESSIE_TIME;
         }
     }
     
     // update based on state
     if (n->state == objst_active)
     {
+        // show char and shoot at halfway point
         n->glyph.character = objdefs[n->type].glyph.character;
-        if (n->tics == len_above / 2)
-            A_FireBulletTarget(n, player, 5, 0.5f);
+        damage = 5 * (random() % 3) + 1;
+        if (n->tics == NESSIE_TIME / 2)
+            A_ShootProjectile(TYPE_PROJ_RING, n, player, damage, 0.25f);
     }
     else if (n->state == objst_inactive)
     {
+        // hide char (dive)
         n->glyph.character = CHAR_NUL;
     }
 }

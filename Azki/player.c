@@ -17,9 +17,27 @@ obj_t * player;
 void P_FireBullet (dir_t dir)
 {
     int damage;
-        
+    
     damage = rand() % 3 + 5;
-    A_FireBulletDir(player, dir, damage);
+    
+    switch (dir)
+    {
+        case DIR_EAST:
+            A_SpawnProjectile(player->x + 1, player->y, 1, 0, damage);
+            break;
+        case DIR_NORTH:
+            A_SpawnProjectile(player->x, player->y - 1, 0, -1, damage);
+            break;
+        case DIR_WEST:
+            A_SpawnProjectile(player->x - 1, player->y, -1, 0, damage);
+            break;
+        case DIR_SOUTH:
+            A_SpawnProjectile(player->x, player->y + 1, 0, 1, damage);
+            break;
+            
+        default:
+            break;
+    }
     player->cooldown = 20;
 }
 
@@ -47,6 +65,13 @@ void P_UpdatePlayer (obj_t * pl)
     }
     pl->dx = 0;
     pl->dy = 0;
+}
+
+
+
+void P_PlayerContact (obj_t *pl, obj_t *hit)
+{
+
 }
 
 

@@ -9,6 +9,7 @@
 
 #include <stdbool.h>
 #include "video.h"
+#include "map.h"
 
 SDL_Window *    window;
 SDL_Renderer *  renderer;
@@ -130,6 +131,18 @@ void PrintString (const char *s, int winx, int winy)
         winx += TILE_SIZE;
         s++;
     }
+}
+
+
+
+void PrintChar (char c, int winx, int winy)
+{
+    glyph_t g;
+    
+    g.character = c;
+    g.fg_color = fgcolor;
+    g.bg_color = bgcolor;
+    DrawGlyph(&g, winx, winy, TRANSP);
 }
 
 
@@ -301,6 +314,7 @@ void StartVideo (void)
     
     //MaxWindowSize(0); // TODO: uncomment
     SetScale(3);
+    SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
     
     // Handle MacOS Retina display
 #if 0
