@@ -65,17 +65,20 @@ void A_UpdateSpider (obj_t *sp)
 void
 A_SpawnProjectile
 ( objtype_t type,
-  tile x,
-  tile y,
-  float dx,
-  float dy,
-  int damage )
+  obj_t     *src,
+  tile      x,
+  tile      y,
+  float     dx,
+  float     dy,
+  int       delay,
+  int       damage )
 {
     obj_t proj;
     
     proj = NewObjectFromDef(type, x, y);
     proj.dx = dx;
     proj.dy = dy;
+    proj.delay = delay;
 
     List_AddObject(&proj);
 }
@@ -89,13 +92,14 @@ A_SpawnProjectile
 // Fire a projectile from src to dst. vmult is a velocity multiplier to
 // adjust the speed
 //
-void
+static void
 A_ShootProjectile
 ( objtype_t type,
-  obj_t *src,
-  obj_t *dst,
-  int damage,
-  float vmult )
+  obj_t     *src,
+  obj_t     *dst,
+  int       damage,
+  int       delay,
+  float     vmult )
 {
     float dist;
     float dx, dy;
@@ -107,23 +111,23 @@ A_ShootProjectile
     xstep = dx / dist * vmult;
     ystep = dy / dist * vmult;
     
-    A_SpawnProjectile(type, src->x, src->y, xstep, ystep, damage);
+    A_SpawnProjectile(type, src, src->x, src->y, xstep, ystep, delay, damage);
 }
 
 
 
-void A_UpdateBullet (obj_t *b)
+void A_UpdateProjectile (obj_t *proj)
 {
     obj_t * hit;
     int checkx, checky;
     
-    if (RunTimer(b)) return;
+    if (RunTimer(proj)) return;
     
-    if ( !TryMove(b, b->x + b->dx, b->y + b->dy) )
+    if ( !TryMove(proj, proj->x + proj->dx, proj->y + proj->dy) )
     {
         // handle foreground collision
-        checkx = b->x + b->dx;
-        checky = b->y + b->dy;
+        checkx = proj->x + proj->dx;
+        checky = proj->y + proj->dy;
         hit = &map.foreground[checky][checkx];
         switch (hit->type) {
             case TYPE_TREE:
@@ -133,12 +137,16 @@ void A_UpdateBullet (obj_t *b)
                 break;
         }
         // always remove when a projectile hits a solid layer obj
-        b->state = objst_remove;
+        proj->state = objst_remove;
     }
+    proj->tics = proj->delay;
 }
 
 void A_ProjectileContact (obj_t *proj, obj_t *hit)
 {
+    if (proj->src == hit)
+        return;
+    
     switch (hit->type) {
         case TYPE_SPIDER:
             hit->hp -= proj->hp ;
@@ -183,7 +191,7 @@ void A_NessieUpdate (obj_t *n)
         n->glyph.character = objdefs[n->type].glyph.character;
         damage = 5 * (random() % 3) + 1;
         if (n->tics == NESSIE_TIME / 2)
-            A_ShootProjectile(TYPE_PROJ_RING, n, player, damage, 0.25f);
+            A_ShootProjectile(TYPE_PROJ_RING, n, player, damage, 4, 1.0f);
     }
     else if (n->state == objst_inactive)
     {

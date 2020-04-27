@@ -78,13 +78,14 @@ typedef struct obj_s
     
     // animation and timers
     int         tics;
-    int         cooldown;
+    int         delay; // how many frames to wait
     
     // update and contact functions, called every frame
     void (* update)(struct obj_s *obj);
     void (* contact)(struct obj_s *obj1, struct obj_s *obj2);
     
     // linked list
+    struct obj_s *src; // who created this object, e.g. projectiles
     struct obj_s *next;
 } obj_t;
 

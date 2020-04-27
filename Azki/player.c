@@ -14,31 +14,61 @@
 
 obj_t * player;
 
+void P_PlayerInput (void)
+{
+    // movement
+    if (keys[SDL_SCANCODE_W])
+        player->dy = -1;
+    if (keys[SDL_SCANCODE_S])
+        player->dy = 1;
+    if (keys[SDL_SCANCODE_A])
+        player->dx = -1;
+    if (keys[SDL_SCANCODE_D])
+        player->dx = 1;
+    
+    // shoot
+    if (keys[SDL_SCANCODE_UP] && !player->delay)
+        P_FireBullet(DIR_NORTH);
+    if (keys[SDL_SCANCODE_DOWN] && !player->delay)
+        P_FireBullet(DIR_SOUTH);
+    if (keys[SDL_SCANCODE_LEFT] && !player->delay)
+        P_FireBullet(DIR_WEST);
+    if (keys[SDL_SCANCODE_RIGHT] && !player->delay)
+        P_FireBullet(DIR_EAST);
+}
+
+
+
 void P_FireBullet (dir_t dir)
 {
     int damage;
+    float dx, dy;
+    float speed;
     
     damage = rand() % 3 + 5;
+    speed = 1.0f;
+    dx = 0;
+    dy = 0;
     
     switch (dir)
     {
         case DIR_EAST:
-            A_SpawnProjectile(player->x + 1, player->y, 1, 0, damage);
+            dx = speed;
             break;
         case DIR_NORTH:
-            A_SpawnProjectile(player->x, player->y - 1, 0, -1, damage);
+            dy = -speed;
             break;
         case DIR_WEST:
-            A_SpawnProjectile(player->x - 1, player->y, -1, 0, damage);
+            dx = -speed;
             break;
         case DIR_SOUTH:
-            A_SpawnProjectile(player->x, player->y + 1, 0, 1, damage);
+            dy = speed;
             break;
-            
         default:
             break;
     }
-    player->cooldown = 20;
+    A_SpawnProjectile(TYPE_PROJ_BALL, player, player->x, player->y, dx, dy, 3, damage);
+    player->delay = 20;
 }
 
 void P_UpdatePlayer (obj_t * pl)
@@ -47,8 +77,8 @@ void P_UpdatePlayer (obj_t * pl)
     
     if (movetics)
         movetics--;
-    if (pl->cooldown)
-        pl->cooldown--;
+    if (pl->delay)
+        pl->delay--;
     
     // move player
     if ( (pl->dx || pl->dy) && !movetics )

@@ -237,6 +237,7 @@ void DrawMap (map_t *map)
     obj_t *     obj;
     obj_t *     bkg;
     int         w, h;
+    int         i;
     
     // draw map background and shadow
     w = maprect.w + (margin * 2);
@@ -248,9 +249,7 @@ void DrawMap (map_t *map)
     
     // draw all objects
     obj = &map->foreground[0][0];
-    bkg = &map->background[0][0]; // TODO: draw background layer
-
-    int i;
+    bkg = &map->background[0][0];
     for (i=0 ; i<MAP_W*MAP_H ; i++)
     {
         if (state == GS_PLAY)
@@ -266,10 +265,4 @@ void DrawMap (map_t *map)
                 DrawObject(obj++);
         }
     }
-//    for (tiley=0 ; tiley<MAP_H ; tiley++)
-//    {
-//        for (tilex=0 ; tilex<MAP_W ; tilex++, obj++, bkg++)
-//        {
-//        }
-//    }
 }

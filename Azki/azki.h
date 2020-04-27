@@ -9,8 +9,6 @@
 #ifndef azki_h
 #define azki_h
 
-#include "glyph.h"
-
 #define CTRL (keys[SDL_SCANCODE_LCTRL] || keys[SDL_SCANCODE_RCTRL])
 
 typedef int tile;

@@ -15,7 +15,7 @@
 //  DrawGlyph
 //  Draw glyph and shadow at window x, y
 //
-void DrawGlyph (glyph_t *glyph, int x, int y, int shadow_color)
+void DrawGlyph (glyph_t *glyph, pixel x, pixel y, int shadow_color)
 {
     SDL_Rect src;   // rect in the sprite sheet
     SDL_Rect dst;   // destination rect

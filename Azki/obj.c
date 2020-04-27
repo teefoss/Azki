@@ -148,7 +148,7 @@ objdef_t objdefs[NUMTYPES] =
         .flags = OF_ENTITY,
         .maxhealth = 10,
         .name = "Ball Projectile",
-        .update = A_UpdateBullet,
+        .update = A_UpdateProjectile,
         .contact = A_ProjectileContact
     },
     
@@ -157,7 +157,7 @@ objdef_t objdefs[NUMTYPES] =
         .flags = OF_ENTITY,
         .maxhealth = 0,
         .name = "Ring Projectile",
-        .update = A_UpdateBullet,
+        .update = A_UpdateProjectile,
         .contact = A_ProjectileContact
     },
 };
@@ -291,10 +291,12 @@ List_RemoveAll (void)
 
 
 
+#define draw_x(n)   (n * TILE_SIZE + maprect.x)
+#define draw_y(n)   (n * TILE_SIZE + maprect.y)
+
 void List_DrawObjects (void)
 {
     obj_t *obj;
-    int draw_x, draw_y;
 
     if (!objlist)
         return;
@@ -302,11 +304,7 @@ void List_DrawObjects (void)
     obj = objlist;
     do {
         if (obj->type != TYPE_NONE)
-        {
-            draw_x = obj->x * TILE_SIZE + maprect.x;
-            draw_y = obj->y * TILE_SIZE + maprect.y;
-            DrawGlyph(&obj->glyph, draw_x, draw_y, PITCHBLACK);
-        }
+            DrawGlyph(&obj->glyph, draw_x(obj->x), draw_y(obj->y), PITCHBLACK);
         obj = obj->next;
     } while (obj);
 }
@@ -321,10 +319,7 @@ void DrawObject (obj_t *obj)
     if (obj->type == TYPE_NONE)
         return; // don't bother
     
-    if ((obj->flags & OF_ENTITY) && state == GS_PLAY)
-        return;
-    
-    if ( !(obj->flags & OF_ENTITY) && obj->update)
+    if (obj->update)
         obj->update(obj); // update any fg/bg objects
         
     winx = obj->x * TILE_SIZE + maprect.x; // draw loctions

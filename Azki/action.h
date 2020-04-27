@@ -14,7 +14,8 @@
 void A_UpdateWater (obj_t *water);
 void A_UpdateSpider (obj_t *sp);
 
-void A_UpdateBullet (obj_t *b);
+void A_SpawnProjectile (objtype_t type, obj_t *src, tile x, tile y, float dx, float dy, int delay, int damage);
+void A_UpdateProjectile (obj_t *b);
 void A_ProjectileContact (obj_t *b, obj_t *hit);
 
 void A_NessieUpdate (obj_t *n);

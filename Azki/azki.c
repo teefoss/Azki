@@ -92,26 +92,6 @@ void DoGameInput (void)
             }
         }
     }
-
-    // player movement
-    if (keys[SDL_SCANCODE_W])
-        player->dy = -1;
-    if (keys[SDL_SCANCODE_S])
-        player->dy = 1;
-    if (keys[SDL_SCANCODE_A])
-        player->dx = -1;
-    if (keys[SDL_SCANCODE_D])
-        player->dx = 1;
-    
-    // player shoot
-    if (keys[SDL_SCANCODE_UP] && !player->cooldown)
-        P_FireBullet(DIR_NORTH);
-    if (keys[SDL_SCANCODE_DOWN] && !player->cooldown)
-        P_FireBullet(DIR_SOUTH);
-    if (keys[SDL_SCANCODE_LEFT] && !player->cooldown)
-        P_FireBullet(DIR_WEST);
-    if (keys[SDL_SCANCODE_RIGHT] && !player->cooldown)
-        P_FireBullet(DIR_EAST);
 }
 
 
@@ -141,6 +121,7 @@ void PlayLoop (void)
     {
         StartFrame();
         DoGameInput();
+        P_PlayerInput();
             
         // UPDATE
                 

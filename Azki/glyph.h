@@ -10,6 +10,7 @@
 #define glyph_h
 
 #include <stdio.h>
+#include "azki.h"
 
 #define GLYPH_SIZE 8
 
@@ -33,6 +34,6 @@ typedef struct
     uint8_t bg_color;   // background color
 } glyph_t;
 
-void DrawGlyph (glyph_t *glyph, int x, int y, int shadow_color);
+void DrawGlyph (glyph_t *glyph, pixel x, pixel y, int shadow_color);
 
 #endif /* glyph_h */
