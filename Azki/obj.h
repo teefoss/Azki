@@ -57,6 +57,10 @@ typedef enum
 } objflags_t;
 
 struct objdef_s;
+struct obj_s;
+
+typedef void (* action1_t)(struct obj_s *);
+typedef void (* action2_t)(struct obj_s *, struct obj_s *);
 
 typedef struct obj_s
 {
@@ -66,10 +70,12 @@ typedef struct obj_s
     
     // object's current location (map tile)
     // this will be used as an interger value most of the time
-    float       x, y;
+    int         x;
+    int         y;
     
     // object's speed
-    float       dx, dy;
+    int         dx;
+    int         dy;
     
     // object's properties and stats
     int         flags;
@@ -81,11 +87,12 @@ typedef struct obj_s
     int         delay; // how many frames to wait
     
     // update and contact functions, called every frame
-    void (* update)(struct obj_s *obj);
-    void (* contact)(struct obj_s *obj1, struct obj_s *obj2);
+    action1_t   update;
+    action2_t   contact;
     
     // linked list
     struct obj_s *src; // who created this object, e.g. projectiles
+    struct obj_s *dst; // object's target, e.g. projectiles
     struct obj_s *next;
 } obj_t;
 
@@ -97,15 +104,16 @@ typedef struct objdef_s
     int         maxhealth;
     char        name[40]; // editor only
     
-    void (* update)(struct obj_s *obj);
-    void (* contact)(struct obj_s *obj1, struct obj_s *obj2);
+    action1_t   update;
+    action2_t   contact;
 } objdef_t;
 
 extern obj_t *objlist;
 extern objdef_t objdefs[];
 
+const char *ObjName (obj_t *obj);
 int RunTimer (obj_t *obj);
-bool TryMove (obj_t *obj, float x, float y);
+bool TryMove (obj_t *obj, tile x, tile y);
 
 obj_t   NewObjectFromDef (objtype_t type, tile x, tile y);
 void DrawObject (obj_t *obj);

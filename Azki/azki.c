@@ -143,8 +143,8 @@ void PlayLoop (void)
                 while (check)
                 {
                     if (check->state &&
-                        check->x == obj->x &&
-                        check->y == obj->y)
+                        check->x == (int)obj->x && // use interger tile coords!
+                        check->y == (int)obj->y)
                     {
                         if (obj->contact)
                             obj->contact(obj, check);

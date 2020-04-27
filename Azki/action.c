@@ -64,55 +64,27 @@ void A_UpdateSpider (obj_t *sp)
 
 void
 A_SpawnProjectile
-( objtype_t type,
-  obj_t     *src,
-  tile      x,
-  tile      y,
-  float     dx,
-  float     dy,
-  int       delay,
-  int       damage )
+( objtype_t  type,
+  obj_t      *src,
+  obj_t      *dst,
+  int        dx,
+  int        dy,
+  int        delay,
+  int        damage )
 {
     obj_t proj;
     
-    proj = NewObjectFromDef(type, x, y);
+    proj = NewObjectFromDef(type, src->x, src->y);
+    proj.src = src;
+    proj.dst = dst;
     proj.dx = dx;
     proj.dy = dy;
     proj.delay = delay;
+    proj.hp = damage;
 
     List_AddObject(&proj);
 }
 
-
-
-
-
-//
-// A_ShootProjectile
-// Fire a projectile from src to dst. vmult is a velocity multiplier to
-// adjust the speed
-//
-static void
-A_ShootProjectile
-( objtype_t type,
-  obj_t     *src,
-  obj_t     *dst,
-  int       damage,
-  int       delay,
-  float     vmult )
-{
-    float dist;
-    float dx, dy;
-    float xstep, ystep;
-    
-    dx = dst->x - src->x;
-    dy = dst->y - src->y;
-    dist = sqrt(dx*dx + dy*dy);
-    xstep = dx / dist * vmult;
-    ystep = dy / dist * vmult;
-    
-    A_SpawnProjectile(type, src, src->x, src->y, xstep, ystep, delay, damage);
-}
 
 
 
@@ -122,6 +94,12 @@ void A_UpdateProjectile (obj_t *proj)
     int checkx, checky;
     
     if (RunTimer(proj)) return;
+    
+    if (proj->dst) // projectile has a target, home
+    {
+        proj->dx = sign(proj->dst->x - proj->x);
+        proj->dy = sign(proj->dst->y - proj->y);
+    }
     
     if ( !TryMove(proj, proj->x + proj->dx, proj->y + proj->dy) )
     {
@@ -144,10 +122,15 @@ void A_UpdateProjectile (obj_t *proj)
 
 void A_ProjectileContact (obj_t *proj, obj_t *hit)
 {
+    //printf("proj src: %s, hit: %s", ObjName(proj->src), ObjName(hit));
     if (proj->src == hit)
         return;
-    
-    switch (hit->type) {
+
+    switch (hit->type)
+    {
+        case TYPE_PLAYER:
+            printf("player hit\n");
+            break;
         case TYPE_SPIDER:
             hit->hp -= proj->hp ;
             break;
@@ -155,7 +138,10 @@ void A_ProjectileContact (obj_t *proj, obj_t *hit)
         default:
             break;
     }
-    //b->state = objst_remove;
+    
+    hit->hp -= proj->hp;
+    printf("player hp: %d\n", player->hp);
+    proj->state = objst_remove;
 }
 
 
@@ -189,9 +175,9 @@ void A_NessieUpdate (obj_t *n)
     {
         // show char and shoot at halfway point
         n->glyph.character = objdefs[n->type].glyph.character;
-        damage = 5 * (random() % 3) + 1;
+        damage = 5 * ((random() % 3) + 1);
         if (n->tics == NESSIE_TIME / 2)
-            A_ShootProjectile(TYPE_PROJ_RING, n, player, damage, 4, 1.0f);
+            A_SpawnProjectile(TYPE_PROJ_RING, n, player, 0, 0, 10, damage);
     }
     else if (n->state == objst_inactive)
     {

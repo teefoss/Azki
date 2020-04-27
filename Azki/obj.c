@@ -146,7 +146,7 @@ objdef_t objdefs[NUMTYPES] =
     {   // TYPE_PROJ_BALL
         .glyph = { CHAR_DOT1, YELLOW, TRANSP },
         .flags = OF_ENTITY,
-        .maxhealth = 10,
+        .maxhealth = 0,
         .name = "Ball Projectile",
         .update = A_UpdateProjectile,
         .contact = A_ProjectileContact
@@ -164,6 +164,16 @@ objdef_t objdefs[NUMTYPES] =
 
 
 
+const char *ObjName (obj_t *obj)
+{
+    if (obj)
+        return objdefs[obj->type].name;
+    else
+        return NULL;
+}
+
+
+
 int RunTimer (obj_t *obj)
 {
     if (obj->tics)
@@ -173,14 +183,14 @@ int RunTimer (obj_t *obj)
 
 
 
-bool TryMove (obj_t *obj, float x, float y)
+bool TryMove (obj_t *obj, tile x, tile y)
 {
     // keep object within map
     if ( x < 0 || x >= MAP_W || y < 0 || y >= MAP_H )
         return false;
 
     // move if dest is not solid
-    if ( !(map.foreground[(int)y][(int)x].flags & OF_SOLID) )
+    if ( !(map.foreground[y][x].flags & OF_SOLID) )
     {
         obj->x = x;
         obj->y = y;

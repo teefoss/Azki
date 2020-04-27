@@ -42,32 +42,29 @@ void P_PlayerInput (void)
 void P_FireBullet (dir_t dir)
 {
     int damage;
-    float dx, dy;
-    float speed;
+    int dx, dy;
     
     damage = rand() % 3 + 5;
-    speed = 1.0f;
-    dx = 0;
-    dy = 0;
+    dx = dy = 0;
     
     switch (dir)
     {
         case DIR_EAST:
-            dx = speed;
+            dx = 1;
             break;
         case DIR_NORTH:
-            dy = -speed;
+            dy = -1;
             break;
         case DIR_WEST:
-            dx = -speed;
+            dx = -1;
             break;
         case DIR_SOUTH:
-            dy = speed;
+            dy = 1;
             break;
         default:
             break;
     }
-    A_SpawnProjectile(TYPE_PROJ_BALL, player, player->x, player->y, dx, dy, 3, damage);
+    A_SpawnProjectile(TYPE_PROJ_BALL, player, NULL, dx, dy, 3, damage);
     player->delay = 20;
 }
 
