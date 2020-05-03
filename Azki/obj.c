@@ -22,6 +22,7 @@ objdef_t objdefs[NUMTYPES] =
         .flags = 0,
         .maxhealth = 0,
         .name = "None",
+        .hud = "",
         .update = NULL,
         .contact = NULL,
     },
@@ -30,6 +31,7 @@ objdef_t objdefs[NUMTYPES] =
         .flags = OF_ENTITY,
         .maxhealth = 100,
         .name = "Player",
+        .hud = "",
         .update = P_UpdatePlayer,
         .contact = P_PlayerContact
     },
@@ -38,6 +40,7 @@ objdef_t objdefs[NUMTYPES] =
         .flags = OF_SOLID,
         .maxhealth = 0,
         .name = "Tree",
+        .hud = "",
         .update = NULL,
         .contact = NULL,
     },
@@ -47,6 +50,7 @@ objdef_t objdefs[NUMTYPES] =
         .flags = OF_SOLID,
         .maxhealth = 0,
         .name = "Rock 1",
+        .hud = "",
         .update = NULL,
         .contact = NULL,
     },
@@ -55,6 +59,7 @@ objdef_t objdefs[NUMTYPES] =
         .flags = OF_SOLID,
         .maxhealth = 0,
         .name = "Rock 2",
+        .hud = "",
         .update = NULL,
         .contact = NULL,
     },
@@ -63,6 +68,7 @@ objdef_t objdefs[NUMTYPES] =
         .flags = OF_SOLID,
         .maxhealth = 0,
         .name = "Rock 3",
+        .hud = "",
         .update = NULL,
         .contact = NULL,
     },
@@ -71,6 +77,7 @@ objdef_t objdefs[NUMTYPES] =
         .flags = OF_SOLID,
         .maxhealth = 0,
         .name = "Rock 4",
+        .hud = "",
         .update = NULL,
         .contact = NULL,
     },
@@ -80,6 +87,7 @@ objdef_t objdefs[NUMTYPES] =
         .flags = 0,
         .maxhealth = 0,
         .name = "Water",
+        .hud = "",
         .update = A_UpdateWater,
         .contact = NULL
     },
@@ -89,6 +97,7 @@ objdef_t objdefs[NUMTYPES] =
         .flags = 0,
         .maxhealth = 0,
         .name = "Grass 1",
+        .hud = "",
         .update = NULL,
         .contact = NULL
     },
@@ -97,6 +106,7 @@ objdef_t objdefs[NUMTYPES] =
         .flags = 0,
         .maxhealth = 0,
         .name = "Grass 2",
+        .hud = "",
         .update = NULL,
         .contact = NULL
     },
@@ -105,6 +115,7 @@ objdef_t objdefs[NUMTYPES] =
         .flags = 0,
         .maxhealth = 0,
         .name = "Grass 3",
+        .hud = "",
         .update = NULL,
         .contact = NULL
     },
@@ -113,6 +124,25 @@ objdef_t objdefs[NUMTYPES] =
         .flags = 0,
         .maxhealth = 0,
         .name = "Grass 4",
+        .hud = "",
+        .update = NULL,
+        .contact = NULL
+    },
+    {   // TYPE_STONE1
+        .glyph = { 254, PITCHBLACK, BLACK },
+        .flags = OF_SOLID,
+        .maxhealth = 0,
+        .name = "Stone Wall 1",
+        .hud = "",
+        .update = NULL,
+        .contact = NULL
+    },
+    {   // TYPE_STONE2
+        .glyph = { 254, PITCHBLACK, GRAY },
+        .flags = OF_SOLID,
+        .maxhealth = 0,
+        .name = "Stone Wall 2",
+        .hud = "",
         .update = NULL,
         .contact = NULL
     },
@@ -121,9 +151,10 @@ objdef_t objdefs[NUMTYPES] =
     
     {   // TYPE_SPIDER
         .glyph = { '*', GRAY, TRANSP },
-        .flags = OF_ENTITY,
+        .flags = OF_ENTITY|OF_SOLID,
         .maxhealth = 20,
         .name = "Spider",
+        .hud = "DAHHHH (killed by a spider)",
         .update = A_UpdateSpider,
         .contact = NULL
     },
@@ -133,12 +164,72 @@ objdef_t objdefs[NUMTYPES] =
         .flags = OF_ENTITY,
         .maxhealth = 40,
         .name = "Nessie",
+        .hud = "",
         .update = A_NessieUpdate,
         .contact = NULL
     },
+    {   // TYPE_ORGE
+        .glyph = { 148, BROWN, TRANSP },
+        .flags = OF_ENTITY|OF_SOLID,
+        .maxhealth = 5,
+        .name = "Orge",
+        .hud = "You were thwumped by an ogre!",
+        .update = A_OgreUpdate,
+        .contact = NULL
+    },
+    
+    
+    {   // TYPE_GOLDKEY
+        .glyph = { 229, YELLOW, TRANSP },
+        .flags = OF_ENTITY,
+        .maxhealth = 0,
+        .name = "Gold Key",
+        .hud = "Picked up a Gold Key",
+        .update = NULL,
+        .contact = P_CollectItem
+    },
+    {   // TYPE_BLUEKEY
+        .glyph = { 229, BLUE, TRANSP },
+        .flags = OF_ENTITY,
+        .maxhealth = 0,
+        .name = "Blue Key",
+        .hud = "Picked up the Blue Key",
+        .update = NULL,
+        .contact = P_CollectItem
+    },
+    {   // TYPE_GREENKEY
+        .glyph = { 229, GREEN, TRANSP },
+        .flags = OF_ENTITY,
+        .maxhealth = 0,
+        .name = "Green Key",
+        .hud = "Picked up the Green Key",
+        .update = NULL,
+        .contact = P_CollectItem
+    },
+
+    {   // TYPE_SWITCH
+        .glyph = { 254, BROWN, TRANSP },
+        .flags = 0,
+        .maxhealth = 0,
+        .name = "Button",
+        .hud = "",
+        .update = NULL,
+        .contact = NULL
+    },
+    {   // TYPE_BLOCK
+        .glyph = { 254, BLACK, BROWN },
+        .flags = OF_PUSHABLE,
+        .maxhealth = 0,
+        .name = "Bryte-Block",
+        .hud = "",
+        .update = NULL,
+        .contact = NULL,
+    },
+
+
 
     {   // NUMTYPES (placeholder)
-        .glyph = { CHAR_NUL, TRANSP, TRANSP },0,0,"",NULL,NULL
+        .glyph = { CHAR_NUL, TRANSP, TRANSP }
     },
     
     //==========================================================================
@@ -157,6 +248,7 @@ objdef_t objdefs[NUMTYPES] =
         .flags = OF_ENTITY,
         .maxhealth = 0,
         .name = "Ring Projectile",
+        .hud = "You were blasted by a death ring!",
         .update = A_UpdateProjectile,
         .contact = A_ProjectileContact
     },
@@ -185,19 +277,32 @@ int RunTimer (obj_t *obj)
 
 bool TryMove (obj_t *obj, tile x, tile y)
 {
+    obj_t *check;
+    
     // keep object within map
     if ( x < 0 || x >= MAP_W || y < 0 || y >= MAP_H )
         return false;
 
-    // move if dest is not solid
-    if ( !(map.foreground[y][x].flags & OF_SOLID) )
+    if ( (map.foreground[y][x].flags & OF_SOLID) )
     {
-        obj->x = x;
-        obj->y = y;
-        return true;
+        return false;
     }
     
-    return false;
+    // don't walk over solid entities
+    if ( obj->flags & (OF_ENTITY) )
+    {
+        check = objlist;
+        do {
+            if ( (check->flags & OF_SOLID) && check->x == x && check->y == y )
+                return false;
+            check = check->next;
+        } while (check);
+    }
+
+    obj->x = x;
+    obj->y = y;
+
+    return true;
 }
 
 
@@ -313,8 +418,11 @@ void List_DrawObjects (void)
     
     obj = objlist;
     do {
-        if (obj->type != TYPE_NONE)
+        if (obj->type != TYPE_NONE) {
             DrawGlyph(&obj->glyph, draw_x(obj->x), draw_y(obj->y), PITCHBLACK);
+        }
+        if (obj->type == TYPE_GOLDKEY)
+            printf("gold key!\n");
         obj = obj->next;
     } while (obj);
 }
@@ -329,7 +437,7 @@ void DrawObject (obj_t *obj)
     if (obj->type == TYPE_NONE)
         return; // don't bother
     
-    if (obj->update)
+    if ( !(obj->flags & OF_ENTITY) && obj->update)
         obj->update(obj); // update any fg/bg objects
         
     winx = obj->x * TILE_SIZE + maprect.x; // draw loctions
@@ -354,6 +462,14 @@ obj_t NewObjectFromDef (objtype_t type, tile x, tile y)
     
     // initial default definition values
     new.glyph = objdefs[type].glyph;
+#if 0
+    if (type == TYPE_STONE2 && (x+y) % 2 == 0)
+    {
+        int temp = new.glyph.fg_color;
+        new.glyph.fg_color = new.glyph.bg_color;
+        new.glyph.bg_color = temp;
+    }
+#endif
     new.hp = objdefs[type].maxhealth;
     new.flags = objdefs[type].flags;
     new.update = objdefs[type].update;

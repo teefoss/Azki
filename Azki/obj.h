@@ -38,8 +38,16 @@ typedef enum
     TYPE_GRASS2,
     TYPE_GRASS3,
     TYPE_GRASS4,
+    TYPE_STONE1,
+    TYPE_STONE2,
     TYPE_SPIDER,
     TYPE_NESSIE,
+    TYPE_ORGE,
+    TYPE_GOLDKEY,
+    TYPE_BLUEKEY,
+    TYPE_GREENKEY,
+    TYPE_SWITCH,
+    TYPE_BLOCK,
     NUMLAYERTYPES,
     
     // misc objects that don't appear in editor (projectiles etc.)
@@ -54,6 +62,8 @@ typedef enum
     OF_PUSHABLE     = 0x02,
     OF_NOEDITOR     = 0x04, // don't show glyph in editor
     OF_ENTITY       = 0x08, // add to object list
+    OF_CANDROWN     = 0x16, // some entities will walk into walk
+    OF_ITEM         = 0x32  // collectible by player
 } objflags_t;
 
 struct objdef_s;
@@ -103,6 +113,7 @@ typedef struct objdef_s
     objflags_t  flags;
     int         maxhealth;
     char        name[40]; // editor only
+    char        hud[40]; // in-game info
     
     action1_t   update;
     action2_t   contact;

@@ -222,8 +222,6 @@ void DrawEditorHUD (SDL_Point *mousept, SDL_Point *mousetile)
     int msg_x;
     char mouseinfo[100];
     
-    PrintMapName();
-    
     // layer
     msg_x = TopHUD.x + maprect.w - (int)strlen(layer_msg[layer]) * GLYPH_SIZE;
     TextColor(layer == LAYER_FG ? YELLOW : BROWN);
@@ -430,6 +428,8 @@ void EditorLoop (void)
                 DrawCursor(&mousetile);
             if (grid.shown)
                 DrawSelectionGrid(&mousept);
+            else
+                PrintMapName();
         }
         else if (view == VIEW_CHARS)
         {

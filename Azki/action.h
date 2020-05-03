@@ -19,5 +19,6 @@ void A_UpdateProjectile (obj_t *b);
 void A_ProjectileContact (obj_t *b, obj_t *hit);
 
 void A_NessieUpdate (obj_t *n);
+void A_OgreUpdate (obj_t *ogre);
 
 #endif /* action_h */

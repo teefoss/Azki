@@ -185,3 +185,30 @@ void A_NessieUpdate (obj_t *n)
         n->glyph.character = CHAR_NUL;
     }
 }
+
+
+
+
+void A_OgreUpdate (obj_t *ogre)
+{
+    tile dx, dy;
+    
+    if (RunTimer(ogre)) return;
+    
+    dx = sign(player->x - ogre->x);
+    dy = sign(player->y - ogre->y);
+    if ( !TryMove(ogre, ogre->x + dx, ogre->y + dy) )
+    {
+        while (1) {
+            dx = (random() % 3) - 1; // try a random direction -1, 0, or 1
+            dy = (random() % 3) - 1;
+            if ( TryMove(ogre, ogre->x + dx, ogre->y + dy) )
+                break;
+        }
+    }
+    ogre->tics = (random() % 20) + 50;
+}
+
+
+
+

@@ -47,7 +47,7 @@ void InitializeObjectList (void)
     }
     
     if (player == NULL)
-        Error("PlayLoop: oops! no player start?");
+        Error("InitializeObjectList: oops! no player start?");
 }
 
 
@@ -110,11 +110,14 @@ void DrawPlayerHealthHUD (void)
 
 
 
+
+
 void PlayLoop (void)
 {
     obj_t *obj, *check;
     
     InitializeObjectList();
+    InitPlayer();
     
     tics = 0;
     do
@@ -175,6 +178,7 @@ void PlayLoop (void)
         TextColor(RED);
         
         DrawPlayerHealthHUD();
+        P_DrawInventory();
         DrawMap(&map);
         List_DrawObjects();
         

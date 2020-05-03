@@ -11,8 +11,25 @@
 #include "video.h"
 #include "glyph.h"
 #include "action.h"
+#include "map.h"
+
+
+typedef struct
+{
+    bool goldkey;
+    bool bluekey;
+    bool greenkey;
+    
+} playeritems_t;
 
 obj_t * player;
+playeritems_t items;
+
+
+void InitPlayer (void)
+{
+    memset(&items, 0, sizeof(playeritems_t));
+}
 
 void P_PlayerInput (void)
 {
@@ -80,9 +97,15 @@ void P_UpdatePlayer (obj_t * pl)
     // move player
     if ( (pl->dx || pl->dy) && !movetics )
     {
-        if ( TryMove(pl, pl->x + pl->dx, pl->y + pl->dy) )
+        if ( !TryMove(pl, pl->x + pl->dx, pl->y + pl->dy) ) {
+            
+        }
+        else
+        {
             movetics = 10;
+        }
     }
+        
     if (!keys[SDL_SCANCODE_W] &&
         !keys[SDL_SCANCODE_A] &&
         !keys[SDL_SCANCODE_S] &&
@@ -103,3 +126,54 @@ void P_PlayerContact (obj_t *pl, obj_t *hit)
 
 
 
+void P_CollectItem (obj_t *item, obj_t *entity)
+{
+    if (entity->type != TYPE_PLAYER)
+        return;
+    
+    printf("item: %s, entity: %s\n", ObjName(item), ObjName(entity));
+    
+    printf("item type:    %d\n", item->type);
+    printf("TYPE_GOLDKEY: %d\n", TYPE_GOLDKEY);
+    switch (item->type)
+    {
+        case TYPE_GOLDKEY:
+            items.goldkey = true;
+            break;
+        case TYPE_BLUEKEY:
+            items.bluekey = true;
+            break;
+        case TYPE_GREENKEY:
+            items.greenkey = true;
+            break;
+        default:
+            break;
+    }
+    
+    item->state = objst_remove;
+}
+
+
+
+
+void P_DrawInventory (void)
+{
+    pixel x, y;
+    
+    y = BottomHUD.y;
+    x = maprect.x + maprect.w;
+    
+    x -= TILE_SIZE;
+    if (items.goldkey)
+        DrawGlyph(&objdefs[TYPE_GOLDKEY].glyph, x, y, PITCHBLACK);
+    x -= TILE_SIZE;
+    if (items.bluekey)
+        DrawGlyph(&objdefs[TYPE_BLUEKEY].glyph, x, y, PITCHBLACK);
+    x -= TILE_SIZE;
+    if (items.greenkey)
+        DrawGlyph(&objdefs[TYPE_GREENKEY].glyph, x, y, PITCHBLACK);
+    
+    x -= TILE_SIZE * 5;
+    TextColor(BRIGHTWHITE);
+    PrintString("Keys", x, y);
+}

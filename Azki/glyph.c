@@ -60,3 +60,9 @@ void DrawGlyph (glyph_t *glyph, pixel x, pixel y, int shadow_color)
         SDL_RenderCopy(renderer, font_table, &src, &dst);
     }
 }
+
+
+void DrawGlyphAtTile (glyph_t *g, tile x, tile y, int shadow)
+{
+    DrawGlyph(g, x * GLYPH_SIZE, y * GLYPH_SIZE, shadow);
+}
