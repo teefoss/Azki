@@ -13,17 +13,9 @@
 #include "action.h"
 #include "map.h"
 
-
-typedef struct
-{
-    bool goldkey;
-    bool bluekey;
-    bool greenkey;
-    
-} playeritems_t;
-
 obj_t * player;
 playeritems_t items;
+int maxhealth = 5;
 
 
 void InitPlayer (void)
@@ -85,9 +77,54 @@ void P_FireBullet (dir_t dir)
     player->delay = 20;
 }
 
+
+void P_OpenDoor (obj_t *door)
+{
+    switch (door->type)
+    {
+        case TYPE_GOLDDOOR:
+            if (items.goldkey)
+            {
+                *door = NewObjectFromDef(TYPE_NONE, door->x, door->y);
+                items.goldkey = false;
+            }
+            else
+            {
+                HUDMessage("You need a gold key to open this door!");
+            }
+            break;
+        case TYPE_BLUEDOOR:
+            if (items.bluekey)
+            {
+                *door = NewObjectFromDef(TYPE_NONE, door->x, door->y);
+                items.bluekey = false;
+            }
+            else
+            {
+                HUDMessage("You need a gold blue to open this door!");
+            }
+            break;
+        case TYPE_GREENDOOR:
+            if (items.greenkey)
+            {
+                *door = NewObjectFromDef(TYPE_NONE, door->x, door->y);
+                items.greenkey = false;
+            }
+            else
+            {
+                HUDMessage("You need a green key to open this door!");
+            }
+            break;
+        default:
+            break;
+    }
+}
+
 void P_UpdatePlayer (obj_t * pl)
 {
+    int newx, newy;
     static int movetics = 0;
+    obj_t *contact;
     
     if (movetics)
         movetics--;
@@ -95,9 +132,19 @@ void P_UpdatePlayer (obj_t * pl)
         pl->delay--;
     
     // move player
+    newx = pl->x + pl->dx;
+    newy = pl->y + pl->dy;
     if ( (pl->dx || pl->dy) && !movetics )
     {
-        if ( !TryMove(pl, pl->x + pl->dx, pl->y + pl->dy) ) {
+        contact = &map.foreground[newy][newx];
+        if ( contact->type == TYPE_GOLDDOOR
+            || contact->type == TYPE_BLUEDOOR
+            || contact->type == TYPE_GREENDOOR )
+        {
+            P_OpenDoor(contact);
+        }
+        
+        if ( !TryMove(pl, newx, newy) ) {
             
         }
         else
@@ -176,4 +223,28 @@ void P_DrawInventory (void)
     x -= TILE_SIZE * 5;
     TextColor(BRIGHTWHITE);
     PrintString("Keys", x, y);
+}
+
+
+
+void P_DrawHealth (void)
+{
+    int i;
+    int hp;
+    pixel x, y;
+    glyph_t redheart = { CHAR_HEART, RED, TRANSP };
+    glyph_t grayheart = { CHAR_HEART, GRAY, TRANSP };
+    
+    x = TopHUD.x + maprect.w - TILE_SIZE;
+    y = TopHUD.y;
+    hp = player->hp;
+    for (i=0 ; i<maxhealth ; i++)
+    {
+        if (hp)
+            DrawGlyph(&redheart, x, y, BLACK);
+        else
+            DrawGlyph(&grayheart, x, y, BLACK);
+        if (hp) hp--;
+        x -= TILE_SIZE;
+    }
 }

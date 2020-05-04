@@ -54,7 +54,15 @@ void DrawGlyph (glyph_t *glyph, pixel x, pixel y, int shadow_color)
     // glyph
     if (glyph->fg_color != TRANSP)
     {
-        src.y = glyph->fg_color * GLYPH_SIZE;
+        if (glyph->fg_color & BLINK) {
+            int color = glyph->fg_color;
+            color ^= BLINK;
+            if (SDL_GetTicks() % 600 < 300)
+                color ^= 8;
+            src.y = (color % NUMCOLORS) * GLYPH_SIZE;
+        } else {
+            src.y = glyph->fg_color * GLYPH_SIZE;
+        }
         dst.x = x;
         dst.y = y;
         SDL_RenderCopy(renderer, font_table, &src, &dst);

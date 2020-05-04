@@ -29,7 +29,7 @@ objdef_t objdefs[NUMTYPES] =
     {   // TYPE_PLAYER,
         .glyph = { CHAR_FACE_SOLID, BRIGHTBLUE, TRANSP },
         .flags = OF_ENTITY,
-        .maxhealth = 100,
+        .maxhealth = 3,
         .name = "Player",
         .hud = "",
         .update = P_UpdatePlayer,
@@ -129,7 +129,7 @@ objdef_t objdefs[NUMTYPES] =
         .contact = NULL
     },
     {   // TYPE_STONE1
-        .glyph = { 254, PITCHBLACK, BLACK },
+        .glyph = { 254, GRAY, BLACK },
         .flags = OF_SOLID,
         .maxhealth = 0,
         .name = "Stone Wall 1",
@@ -138,7 +138,7 @@ objdef_t objdefs[NUMTYPES] =
         .contact = NULL
     },
     {   // TYPE_STONE2
-        .glyph = { 254, PITCHBLACK, GRAY },
+        .glyph = { 254, WHITE, GRAY },
         .flags = OF_SOLID,
         .maxhealth = 0,
         .name = "Stone Wall 2",
@@ -198,7 +198,7 @@ objdef_t objdefs[NUMTYPES] =
         .contact = P_CollectItem
     },
     {   // TYPE_GREENKEY
-        .glyph = { 229, GREEN, TRANSP },
+        .glyph = { 229, BRIGHTGREEN, TRANSP },
         .flags = OF_ENTITY,
         .maxhealth = 0,
         .name = "Green Key",
@@ -206,6 +206,34 @@ objdef_t objdefs[NUMTYPES] =
         .update = NULL,
         .contact = P_CollectItem
     },
+    {   // TYPE_GOLDDOOR
+        .glyph = { 8, GRAY, YELLOW },
+        .flags = OF_SOLID,
+        .maxhealth = 0,
+        .name = "Gold Door",
+        .hud = "You need a gold key to open this door!",
+        .update = NULL,
+        .contact = NULL
+    },
+    {   // TYPE_BLUEDOOR
+        .glyph = { 8, GRAY, BLUE },
+        .flags = OF_SOLID,
+        .maxhealth = 0,
+        .name = "Blue Door",
+        .hud = "You need a blue key to open this door!",
+        .update = NULL,
+        .contact = NULL
+    },
+    {   // TYPE_GOLDDOOR
+        .glyph = { 8, GRAY, BRIGHTGREEN },
+        .flags = OF_SOLID,
+        .maxhealth = 0,
+        .name = "Green Door",
+        .hud = "You need a green key to open this door!",
+        .update = NULL,
+        .contact = NULL
+    },
+
 
     {   // TYPE_SWITCH
         .glyph = { 254, BROWN, TRANSP },
@@ -221,6 +249,16 @@ objdef_t objdefs[NUMTYPES] =
         .flags = OF_PUSHABLE,
         .maxhealth = 0,
         .name = "Bryte-Block",
+        .hud = "",
+        .update = NULL,
+        .contact = NULL,
+    },
+
+    {   // TYPE_EXIT
+        .glyph = { 239, MAGENTA|BLINK, TRANSP },
+        .flags = 0,
+        .maxhealth = 0,
+        .name = "Exit",
         .hud = "",
         .update = NULL,
         .contact = NULL,

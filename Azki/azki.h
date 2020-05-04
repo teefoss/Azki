@@ -29,5 +29,6 @@ extern int tics;
 void Error (const char * message);
 void Quit (void);
 void PlayLoop (void);
+void HUDMessage(const char * msg);
 
 #endif /* azki_h */

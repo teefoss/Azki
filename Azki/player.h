@@ -11,7 +11,16 @@
 
 #include "obj.h"
 
+typedef struct
+{
+    bool goldkey;
+    bool bluekey;
+    bool greenkey;
+    
+} playeritems_t;
+
 extern obj_t *player;
+extern playeritems_t items;
 
 void InitPlayer (void);
 void P_PlayerInput (void);
@@ -20,5 +29,6 @@ void P_UpdatePlayer (obj_t * pl);
 void P_PlayerContact (obj_t *pl, obj_t *hit);
 void P_CollectItem (obj_t *item, obj_t *entity);
 void P_DrawInventory (void);
+void P_DrawHealth (void);
 
 #endif /* player_h */

@@ -18,6 +18,17 @@
 int state;
 int tics;
 
+char hudmsg[40];
+int hudtics;
+
+
+void HUDMessage(const char * msg)
+{
+    hudtics = 90;
+    strncpy(hudmsg, msg, 40);
+}
+
+
 
 //
 // InitializeObjectList
@@ -95,20 +106,6 @@ void DoGameInput (void)
 }
 
 
-void DrawPlayerHealthHUD (void)
-{
-    char buf[80];
-    sprintf(buf, "Health %3d", player->hp);
-    if (player->hp >= 66)
-        TextColor(BRIGHTGREEN);
-    else if (player->hp >= 33 && player->hp < 66)
-        TextColor(YELLOW);
-    else if (player->hp >= 0 && player->hp < 33)
-        TextColor(RED);
-    PrintString(buf, maprect.x, BottomHUD.y);
-}
-
-
 
 
 
@@ -177,7 +174,13 @@ void PlayLoop (void)
         Clear(0, 0, 0);
         TextColor(RED);
         
-        DrawPlayerHealthHUD();
+        if (hudtics)
+        {
+            TextColor(WHITE);
+            PrintString(hudmsg, BottomHUD.x, BottomHUD.y);
+            --hudtics;
+        }
+        P_DrawHealth();
         P_DrawInventory();
         DrawMap(&map);
         List_DrawObjects();

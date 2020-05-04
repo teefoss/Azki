@@ -46,8 +46,12 @@ typedef enum
     TYPE_GOLDKEY,
     TYPE_BLUEKEY,
     TYPE_GREENKEY,
+    TYPE_GOLDDOOR,
+    TYPE_BLUEDOOR,
+    TYPE_GREENDOOR,
     TYPE_SWITCH,
     TYPE_BLOCK,
+    TYPE_EXIT,
     NUMLAYERTYPES,
     
     // misc objects that don't appear in editor (projectiles etc.)

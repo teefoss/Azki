@@ -36,6 +36,7 @@ enum
 };
 
 #define NUM_CGA_COLORS 16
+#define BLINK   0x20
 
 extern SDL_Window * window;
 extern SDL_Renderer * renderer;
