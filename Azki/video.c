@@ -78,6 +78,11 @@ void TextColor (int c)
     fgcolor = c;
 }
 
+void BackgroundColor (int c)
+{
+    bgcolor = c;
+}
+
 void SetPaletteColor (int c)
 {
     SDL_SetRenderDrawColor(renderer, colors[c].r, colors[c].g, colors[c].b, 255);
@@ -118,7 +123,7 @@ void FillRect (int x, int y, int w, int h)
 
 
 
-void PrintString (const char *s, int winx, int winy)
+void PrintString (const char *s, pixel x, pixel y)
 {
     glyph_t g;
     
@@ -127,8 +132,8 @@ void PrintString (const char *s, int winx, int winy)
         g.character = *s;
         g.fg_color = fgcolor;
         g.bg_color = TRANSP;
-        DrawGlyph(&g, winx, winy, BLACK);
-        winx += TILE_SIZE;
+        DrawGlyph(&g, x, y, BLACK);
+        x += TILE_SIZE;
         s++;
     }
 }

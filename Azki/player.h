@@ -16,11 +16,12 @@ typedef struct
     bool goldkey;
     bool bluekey;
     bool greenkey;
-    
+    bool boat;
 } playeritems_t;
 
 extern obj_t *player;
 extern playeritems_t items;
+extern dir_t player_sword;
 
 void InitPlayer (void);
 void P_PlayerInput (void);
@@ -30,5 +31,7 @@ void P_PlayerContact (obj_t *pl, obj_t *hit);
 void P_CollectItem (obj_t *item, obj_t *entity);
 void P_DrawInventory (void);
 void P_DrawHealth (void);
+void P_DrawSword (void);
+void P_DrawPlayer (void);
 
 #endif /* player_h */

@@ -259,8 +259,6 @@ void DrawMap (map_t *map)
         }
         else if (state == GS_EDITOR)
         {
-            if (obj->type == TYPE_GOLDKEY)
-            printf("gold key!!!\n");
             if (showlayer == LAYER_BG || showlayer == LAYER_BOTH)
                 DrawObject(bkg++);
             if (showlayer == LAYER_FG || showlayer == LAYER_BOTH)

@@ -36,5 +36,6 @@ typedef struct
 
 void DrawGlyph (glyph_t *glyph, pixel x, pixel y, int shadow_color);
 void DrawGlyphAtTile (glyph_t *g, tile x, tile y, int shadow);
+void DrawGlyphAtMapTile (glyph_t *glyph, tile x, tile y, int shadow);
 
 #endif /* glyph_h */

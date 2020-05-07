@@ -58,7 +58,8 @@ void SetPaletteColor (int c);
 void SetRGBColor (uint8_t r, uint8_t g, uint8_t b);
 void SetScale (int scl);
 void TextColor (int c);
-void PrintString (const char *s, int tilex, int tiley);
+void BackgroundColor (int c);
+void PrintString (const char *s, pixel x, pixel y);
 void PrintChar (char c, int winx, int winy);
 void LOG (const char *message, int color);
 

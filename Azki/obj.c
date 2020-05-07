@@ -28,7 +28,7 @@ objdef_t objdefs[NUMTYPES] =
     },
     {   // TYPE_PLAYER,
         .glyph = { CHAR_FACE_SOLID, BRIGHTBLUE, TRANSP },
-        .flags = OF_ENTITY,
+        .flags = OF_ENTITY|OF_SOLID,
         .maxhealth = 3,
         .name = "Player",
         .hud = "",
@@ -84,7 +84,7 @@ objdef_t objdefs[NUMTYPES] =
 
     {   // TYPE_WATER
         .glyph = { CHAR_NUL, BRIGHTBLUE, BLUE },
-        .flags = 0,
+        .flags = OF_SOLID,
         .maxhealth = 0,
         .name = "Water",
         .hud = "",
@@ -146,13 +146,22 @@ objdef_t objdefs[NUMTYPES] =
         .update = NULL,
         .contact = NULL
     },
+    {   // TYPE_DIRT
+        .glyph = { 177, BROWN, GRAY },
+        .flags = OF_SOLID|OF_BREAKABLE,
+        .maxhealth = 1,
+        .name = "Dirt",
+        .hud = "",
+        .update = NULL,
+        .contact = NULL
+    },
 
 
     
     {   // TYPE_SPIDER
         .glyph = { '*', GRAY, TRANSP },
         .flags = OF_ENTITY|OF_SOLID,
-        .maxhealth = 20,
+        .maxhealth = 1,
         .name = "Spider",
         .hud = "DAHHHH (killed by a spider)",
         .update = A_UpdateSpider,
@@ -171,13 +180,22 @@ objdef_t objdefs[NUMTYPES] =
     {   // TYPE_ORGE
         .glyph = { 148, BROWN, TRANSP },
         .flags = OF_ENTITY|OF_SOLID,
-        .maxhealth = 5,
+        .maxhealth = 3,
         .name = "Orge",
         .hud = "You were thwumped by an ogre!",
         .update = A_OgreUpdate,
         .contact = NULL
     },
-    
+    {   // TYPE_CORPSE
+        .glyph = { '@', RED, TRANSP },
+        .flags = OF_ENTITY,
+        .maxhealth = 0,
+        .name = "Corpse",
+        .hud = "",
+        .update = NULL,
+        .contact = NULL
+    },
+
     
     {   // TYPE_GOLDKEY
         .glyph = { 229, YELLOW, TRANSP },
@@ -253,6 +271,28 @@ objdef_t objdefs[NUMTYPES] =
         .update = NULL,
         .contact = NULL,
     },
+    
+    {   // TYPE_HEART
+        .glyph = { CHAR_HEART, RED, TRANSP },
+        .flags = OF_ENTITY,
+        .maxhealth = 0,
+        .name = "Heart",
+        .hud = "You got a health heart!",
+        .update = NULL,
+        .contact = P_CollectItem
+    },
+    
+    {   // TYPE_RAFT
+        .glyph = { 240, GRAY, BROWN },
+        .flags = OF_ENTITY|OF_ITEM,
+        .maxhealth = 0,
+        .name = "Raft",
+        .hud = "You got a raft!",
+        .update = NULL,
+        .contact = P_CollectItem
+    },
+
+
 
     {   // TYPE_EXIT
         .glyph = { 239, MAGENTA|BLINK, TRANSP },
@@ -303,6 +343,30 @@ const char *ObjName (obj_t *obj)
 }
 
 
+objtype_t ObjectAtXY (tile x, tile y)
+{
+    return map.foreground[y][x].type;
+}
+
+
+const char *ObjectNameAtXY (tile x, tile y)
+{
+    return objdefs[ObjectAtXY(x, y)].name;
+}
+
+
+glyph_t *ObjectGlyphAtXY (tile x, tile y)
+{
+    return &map.foreground[y][x].glyph;
+}
+
+
+bool ObjectsOverlap (obj_t *obj1, obj_t *obj2)
+{
+    return obj1->x == obj2->x && obj1->y == obj2->y;
+}
+
+
 
 int RunTimer (obj_t *obj)
 {
@@ -327,12 +391,16 @@ bool TryMove (obj_t *obj, tile x, tile y)
     }
     
     // don't walk over solid entities
-    if ( obj->flags & (OF_ENTITY) )
+    if ( obj->flags & OF_ENTITY )
     {
         check = objlist;
         do {
             if ( (check->flags & OF_SOLID) && check->x == x && check->y == y )
+            {
+                if (obj->contact)
+                    obj->contact(obj, check);
                 return false;
+            }
             check = check->next;
         } while (check);
     }
@@ -344,6 +412,13 @@ bool TryMove (obj_t *obj, tile x, tile y)
 }
 
 
+void RemoveObj (obj_t *obj)
+{
+    ChangeObject(obj, TYPE_NONE, 0);
+}
+
+
+#pragma mark - Object List
 
 
 obj_t *
@@ -377,7 +452,7 @@ List_RemoveObject (obj_t *rem)
     
     if (!rem)
         Error("List_RemoveObject: error, tried to remove NULL object!");
-    printf("removed type %d\n", rem->type);
+    printf("removed type \"%s\"\n", ObjName(rem));
     
     // the first and only
     if (rem == objlist && !rem->next)
@@ -443,10 +518,26 @@ List_RemoveAll (void)
 }
 
 
+int List_Count (void)
+{
+    obj_t *obj;
+    int count;
+    
+    count = 0;
+    obj = objlist;
+    while (obj) {
+        count++;
+        obj = obj->next;
+    }
+    return count;
+}
+
+
 
 #define draw_x(n)   (n * TILE_SIZE + maprect.x)
 #define draw_y(n)   (n * TILE_SIZE + maprect.y)
 
+// draw all entity objects except player
 void List_DrawObjects (void)
 {
     obj_t *obj;
@@ -456,15 +547,32 @@ void List_DrawObjects (void)
     
     obj = objlist;
     do {
-        if (obj->type != TYPE_NONE) {
+        if (obj->type != TYPE_NONE && obj->type != TYPE_PLAYER)
             DrawGlyph(&obj->glyph, draw_x(obj->x), draw_y(obj->y), PITCHBLACK);
-        }
-        if (obj->type == TYPE_GOLDKEY)
-            printf("gold key!\n");
         obj = obj->next;
     } while (obj);
 }
 
+
+
+objtype_t List_ObjectAtXY (tile x, tile y)
+{
+    obj_t *obj;
+    
+    obj = objlist;
+    do
+    {
+        if (obj->x == x && obj->y == y)
+            return obj->type;
+        obj = obj->next;
+    } while (obj);
+    
+    return TYPE_NONE;
+}
+
+
+
+#pragma mark -
 
 
 
@@ -491,6 +599,7 @@ void DrawObject (obj_t *obj)
 obj_t NewObjectFromDef (objtype_t type, tile x, tile y)
 {
     obj_t new;
+    objdef_t *info;
     
     memset(&new, 0, sizeof(new));
     
@@ -499,7 +608,9 @@ obj_t NewObjectFromDef (objtype_t type, tile x, tile y)
     new.y = y;
     
     // initial default definition values
-    new.glyph = objdefs[type].glyph;
+    info = &objdefs[type];
+    new.info = info;
+    new.glyph = info->glyph;
 #if 0
     if (type == TYPE_STONE2 && (x+y) % 2 == 0)
     {
@@ -508,10 +619,23 @@ obj_t NewObjectFromDef (objtype_t type, tile x, tile y)
         new.glyph.bg_color = temp;
     }
 #endif
-    new.hp = objdefs[type].maxhealth;
-    new.flags = objdefs[type].flags;
-    new.update = objdefs[type].update;
-    new.contact = objdefs[type].contact;
+    new.hp = info->maxhealth;
+    new.flags = info->flags;
+    new.update = info->update;
+    new.contact = info->contact;
     
     return new;
+}
+
+
+void ChangeObject (obj_t *obj, objtype_t type, int state)
+{
+    obj_t *next;
+    
+    printf("changing obj of type %s to type %s...\n", ObjName(obj), objdefs[type].name);
+    
+    next = obj->next; // save it because NewObject resets it
+    *obj = NewObjectFromDef(type, obj->x, obj->y);
+    obj->next = next;
+    obj->state = state;
 }

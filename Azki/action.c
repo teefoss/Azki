@@ -32,11 +32,16 @@ void A_UpdateSpider (obj_t *sp)
     int dir;
     bool moved;
     
+    if (sp->hp <= 0) {
+        ChangeObject(sp, TYPE_CORPSE, objst_inactive);
+        return;
+    }
+    
     if (RunTimer(sp)) return;
     
     // move spider in a random direction
     moved = false;
-    dir = random() % 4;
+    dir = random() % 4 + 1;
     switch (dir)
     {
         case DIR_EAST:
@@ -56,6 +61,19 @@ void A_UpdateSpider (obj_t *sp)
     // reset timer if no collision
     if (moved)
         sp->tics = (random() % 30) + 30;
+}
+
+
+void A_SpiderContact (obj_t *sp, obj_t *hit)
+{
+    switch (hit->type) {
+        case TYPE_PLAYER:
+            hit->hp--;
+            break;
+            
+        default:
+            break;
+    }
 }
 
 
@@ -192,6 +210,7 @@ void A_NessieUpdate (obj_t *n)
 void A_OgreUpdate (obj_t *ogre)
 {
     tile dx, dy;
+    int tries;
     
     if (RunTimer(ogre)) return;
     
@@ -199,7 +218,8 @@ void A_OgreUpdate (obj_t *ogre)
     dy = sign(player->y - ogre->y);
     if ( !TryMove(ogre, ogre->x + dx, ogre->y + dy) )
     {
-        while (1) {
+        tries = 20;
+        while (tries--) {
             dx = (random() % 3) - 1; // try a random direction -1, 0, or 1
             dy = (random() % 3) - 1;
             if ( TryMove(ogre, ogre->x + dx, ogre->y + dy) )
@@ -207,6 +227,8 @@ void A_OgreUpdate (obj_t *ogre)
         }
     }
     ogre->tics = (random() % 20) + 50;
+    if (ogre->hp <= 0)
+        ogre->state = objst_remove;
 }
 
 

@@ -9,6 +9,7 @@
 #include "glyph.h"
 #include <SDL2/SDL.h>
 #include "video.h"
+#include "map.h"
 
 
 //
@@ -27,6 +28,7 @@ void DrawGlyph (glyph_t *glyph, pixel x, pixel y, int shadow_color)
     src.x = glyph->character * GLYPH_SIZE;
 
     // background shadow
+#if 1
     if (shadow_color != TRANSP && glyph->bg_color != TRANSP)
     {
         dst.x = x + 1;
@@ -34,6 +36,7 @@ void DrawGlyph (glyph_t *glyph, pixel x, pixel y, int shadow_color)
         SetPaletteColor(PITCHBLACK);
         SDL_RenderFillRect(renderer, &dst);
     }
+#endif
     
     // background color
     if (glyph->bg_color != TRANSP)
@@ -73,4 +76,10 @@ void DrawGlyph (glyph_t *glyph, pixel x, pixel y, int shadow_color)
 void DrawGlyphAtTile (glyph_t *g, tile x, tile y, int shadow)
 {
     DrawGlyph(g, x * GLYPH_SIZE, y * GLYPH_SIZE, shadow);
+}
+
+
+void DrawGlyphAtMapTile (glyph_t *glyph, tile x, tile y, int shadow)
+{
+    DrawGlyph(glyph, x * GLYPH_SIZE + maprect.x, y * GLYPH_SIZE + maprect.y, shadow);
 }
