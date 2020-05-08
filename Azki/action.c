@@ -68,7 +68,7 @@ void A_SpiderContact (obj_t *sp, obj_t *hit)
 {
     switch (hit->type) {
         case TYPE_PLAYER:
-            hit->hp--;
+            DamageObj(hit, 1);
             break;
             
         default:
@@ -97,7 +97,7 @@ A_SpawnProjectile
     proj.dst = dst;
     proj.dx = dx;
     proj.dy = dy;
-    proj.delay = delay;
+    proj.updatedelay = delay;
     proj.hp = damage;
 
     List_AddObject(&proj);
@@ -135,7 +135,7 @@ void A_UpdateProjectile (obj_t *proj)
         // always remove when a projectile hits a solid layer obj
         proj->state = objst_remove;
     }
-    proj->tics = proj->delay;
+    proj->tics = proj->updatedelay;
 }
 
 void A_ProjectileContact (obj_t *proj, obj_t *hit)
@@ -211,6 +211,12 @@ void A_OgreUpdate (obj_t *ogre)
 {
     tile dx, dy;
     int tries;
+    
+    if (ogre->hp <= 0)
+    {
+        ChangeObject(ogre, TYPE_CORPSE, objst_inactive);
+        return;
+    }
     
     if (RunTimer(ogre)) return;
     

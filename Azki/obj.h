@@ -66,13 +66,20 @@ typedef enum
 
 typedef enum
 {
-    OF_SOLID        = 0x01,
-    OF_PUSHABLE     = 0x02,
-    OF_NOEDITOR     = 0x04, // don't show glyph in editor
-    OF_ENTITY       = 0x08, // add to object list
-    OF_CANDROWN     = 0x16, // some entities will walk into walk
-    OF_ITEM         = 0x32,  // collectible by player
-    OF_BREAKABLE    = 0x64
+    OF_SOLID        = 0x0001,
+    // player can move it
+    OF_PUSHABLE     = 0x0002,
+    // don't show glyph in editor
+    OF_NOEDITOR     = 0x0004,
+    // add to object list, all objects that need to update() and contact()
+    OF_ENTITY       = 0x0008,
+    // some entities will walk into water
+    OF_CANDROWN     = 0x0010,
+    // collectible by player
+    OF_ITEM         = 0x0020,
+    OF_BREAKABLE    = 0x0040,
+    // inflicts damage on player
+    OF_DAMAGING     = 0x0080,
 } objflags_t;
 
 struct objdef_s;
@@ -106,7 +113,8 @@ typedef struct obj_s
     
     // animation and timers
     int         tics;
-    int         delay; // how many frames to wait
+    int         updatedelay; // how many frames to wait
+    int         hittimer;
     
     // update and contact functions, called every frame
     action1_t   update;
@@ -135,24 +143,27 @@ extern obj_t *objlist;
 extern objdef_t objdefs[];
 
 const char *    ObjName (obj_t *obj);
-int             RunTimer (obj_t *obj);
-bool            TryMove (obj_t *obj, tile x, tile y);
-objtype_t       ObjectAtXY (tile x, tile y);
 const char *    ObjectNameAtXY (tile x, tile y);
-glyph_t *       ObjectGlyphAtXY (tile x, tile y);
-bool            ObjectsOverlap (obj_t *obj1, obj_t *obj2);
-void            RemoveObj (obj_t *obj);
+
+int         RunTimer (obj_t *obj);
+bool        TryMove (obj_t *obj, tile x, tile y);
+objtype_t   ObjectAtXY (tile x, tile y);
+glyph_t *   ObjectGlyphAtXY (tile x, tile y);
+bool        ObjectsOverlap (obj_t *obj1, obj_t *obj2);
+void        RemoveObj (obj_t *obj);
+void        FlashObject (obj_t *obj, int *timer, int color);
+void        DamageObj (obj_t *obj, int damage);
 
 obj_t NewObjectFromDef (objtype_t type, tile x, tile y);
 void ChangeObject (obj_t *obj, objtype_t type, int state);
 void DrawObject (obj_t *obj);
 
-obj_t * List_AddObject (obj_t *add);
-obj_t * List_RemoveObject (obj_t *rem);
-void    List_RemoveAll (void);
-int     List_Count (void);
-void    List_DrawObjects (void);
-objtype_t List_ObjectAtXY (tile x, tile y);
+obj_t *     List_AddObject (obj_t *add);
+obj_t *     List_RemoveObject (obj_t *rem);
+void        List_RemoveAll (void);
+int         List_Count (void);
+void        List_DrawObjects (void);
+objtype_t   List_ObjectAtXY (tile x, tile y);
 
 
 #endif /* obj_h */

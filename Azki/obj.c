@@ -160,12 +160,12 @@ objdef_t objdefs[NUMTYPES] =
     
     {   // TYPE_SPIDER
         .glyph = { '*', GRAY, TRANSP },
-        .flags = OF_ENTITY|OF_SOLID,
+        .flags = OF_ENTITY|OF_SOLID|OF_DAMAGING,
         .maxhealth = 1,
         .name = "Spider",
-        .hud = "DAHHHH (killed by a spider)",
+        .hud = "You were devoured by a giant spider",
         .update = A_UpdateSpider,
-        .contact = NULL
+        .contact = A_SpiderContact
     },
         
     {   // TYPE_NESSIE
@@ -179,7 +179,7 @@ objdef_t objdefs[NUMTYPES] =
     },
     {   // TYPE_ORGE
         .glyph = { 148, BROWN, TRANSP },
-        .flags = OF_ENTITY|OF_SOLID,
+        .flags = OF_ENTITY|OF_SOLID|OF_DAMAGING,
         .maxhealth = 3,
         .name = "Orge",
         .hud = "You were thwumped by an ogre!",
@@ -314,7 +314,7 @@ objdef_t objdefs[NUMTYPES] =
 
     {   // TYPE_PROJ_BALL
         .glyph = { CHAR_DOT1, YELLOW, TRANSP },
-        .flags = OF_ENTITY,
+        .flags = OF_ENTITY|OF_DAMAGING,
         .maxhealth = 0,
         .name = "Ball Projectile",
         .update = A_UpdateProjectile,
@@ -323,7 +323,7 @@ objdef_t objdefs[NUMTYPES] =
     
     {   // TYPE_PROJ_RING
         .glyph = { 9, MAGENTA, TRANSP },
-        .flags = OF_ENTITY,
+        .flags = OF_ENTITY|OF_DAMAGING,
         .maxhealth = 0,
         .name = "Ring Projectile",
         .hud = "You were blasted by a death ring!",
@@ -397,7 +397,7 @@ bool TryMove (obj_t *obj, tile x, tile y)
         do {
             if ( (check->flags & OF_SOLID) && check->x == x && check->y == y )
             {
-                if (obj->contact)
+                if (obj->contact) 
                     obj->contact(obj, check);
                 return false;
             }
@@ -412,10 +412,34 @@ bool TryMove (obj_t *obj, tile x, tile y)
 }
 
 
+void DamageObj (obj_t *obj, int damage)
+{
+    if (obj->type == TYPE_PLAYER && obj->hittimer)
+        return;
+    obj->hittimer = 60;
+    obj->hp -= damage;
+}
+
+
 void RemoveObj (obj_t *obj)
 {
     ChangeObject(obj, TYPE_NONE, 0);
 }
+
+
+
+void FlashObject (obj_t *obj, int *timer, int color)
+{
+    if (*timer)
+    {
+        (*timer)--;
+        if (*timer % 2)
+            obj->glyph.fg_color = color;
+        else
+            obj->glyph.fg_color = obj->info->glyph.fg_color;
+    }
+}
+
 
 
 #pragma mark - Object List

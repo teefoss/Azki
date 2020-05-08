@@ -12,7 +12,9 @@
 #include "obj.h"
 
 void A_UpdateWater (obj_t *water);
+
 void A_UpdateSpider (obj_t *sp);
+void A_SpiderContact (obj_t *sp, obj_t *hit);
 
 void A_SpawnProjectile (objtype_t type, obj_t *src, obj_t *dst, int dx, int dy, int delay, int damage);
 void A_UpdateProjectile (obj_t *b);

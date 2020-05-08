@@ -313,7 +313,7 @@ void PlayLoop (void)
         
         if (hudtics)
         {
-            TextColor(WHITE);
+            TextColor(YELLOW);
             PrintString(hudmsg, BottomHUD.x, BottomHUD.y);
             --hudtics;
         }

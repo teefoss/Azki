@@ -18,6 +18,9 @@ playeritems_t items;
 int maxhealth = 5;
 dir_t player_sword;
 
+int hittics;    // enemy hit,
+int flashtics;  // item collect
+
 
 void InitPlayer (void)
 {
@@ -210,7 +213,7 @@ void P_FireBullet (dir_t dir)
             break;
     }
     A_SpawnProjectile(TYPE_PROJ_BALL, player, NULL, dx, dy, 3, damage);
-    player->delay = 20;
+    player->updatedelay = 20;
 }
 
 
@@ -249,23 +252,49 @@ void P_TryOpenDoor (obj_t *door)
 
 
 
+void P_FlashPlayer (int *timer, int color)
+{
+    if (*timer)
+    {
+        (*timer)--;
+        if (SDL_GetTicks() % 2)
+            player->glyph.fg_color = color;
+        else
+            player->glyph.fg_color = player->info->glyph.fg_color;
+    }
+    else
+    {
+        player->glyph.fg_color = player->info->glyph.fg_color;
+    }
+}
+
+
 void P_UpdatePlayer (obj_t * pl)
 {
     int newx, newy;
-    static int movetics = 0;
     obj_t *contact;
     const int movedelay = 10;
+
+    FlashObject(pl, &pl->hittimer, RED);
+    FlashObject(pl, &flashtics, BRIGHTGREEN);
     
-    if (movetics)
-        movetics--;
-    if (pl->delay)
-        pl->delay--;
+    if (pl->updatedelay)
+    {
+        pl->updatedelay--;
+        pl->dx = 0;
+        pl->dy = 0;
+    }
+    
+    if (pl->glyph.fg_color == RED) {
+        printf("flash\n");
+    }
     
     // move player
-    newx = pl->x + pl->dx;
-    newy = pl->y + pl->dy;
-    if ( (pl->dx || pl->dy) && !movetics )
+    if ( (pl->dx || pl->dy) && !player->updatedelay )
     {
+        newx = pl->x + pl->dx;
+        newy = pl->y + pl->dy;
+
         contact = &map.foreground[newy][newx];
 
         if ( contact->type == TYPE_GOLDDOOR
@@ -279,27 +308,12 @@ void P_UpdatePlayer (obj_t * pl)
             if (contact->type == TYPE_WATER && items.boat) {
                 player->x = newx;
                 player->y = newy;
-                movetics = movedelay * 2;
+                player->updatedelay = movedelay * 2;
             }
         }
-        else
-        {
-            movetics = movedelay;
-        }
+        player->updatedelay = movedelay;
     }
         
-    if (!keys[SDL_SCANCODE_W]
-        && !keys[SDL_SCANCODE_A]
-        && !keys[SDL_SCANCODE_S]
-        && !keys[SDL_SCANCODE_D]
-        && !keys[SDL_SCANCODE_E]
-        && !keys[SDL_SCANCODE_Z]
-        && !keys[SDL_SCANCODE_C]
-        && !keys[SDL_SCANCODE_X]
-        && !keys[SDL_SCANCODE_Q])
-    {
-        movetics = 0;
-    }
     pl->dx = 0;
     pl->dy = 0;
 }
@@ -308,8 +322,13 @@ void P_UpdatePlayer (obj_t * pl)
 
 void P_PlayerContact (obj_t *pl, obj_t *hit)
 {
-    pl->hp -= hit->hp;
-    printf("player contact: hp %d\n", pl->hp);
+    if (!hittics && hit->hp != 0) // enemy
+    {
+        pl->hp -= hit->hp;
+        hittics = 60;
+    }
+    
+    //printf("player contact: hp %d\n", pl->hp);
 }
 
 
@@ -341,6 +360,7 @@ void P_CollectItem (obj_t *item, obj_t *entity)
             break;
     }
     
+    flashtics = 30;
     HUDMessage(objdefs[item->type].hud);
     item->state = objst_remove;
 }
