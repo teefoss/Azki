@@ -10,7 +10,6 @@
 #include "azki.h"
 #include "video.h"
 #include "player.h"
-#include "action.h"
 #include "map.h"
 
 #define MS_PER_FRAME 17

@@ -10,7 +10,6 @@
 #include "azki.h"
 #include "video.h"
 #include "glyph.h"
-#include "action.h"
 #include "map.h"
 
 obj_t * player;

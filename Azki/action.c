@@ -7,7 +7,6 @@
 //
 
 #include <SDL2/SDL.h>
-#include "action.h"
 #include "azki.h"
 #include "video.h"
 #include "player.h"
