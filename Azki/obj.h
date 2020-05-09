@@ -147,12 +147,13 @@ const char *    ObjectNameAtXY (tile x, tile y);
 
 int         RunTimer (obj_t *obj);
 bool        TryMove (obj_t *obj, tile x, tile y);
-objtype_t   ObjectAtXY (tile x, tile y);
+objtype_t   ObjectTypeAtXY (tile x, tile y);
 glyph_t *   ObjectGlyphAtXY (tile x, tile y);
 bool        ObjectsOverlap (obj_t *obj1, obj_t *obj2);
 void        RemoveObj (obj_t *obj);
 void        FlashObject (obj_t *obj, int *timer, int color);
 void        DamageObj (obj_t *obj, int damage);
+int ObjectDistance (obj_t *obj1, obj_t *obj2);
 
 obj_t NewObjectFromDef (objtype_t type, tile x, tile y);
 void ChangeObject (obj_t *obj, objtype_t type, int state);

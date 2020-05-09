@@ -69,6 +69,8 @@ int LimitFrameRate (int fps)
     dt = frame_end - frame_start;
     if (dt < ms_per_frame)
         SDL_Delay(ms_per_frame - dt);
+    //else
+        //printf("frame took %d ms!\n", dt);
     
     return dt;
 }

@@ -82,51 +82,13 @@ void P_SwingSword (dir_t dir)
     {
         if (listobj->x == swordx && listobj->y == swordy)
         {
-            listobj->hp--;
+            DamageObj(listobj, 1);
         }
         listobj = listobj->next;
     } while (listobj);
 }
 
 
-void P_DrawSword (void)
-{
-    glyph_t sword = { 0, WHITE, TRANSP };
-    
-    switch (player_sword)
-    {
-        case DIR_NONE:
-            return;
-            
-        case DIR_NORTH:
-            if (player->y >= 1) {
-                sword.character = 179;
-                DrawGlyphAtMapTile(&sword, player->x, player->y - 1, PITCHBLACK);
-            }
-            break;
-        case DIR_SOUTH:
-            if (player->y <= MAP_H - 2) {
-                sword.character = 179;
-                DrawGlyphAtMapTile(&sword, player->x, player->y + 1, PITCHBLACK);
-            }
-            break;
-        case DIR_EAST:
-            if (player->x <= MAP_W - 2) {
-                sword.character = 196;
-                DrawGlyphAtMapTile(&sword, player->x+1, player->y, PITCHBLACK);
-            }
-            break;
-        case DIR_WEST:
-            if (player->x >= 1) {
-                sword.character = 196;
-                DrawGlyphAtMapTile(&sword, player->x-1, player->y, PITCHBLACK);
-            }
-            break;
-            
-        default:
-            break;
-    }
-}
 
 
 void P_PlayerInput (void)
@@ -268,6 +230,45 @@ void P_FlashPlayer (int *timer, int color)
 }
 
 
+
+void P_CollectItem (obj_t *item, obj_t *entity)
+{
+    if (entity->type != TYPE_PLAYER)
+        return;
+    
+    switch (item->type)
+    {
+        case TYPE_GOLDKEY:
+            items.goldkey = true;
+            break;
+        case TYPE_BLUEKEY:
+            items.bluekey = true;
+            break;
+        case TYPE_GREENKEY:
+            items.greenkey = true;
+            break;
+            
+        case TYPE_HEART:
+            if (++player->hp > maxhealth)
+                player->hp = maxhealth;
+            
+        case TYPE_BOAT:
+            items.boat = true;
+        default:
+            break;
+    }
+    
+    flashtics = 30;
+    HUDMessage(objdefs[item->type].hud);
+    item->state = objst_remove;
+}
+
+
+
+
+
+#pragma mark - Player Action
+
 void P_UpdatePlayer (obj_t * pl)
 {
     int newx, newy;
@@ -332,38 +333,10 @@ void P_PlayerContact (obj_t *pl, obj_t *hit)
 
 
 
-void P_CollectItem (obj_t *item, obj_t *entity)
-{
-    if (entity->type != TYPE_PLAYER)
-        return;
-    
-    switch (item->type)
-    {
-        case TYPE_GOLDKEY:
-            items.goldkey = true;
-            break;
-        case TYPE_BLUEKEY:
-            items.bluekey = true;
-            break;
-        case TYPE_GREENKEY:
-            items.greenkey = true;
-            break;
-            
-        case TYPE_HEART:
-            if (++player->hp > maxhealth)
-                player->hp = maxhealth;
-            
-        case TYPE_BOAT:
-            items.boat = true;
-        default:
-            break;
-    }
-    
-    flashtics = 30;
-    HUDMessage(objdefs[item->type].hud);
-    item->state = objst_remove;
-}
 
+
+
+#pragma mark - Player Drawing
 
 void P_DrawPlayer (void)
 {
@@ -422,11 +395,59 @@ void P_DrawHealth (void)
     hp = player->hp;
     for (i=0 ; i<maxhealth ; i++)
     {
-        if (hp)
-            DrawGlyph(&redheart, x, y, BLACK);
-        else
+        if (hp) {
+            // flash if health == 1
+            if (player->hp == 1 && SDL_GetTicks() % 600 < 300)
+                DrawGlyph(&grayheart, x, y, BLACK);
+            else
+                DrawGlyph(&redheart, x, y, BLACK);
+        }
+        else {
             DrawGlyph(&grayheart, x, y, BLACK);
+        }
         if (hp) hp--;
         x -= TILE_SIZE;
+    }
+}
+
+
+
+
+void P_DrawSword (void)
+{
+    glyph_t sword = { 0, WHITE, TRANSP };
+    
+    switch (player_sword)
+    {
+        case DIR_NONE:
+            return;
+            
+        case DIR_NORTH:
+            if (player->y >= 1) {
+                sword.character = 179;
+                DrawGlyphAtMapTile(&sword, player->x, player->y - 1, PITCHBLACK);
+            }
+            break;
+        case DIR_SOUTH:
+            if (player->y <= MAP_H - 2) {
+                sword.character = 179;
+                DrawGlyphAtMapTile(&sword, player->x, player->y + 1, PITCHBLACK);
+            }
+            break;
+        case DIR_EAST:
+            if (player->x <= MAP_W - 2) {
+                sword.character = 196;
+                DrawGlyphAtMapTile(&sword, player->x+1, player->y, PITCHBLACK);
+            }
+            break;
+        case DIR_WEST:
+            if (player->x >= 1) {
+                sword.character = 196;
+                DrawGlyphAtMapTile(&sword, player->x-1, player->y, PITCHBLACK);
+            }
+            break;
+            
+        default:
+            break;
     }
 }

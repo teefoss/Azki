@@ -10,7 +10,7 @@
 #define azki_h
 
 #define CTRL        (keys[SDL_SCANCODE_LCTRL] || keys[SDL_SCANCODE_RCTRL])
-#define sign(x)     ((x) > 0 ? 1 : (x) < 0 ? -1 : 0)
+#define sign(a)     ((a) > 0 ? 1 : (a) < 0 ? -1 : 0)
 #define max(a, b)   ((a) > (b) ? (a) : (b))
 
 typedef int tile;

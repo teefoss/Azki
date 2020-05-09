@@ -82,7 +82,7 @@ void DrawCompass (void)
     wlen = 0;
     if (player->y >= 1)
     {
-        n = ObjectAtXY(player->x, player->y - 1);
+        n = ObjectTypeAtXY(player->x, player->y - 1);
         if (n == TYPE_NONE) {
             n = List_ObjectAtXY(player->x, player->y - 1);
         }
@@ -90,7 +90,7 @@ void DrawCompass (void)
     }
     if (player->x <= MAP_W - 2)
     {
-        e = ObjectAtXY(player->x + 1, player->y);
+        e = ObjectTypeAtXY(player->x + 1, player->y);
         if (e == TYPE_NONE) {
             e = List_ObjectAtXY(player->x + 1, player->y);
         }
@@ -98,7 +98,7 @@ void DrawCompass (void)
     }
     if (player->y <= MAP_H - 2)
     {
-        s = ObjectAtXY(player->x, player->y + 1);
+        s = ObjectTypeAtXY(player->x, player->y + 1);
         if (s == TYPE_NONE) {
             s  = List_ObjectAtXY(player->x, player->y + 1);
         }
@@ -106,7 +106,7 @@ void DrawCompass (void)
     }
     if (player->x >= 1)
     {
-        w = ObjectAtXY(player->x - 1, player->y);
+        w = ObjectTypeAtXY(player->x - 1, player->y);
         if (w == TYPE_NONE) {
             w = List_ObjectAtXY(player->x - 1, player->y);
         }
@@ -196,8 +196,13 @@ void GameKeyDown (SDL_Keycode key)
             SetScale(windowed_scale + 1);
             break;
             
-        case SDLK_i:
-            printf("num list objects: %d\n", List_Count());
+        case SDLK_i: {
+            //printf("num list objects: %d\n", List_Count());
+            obj_t *test = &map.foreground[0][0];
+            int dist = ObjectDistance(player, test);
+            printf("dist to (0,0): %d\n", dist);
+            break;
+        }
             
         default:
             break;

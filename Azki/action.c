@@ -12,6 +12,9 @@
 #include "player.h"
 #include "map.h"
 
+
+#pragma mark - Environment
+
 void A_UpdateWater (obj_t *water)
 {
     if (RunTimer(water)) return;
@@ -26,58 +29,8 @@ void A_UpdateWater (obj_t *water)
 }
 
 
-void A_UpdateSpider (obj_t *sp)
-{
-    int dir;
-    bool moved;
-    
-    if (sp->hp <= 0) {
-        ChangeObject(sp, TYPE_CORPSE, objst_inactive);
-        return;
-    }
-    
-    if (RunTimer(sp)) return;
-    
-    // move spider in a random direction
-    moved = false;
-    dir = random() % 4 + 1;
-    switch (dir)
-    {
-        case DIR_EAST:
-            moved = TryMove(sp, sp->x + 1, sp->y);
-            break;
-        case DIR_NORTH:
-            moved = TryMove(sp, sp->x, sp->y - 1);
-            break;
-        case DIR_WEST:
-            moved = TryMove(sp, sp->x - 1, sp->y);
-            break;
-        case DIR_SOUTH:
-            moved = TryMove(sp, sp->x, sp->y + 1);
-            break;
-    }
-    
-    // reset timer if no collision
-    if (moved)
-        sp->tics = (random() % 30) + 30;
-}
 
-
-void A_SpiderContact (obj_t *sp, obj_t *hit)
-{
-    switch (hit->type) {
-        case TYPE_PLAYER:
-            DamageObj(hit, 1);
-            break;
-            
-        default:
-            break;
-    }
-}
-
-
-
-#pragma mark - TYPE_BULLET
+#pragma mark - Projectiles
 
 void
 A_SpawnProjectile
@@ -163,6 +116,77 @@ void A_ProjectileContact (obj_t *proj, obj_t *hit)
 
 
 
+#pragma mark - Enemies
+
+// Move around randomly, or close on player if close
+void A_SpiderUpdate (obj_t *sp)
+{
+    int dir;
+    bool moved;
+    
+    if (sp->hp <= 0) {
+        ChangeObject(sp, TYPE_CORPSE, objst_inactive);
+        return;
+    }
+    
+    if (RunTimer(sp)) return;
+    
+    moved = false;
+    if (ObjectDistance(sp, player) > 5)
+    {
+        dir = random() % 4 + 1; // move spider in a random direction
+        switch (dir)
+        {
+            case DIR_EAST:
+                moved = TryMove(sp, sp->x + 1, sp->y);
+                break;
+            case DIR_NORTH:
+                moved = TryMove(sp, sp->x, sp->y - 1);
+                break;
+            case DIR_WEST:
+                moved = TryMove(sp, sp->x - 1, sp->y);
+                break;
+            case DIR_SOUTH:
+                moved = TryMove(sp, sp->x, sp->y + 1);
+                break;
+        }
+    }
+    else // spider is close, home in on player
+    {
+        dir = random() % 2; // pick a random direction, x or y
+        switch (dir) {
+            case 0: { // move in x dir
+                int newx = sp->x + sign(player->x - sp->x);
+                moved = TryMove(sp, newx, sp->y);
+                break;
+            }
+            case 1: { // move in y dir
+                int newy = sp->y + sign(player->y - sp->y);
+                moved = TryMove(sp, sp->x, newy);
+                break;
+            }
+        }
+    }
+    
+    // reset timer if no collision
+    if (moved)
+        sp->tics = (random() % 30) + 30;
+}
+
+
+void A_SpiderContact (obj_t *sp, obj_t *hit)
+{
+    switch (hit->type) {
+        case TYPE_PLAYER:
+            DamageObj(hit, 1);
+            break;
+            
+        default:
+            break;
+    }
+}
+
+
 
 # define NESSIE_TIME    120 // how long nessie stays above water
 
@@ -211,6 +235,8 @@ void A_OgreUpdate (obj_t *ogre)
     tile dx, dy;
     int tries;
     
+    FlashObject(ogre, &ogre->hittimer, BRIGHTWHITE);
+    
     if (ogre->hp <= 0)
     {
         ChangeObject(ogre, TYPE_CORPSE, objst_inactive);
@@ -235,6 +261,24 @@ void A_OgreUpdate (obj_t *ogre)
     if (ogre->hp <= 0)
         ogre->state = objst_remove;
 }
+
+
+
+void A_OgreContact (obj_t *ogre, obj_t *hit)
+{
+    if (hit->type == TYPE_PLAYER)
+    {
+        DamageObj(hit, 2);
+    }
+}
+
+
+
+
+
+
+
+
 
 
 

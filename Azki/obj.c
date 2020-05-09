@@ -23,8 +23,7 @@ const char *ObjName (obj_t *obj)
         return NULL;
 }
 
-
-objtype_t ObjectAtXY (tile x, tile y)
+objtype_t ObjectTypeAtXY (tile x, tile y)
 {
     return map.foreground[y][x].type;
 }
@@ -32,7 +31,7 @@ objtype_t ObjectAtXY (tile x, tile y)
 
 const char *ObjectNameAtXY (tile x, tile y)
 {
-    return objdefs[ObjectAtXY(x, y)].name;
+    return objdefs[ObjectTypeAtXY(x, y)].name;
 }
 
 
@@ -93,11 +92,32 @@ bool TryMove (obj_t *obj, tile x, tile y)
 }
 
 
+
+int ObjectDistance (obj_t *obj1, obj_t *obj2)
+{
+    int dx, dy;
+    
+    dx = obj2->x - obj1->x;
+    dy = obj2->y - obj1->y;
+    return (int)sqrt(dx*dx + dy*dy);
+}
+
+
 void DamageObj (obj_t *obj, int damage)
 {
-    if (obj->type == TYPE_PLAYER && obj->hittimer)
-        return;
-    obj->hittimer = 60;
+    switch (obj->type)
+    {
+        case TYPE_PLAYER:
+            if (obj->hittimer)
+                return;
+            obj->hittimer = 60;
+            break;
+            
+        default:
+            obj->hittimer = 30;
+            break;
+    }
+    
     obj->hp -= damage;
 }
 

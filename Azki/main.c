@@ -13,12 +13,11 @@
     Zelda, DOOM: Combat
  
  IDEAS:
-    Water is death, unless item pool floats
     Weapon: The Arcane Bazooka
     Weapon: Semi-automatic Nerf Gun
  
  TODO:
-    Handle player death - lives
+    Handle player death - restart level
     collectible items
  
  BUGS:
