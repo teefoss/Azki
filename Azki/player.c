@@ -82,7 +82,7 @@ void P_SwingSword (dir_t dir)
     {
         if (listobj->x == swordx && listobj->y == swordy)
         {
-            DamageObj(listobj, 1);
+            DamageObj(player, listobj, 1);
         }
         listobj = listobj->next;
     } while (listobj);
@@ -278,17 +278,20 @@ void P_UpdatePlayer (obj_t * pl)
     FlashObject(pl, &pl->hittimer, RED);
     FlashObject(pl, &flashtics, BRIGHTGREEN);
     
+    if (player->hp <= 0)
+    {
+        player->hp = 0;
+        state = STATE_GAMEOVER;
+        return;
+    }
+    
     if (pl->updatedelay)
     {
         pl->updatedelay--;
         pl->dx = 0;
         pl->dy = 0;
     }
-    
-    if (pl->glyph.fg_color == RED) {
-        printf("flash\n");
-    }
-    
+        
     // move player
     if ( (pl->dx || pl->dy) && !player->updatedelay )
     {

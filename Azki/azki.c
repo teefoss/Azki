@@ -186,7 +186,7 @@ void GameKeyDown (SDL_Keycode key)
             break;
             
         case SDLK_BACKQUOTE:
-            state = GS_EDITOR;
+            state = STATE_EDIT;
             break;
             
         case SDLK_MINUS:
@@ -338,7 +338,7 @@ void PlayLoop (void)
         tics++;
         LimitFrameRate(60);
 
-    } while (state == GS_PLAY);
+    } while (state == STATE_PLAY);
     
     List_RemoveAll();
 }

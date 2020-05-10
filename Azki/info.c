@@ -12,6 +12,7 @@
 #include "player.h"
 
 void A_UpdateWater (obj_t *water);
+void A_ExitContact (obj_t *exit, obj_t *hit);
 
 void A_SpiderUpdate (obj_t *sp);
 void A_SpiderContact (obj_t *sp, obj_t *hit);
@@ -173,7 +174,7 @@ objdef_t objdefs[NUMTYPES] =
         .flags = OF_ENTITY|OF_SOLID|OF_DAMAGING,
         .maxhealth = 1,
         .name = "Spider",
-        .hud = "You were devoured by a giant spider",
+        .hud = "You were devoured by a giant spider!",
         .update = A_SpiderUpdate,
         .contact = A_SpiderContact
     },
@@ -306,12 +307,12 @@ objdef_t objdefs[NUMTYPES] =
 
     {   // TYPE_EXIT
         .glyph = { 239, MAGENTA|BLINK, TRANSP },
-        .flags = 0,
+        .flags = OF_ENTITY,
         .maxhealth = 0,
         .name = "Exit",
         .hud = "",
         .update = NULL,
-        .contact = NULL,
+        .contact = A_ExitContact
     },
 
 

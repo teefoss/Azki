@@ -27,7 +27,7 @@ char *mapnames[] =
 {
     " ",
     "Forest Edge",
-    "The Dark Forest",
+    "There is no level 2!",
     "Test Map",
 };
 
@@ -252,12 +252,12 @@ void DrawMap (map_t *map)
     bkg = &map->background[0][0];
     for (i=0 ; i<MAP_W*MAP_H ; i++)
     {
-        if (state == GS_PLAY)
+        if (state == STATE_PLAY)
         {
             DrawObject(bkg++);
             DrawObject(obj++);
         }
-        else if (state == GS_EDITOR)
+        else if (state == STATE_EDIT)
         {
             if (showlayer == LAYER_BG || showlayer == LAYER_BOTH)
                 DrawObject(bkg++);

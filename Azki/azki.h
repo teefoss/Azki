@@ -18,18 +18,26 @@ typedef int pixel;
 
 enum
 {
-    GS_PLAY,
-    GS_EDITOR
+    STATE_LEVELSCREEN,
+    STATE_PLAY,
+    STATE_GAMEOVER,
+    STATE_EDIT
 };
 
 extern int state;
 extern const uint8_t * keys;
 
+extern char deathmsg[];
 extern int tics;
 
 void Error (const char * message);
 void Quit (void);
 void PlayLoop (void);
 void HUDMessage(const char * msg);
+
+
+// screens.c
+void S_Level (void);
+void S_GameOver (void);
 
 #endif /* azki_h */

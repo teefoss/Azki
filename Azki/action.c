@@ -30,6 +30,22 @@ void A_UpdateWater (obj_t *water)
 
 
 
+void A_ExitContact (obj_t *exit, obj_t *hit)
+{
+    switch (hit->type) {
+        case TYPE_PLAYER:
+            NextLevel(+1);
+            state = STATE_LEVELSCREEN;
+            break;
+            
+        default:
+            List_RemoveObject(hit);
+            break;
+    }
+}
+
+
+
 #pragma mark - Projectiles
 
 void
@@ -178,7 +194,7 @@ void A_SpiderContact (obj_t *sp, obj_t *hit)
 {
     switch (hit->type) {
         case TYPE_PLAYER:
-            DamageObj(hit, 1);
+            DamageObj(sp, hit, 1);
             break;
             
         default:
@@ -268,7 +284,7 @@ void A_OgreContact (obj_t *ogre, obj_t *hit)
 {
     if (hit->type == TYPE_PLAYER)
     {
-        DamageObj(hit, 2);
+        DamageObj(ogre, hit, 2);
     }
 }
 

@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		30677F852447BE7C001691FA /* font.c in Sources */ = {isa = PBXBuildFile; fileRef = 30677F842447BE7C001691FA /* font.c */; };
 		308B8A3F2465F56B0064EDC0 /* info.c in Sources */ = {isa = PBXBuildFile; fileRef = 308B8A3E2465F56B0064EDC0 /* info.c */; };
+		308B8A41246704D70064EDC0 /* screen.c in Sources */ = {isa = PBXBuildFile; fileRef = 308B8A40246704D70064EDC0 /* screen.c */; };
 		30B66E6D2434D88F009E264F /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 30D0F6CC24329DC4006C507E /* SDL2.framework */; };
 		30B66E7324353184009E264F /* map.c in Sources */ = {isa = PBXBuildFile; fileRef = 30B66E7224353184009E264F /* map.c */; };
 		30B66E7624353200009E264F /* obj.c in Sources */ = {isa = PBXBuildFile; fileRef = 30B66E7524353200009E264F /* obj.c */; };
@@ -37,6 +38,7 @@
 /* Begin PBXFileReference section */
 		30677F842447BE7C001691FA /* font.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = font.c; sourceTree = "<group>"; };
 		308B8A3E2465F56B0064EDC0 /* info.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = info.c; sourceTree = "<group>"; };
+		308B8A40246704D70064EDC0 /* screen.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = screen.c; sourceTree = "<group>"; };
 		30B66E702434DCC9009E264F /* Azki.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Azki.entitlements; sourceTree = "<group>"; };
 		30B66E7124353184009E264F /* map.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = map.h; sourceTree = "<group>"; };
 		30B66E7224353184009E264F /* map.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = map.c; sourceTree = "<group>"; };
@@ -121,6 +123,7 @@
 				30677F842447BE7C001691FA /* font.c */,
 				30CF276B244DFD82004DF52F /* action.c */,
 				308B8A3E2465F56B0064EDC0 /* info.c */,
+				308B8A40246704D70064EDC0 /* screen.c */,
 			);
 			path = Azki;
 			sourceTree = "<group>";
@@ -199,6 +202,7 @@
 				30D0F6C224324038006C507E /* main.c in Sources */,
 				30D0F6CA24329CEA006C507E /* video.c in Sources */,
 				30B66E8A2437FAF5009E264F /* player.c in Sources */,
+				308B8A41246704D70064EDC0 /* screen.c in Sources */,
 				30CF276C244DFD82004DF52F /* action.c in Sources */,
 				30D0F6D224329EEE006C507E /* azki.c in Sources */,
 				308B8A3F2465F56B0064EDC0 /* info.c in Sources */,

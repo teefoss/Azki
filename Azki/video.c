@@ -141,6 +141,20 @@ void PrintString (const char *s, pixel x, pixel y)
 }
 
 
+void PrintCenteredString (const char *s, pixel x, pixel y)
+{
+    int width;
+    
+    width = (int)strlen(s) * TILE_SIZE;
+    if (x == -1)
+        x = (game_res.w - width) / 2;
+    if (y == -1)
+        y = (game_res.h - TILE_SIZE) / 2;
+    
+    PrintString(s, x, y);
+}
+
+
 
 void PrintChar (char c, int winx, int winy)
 {

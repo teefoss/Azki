@@ -120,9 +120,14 @@ typedef struct obj_s
     action1_t   update;
     action2_t   contact;
     
+    // who created this object, e.g. projectiles
+    // player: the thing that killed the player
+    struct obj_s *src;
+    
+    // object's target, e.g. projectiles
+    struct obj_s *dst;
+    
     // linked list
-    struct obj_s *src; // who created this object, e.g. projectiles
-    struct obj_s *dst; // object's target, e.g. projectiles
     struct obj_s *next;
 } obj_t;
 
@@ -152,7 +157,7 @@ glyph_t *   ObjectGlyphAtXY (tile x, tile y);
 bool        ObjectsOverlap (obj_t *obj1, obj_t *obj2);
 void        RemoveObj (obj_t *obj);
 void        FlashObject (obj_t *obj, int *timer, int color);
-void        DamageObj (obj_t *obj, int damage);
+void DamageObj (obj_t *src, obj_t *target, int damage);
 int ObjectDistance (obj_t *obj1, obj_t *obj2);
 
 obj_t NewObjectFromDef (objtype_t type, tile x, tile y);

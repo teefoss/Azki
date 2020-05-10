@@ -103,22 +103,27 @@ int ObjectDistance (obj_t *obj1, obj_t *obj2)
 }
 
 
-void DamageObj (obj_t *obj, int damage)
+void DamageObj (obj_t *src, obj_t *target, int damage)
 {
-    switch (obj->type)
+    switch (target->type)
     {
         case TYPE_PLAYER:
-            if (obj->hittimer)
+            if (target->hittimer)
                 return;
-            obj->hittimer = 60;
+            target->hittimer = 60;
             break;
             
         default:
-            obj->hittimer = 30;
+            target->hittimer = 30;
             break;
     }
     
-    obj->hp -= damage;
+    target->hp -= damage;
+    if (target->type == TYPE_PLAYER) {
+        if (target->hp <= 0) {
+            strncpy(deathmsg, src->info->hud, 80);
+        }
+    }
 }
 
 

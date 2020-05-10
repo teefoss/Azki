@@ -64,6 +64,10 @@ int main(int argc, char ** argv)
 {
     int i;
     int mapnum;
+    
+    char buf[120];
+    getcwd(buf, sizeof(buf));
+    printf("current working directory: %s\n", buf);
 
     myargc = argc;
     myargv = argv;
@@ -78,7 +82,7 @@ int main(int argc, char ** argv)
         
     i = CheckParm("-edit");
     if (i && i+1 <= argc) {
-        state = GS_EDITOR;
+        state = STATE_EDIT;
         sscanf(argv[i+1], "%d", &mapnum);
         
         if (!LoadMap(mapnum, &map)) {
@@ -87,11 +91,11 @@ int main(int argc, char ** argv)
             }
         }
     } else {
-        state = GS_PLAY;
+        state = STATE_LEVELSCREEN;
         if ( !LoadMap(1, &map) ) {
 #ifdef DEBUG
             NewMap(1, &map); // in dev, create a new map if none found
-            state = GS_EDITOR;
+            state = STATE_EDIT;
 #elif
             Error("Could not load starting map!");
 #endif
@@ -102,12 +106,21 @@ int main(int argc, char ** argv)
     {
         switch (state)
         {
-            case GS_PLAY:
+            case STATE_LEVELSCREEN:
+            {
+                S_Level();
+                break;
+            }
+            case STATE_PLAY:
             {
                 PlayLoop();
                 break;
             }
-            case GS_EDITOR:
+            case STATE_GAMEOVER:
+            {
+                S_GameOver();
+            }
+            case STATE_EDIT:
             {
                 EditorLoop();
                 break;

@@ -335,7 +335,7 @@ void EditorKeyDown (SDL_KeyCode key)
         // switch to play
         case SDLK_BACKQUOTE:
             SaveMap(&map);
-            state = GS_PLAY;
+            state = STATE_PLAY;
             break;
             
         default:
@@ -388,7 +388,7 @@ void EditorLoop (void)
     layer = LAYER_FG;
     LoadMap(map.num, &map); // entities were removed in play, reload
         
-    while (state == GS_EDITOR)
+    while (state == STATE_EDIT)
     {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
