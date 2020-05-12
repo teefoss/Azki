@@ -8,6 +8,7 @@
 //  SDL, graphics, and font
 
 #include <stdbool.h>
+#include <string.h>
 #include "video.h"
 #include "map.h"
 
@@ -276,44 +277,55 @@ static void MaxWindowSize (int adjust)
 
 #define FONT_SIZE 8
 
+
+
 static void CreateFontTable (void)
 {
-    uint8_t *      p, *p1;     // ptr to screen pixel
-    int             clr, chr;
-    const uint8_t * data;       // prt to font data
-    int             y1, bit;
-    SDL_Surface *   surface;
-    const int       w = FONT_SIZE * 256;
-    const int       h = FONT_SIZE * NUMCOLORS;
+    const int w = FONT_SIZE * 256;
+    const int h = FONT_SIZE * NUMCOLORS;
+    const SDL_Color * clr;
+    int i, chr;
+    const uint8_t * data; // prt to font data
+    uint32_t *pixel, *p;
+    int y, x; // font pixel location
     extern const unsigned char fontdata[];
+    uint32_t pixels[w * h];
+    SDL_PixelFormat *format;
     
-    surface = SDL_CreateRGBSurface(0, w, h, 8, 0, 0, 0, 0);
-    SDL_LockSurface(surface);
-    SDL_SetPaletteColors(surface->format->palette, colors, 0, NUMCOLORS);
-    SDL_SetColorKey(surface, SDL_TRUE, SDL_MapRGB(surface->format, 255, 0, 255));
-    SDL_FillRect(surface, NULL, SDL_MapRGB(surface->format, 255, 0, 255));
-            
-    // draw font data to surface
-    for (clr = 0; clr < NUMCOLORS; clr++) // NUMCOLOR rows of 256 chars
+    memset(pixels, 0, w * h * sizeof(pixels[0]));
+    format = SDL_AllocFormat(SDL_PIXELFORMAT_RGBA8888);
+    font_table = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STATIC, w, h);
+    SDL_SetTextureBlendMode(font_table, SDL_BLENDMODE_BLEND);
+        
+    // draw font data to pixels
+    // texture is NUMCOLOR rows of 256 chars
+    clr = &colors[0];
+    for (i = 0; i < NUMCOLORS; i++, clr++)
     {
         for (chr = 0; chr < 256; chr++)
         {
             data = &fontdata[chr * FONT_SIZE];
-            p = surface->pixels + (clr * FONT_SIZE) * surface->pitch + (chr * FONT_SIZE);
-            for (y1=0 ; y1<FONT_SIZE ; y1++, data++, p+=surface->pitch)
+            pixel = pixels + (i * FONT_SIZE) * w + (chr * FONT_SIZE);
+//            if (*data) {
+//                printf("data: %x\n", *data);
+//            }
+            
+            for (y=0 ; y<FONT_SIZE ; y++, data++, pixel += w)
             {
-                p1 = p;
-                for (bit=FONT_SIZE-1 ; bit>=0 ; bit--, p1++) {
-                    if ( *data & (1 << bit) ) {
-                        *p1 = clr;
+                p = pixel;
+                for (x=FONT_SIZE-1 ; x>=0 ; x--, p++)
+                {
+                    if ( *data & (1 << x) ) {
+                        
+                        *p = SDL_MapRGBA(format, clr->r, clr->g, clr->b, 255);
                     }
                 }
             }
         }
     }
-    SDL_UnlockSurface(surface);
-    font_table = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_FreeSurface(surface);
+    
+    SDL_UpdateTexture(font_table, NULL, pixels, w * sizeof(pixels[0]));
+    SDL_FreeFormat(format);
 }
 
 
