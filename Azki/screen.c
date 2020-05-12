@@ -31,7 +31,7 @@ void S_Level ()
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
                 case SDL_QUIT:
-                    Quit();
+                    Quit(NULL);
                     break;
                 case SDL_KEYDOWN:
                     if (event.key.keysym.sym == SDLK_SPACE) {
@@ -69,7 +69,7 @@ void S_GameOver ()
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
                 case SDL_QUIT:
-                    Quit();
+                    Quit(NULL);
                     break;
                 case SDL_KEYDOWN:
                     state = STATE_LEVELSCREEN;

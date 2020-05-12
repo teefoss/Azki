@@ -12,7 +12,6 @@
 
 #include "map.h"
 #include "video.h"
-#include "editor.h"
 
 #define MAP_NAME_FMT "maps/%d.map"
 
@@ -116,7 +115,7 @@ bool LoadMap (int mapnum, map_t * map)
     if (!file)
     {
         fclose(file);
-        printf("LoadFile: Error, couldn't load %s\n", filename);
+        printf("LoadFile: Quit, couldn't load %s\n", filename);
         return false;
     }
     
@@ -157,7 +156,7 @@ bool SaveMap (map_t * map)
     if (!stream)
     {
         fclose(stream);
-        printf("SaveMap: Error, couldn't open %s!\n", filename);
+        printf("SaveMap: Quit, couldn't open %s!\n", filename);
         return false;
     }
     

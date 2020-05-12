@@ -12,8 +12,6 @@
 #include <stdio.h>
 #include "azki.h"
 
-#define GLYPH_SIZE 8
-
 enum
 {
     CHAR_NUL,

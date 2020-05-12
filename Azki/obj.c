@@ -159,7 +159,7 @@ List_AddObject (obj_t *add)
     printf("adding object: %d\n", add->type);
     new = malloc(sizeof(obj_t));
     if (!new)
-        Error("List_AddObject: error, could not alloc mem");
+        Quit("List_AddObject: error, could not alloc mem");
     *new = *add;
     
     new->state = objst_active;
@@ -181,7 +181,7 @@ List_RemoveObject (obj_t *rem)
     obj_t * ret;
     
     if (!rem)
-        Error("List_RemoveObject: error, tried to remove NULL object!");
+        Quit("List_RemoveObject: error, tried to remove NULL object!");
     printf("removed type \"%s\"\n", ObjName(rem));
     
     // the first and only

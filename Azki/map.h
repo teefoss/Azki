@@ -11,9 +11,8 @@
 
 #include <stdbool.h>
 #include <SDL2/SDL.h>
-#import "obj.h"
+#include "obj.h"
 
-#define TILE_SIZE       8       // tiles are 8 x 8 pixels
 #define MAP_TOP_MARGIN  3 * TILE_SIZE
 #define MAP_SIDE_MARGIN 2 * TILE_SIZE
 #define MAP_W           52

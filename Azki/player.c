@@ -20,6 +20,8 @@ dir_t player_sword;
 int hittics;    // enemy hit,
 int flashtics;  // item collect
 
+void A_SpawnProjectile (objtype_t type, obj_t *src, obj_t *dst, int dx, int dy, int delay, int damage);
+
 
 void InitPlayer (void)
 {
@@ -153,7 +155,7 @@ void P_FireBullet (dir_t dir)
     int damage;
     int dx, dy;
     
-    damage = rand() % 3 + 5;
+    damage = Random() % 3 + 5;
     dx = dy = 0;
     
     switch (dir)

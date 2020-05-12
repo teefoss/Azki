@@ -57,7 +57,7 @@ void InitializeObjectList (void)
     }
     
     if (player == NULL)
-        Error("InitializeObjectList: oops! no player start?");
+        Quit("InitializeObjectList: oops! no player start?");
 }
 
 
@@ -174,7 +174,7 @@ void GameKeyDown (SDL_Keycode key)
     switch (key)
     {
         case SDLK_ESCAPE:
-            Quit();
+            Quit(NULL);
             break;
             
         case SDLK_f:
@@ -219,7 +219,7 @@ void DoGameInput (void)
         switch (event.type)
         {
             case SDL_QUIT:
-                Quit();
+                Quit(NULL);
                 break;
                 
             case SDL_KEYDOWN:

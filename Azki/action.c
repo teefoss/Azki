@@ -7,7 +7,7 @@
 //
 
 #include <SDL2/SDL.h>
-#include "azki.h"
+#include "cmdlib.h"
 #include "video.h"
 #include "player.h"
 #include "map.h"
@@ -21,7 +21,7 @@ void A_UpdateWater (obj_t *water)
     water->glyph.character = CHAR_NUL;
     
     // draw a wave once and a while
-    if (random() % 10000 < 10) // frequency of occurenc
+    if (Random() % 10000 < 10) // frequency of occurenc
     {
         water->glyph.character = '~';
         water->tics = 50; // length wave stays
@@ -134,7 +134,7 @@ void A_ProjectileContact (obj_t *proj, obj_t *hit)
 
 #pragma mark - Enemies
 
-// Move around randomly, or close on player if close
+// Move around Randomly, or close on player if close
 void A_SpiderUpdate (obj_t *sp)
 {
     int dir;
@@ -150,7 +150,7 @@ void A_SpiderUpdate (obj_t *sp)
     moved = false;
     if (ObjectDistance(sp, player) > 5)
     {
-        dir = random() % 4 + 1; // move spider in a random direction
+        dir = Random() % 4 + 1; // move spider in a Random direction
         switch (dir)
         {
             case DIR_EAST:
@@ -169,7 +169,7 @@ void A_SpiderUpdate (obj_t *sp)
     }
     else // spider is close, home in on player
     {
-        dir = random() % 2; // pick a random direction, x or y
+        dir = Random() % 2; // pick a Random direction, x or y
         switch (dir) {
             case 0: { // move in x dir
                 int newx = sp->x + sign(player->x - sp->x);
@@ -186,7 +186,7 @@ void A_SpiderUpdate (obj_t *sp)
     
     // reset timer if no collision
     if (moved)
-        sp->tics = (random() % 30) + 30;
+        sp->tics = (Random() % 30) + 30;
 }
 
 
@@ -217,7 +217,7 @@ void A_NessieUpdate (obj_t *n)
         {
             // dive
             n->state = objst_inactive;
-            n->tics = random() % 90 + 240;
+            n->tics = Random() % 90 + 240;
         }
         else if (n->state == objst_inactive)
         {
@@ -232,7 +232,7 @@ void A_NessieUpdate (obj_t *n)
     {
         // show char and shoot at halfway point
         n->glyph.character = objdefs[n->type].glyph.character;
-        damage = 5 * ((random() % 3) + 1);
+        damage = 5 * ((Random() % 3) + 1);
         if (n->tics == NESSIE_TIME / 2)
             A_SpawnProjectile(TYPE_PROJ_RING, n, player, 0, 0, 10, damage);
     }
@@ -267,13 +267,13 @@ void A_OgreUpdate (obj_t *ogre)
     {
         tries = 20;
         while (tries--) {
-            dx = (random() % 3) - 1; // try a random direction -1, 0, or 1
-            dy = (random() % 3) - 1;
+            dx = (Random() % 3) - 1; // try a Random direction -1, 0, or 1
+            dy = (Random() % 3) - 1;
             if ( TryMove(ogre, ogre->x + dx, ogre->y + dy) )
                 break;
         }
     }
-    ogre->tics = (random() % 20) + 50;
+    ogre->tics = (Random() % 20) + 50;
     if (ogre->hp <= 0)
         ogre->state = objst_remove;
 }

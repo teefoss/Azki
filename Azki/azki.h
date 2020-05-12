@@ -9,9 +9,11 @@
 #ifndef azki_h
 #define azki_h
 
-#define CTRL        (keys[SDL_SCANCODE_LCTRL] || keys[SDL_SCANCODE_RCTRL])
-#define sign(a)     ((a) > 0 ? 1 : (a) < 0 ? -1 : 0)
-#define max(a, b)   ((a) > (b) ? (a) : (b))
+#include <stdint.h>
+
+#define DEVELOPMENT
+#define TILE_SIZE       8       // tiles are 8 x 8 pixels
+#define CTRL            (keys[SDL_SCANCODE_LCTRL] || keys[SDL_SCANCODE_RCTRL])
 
 typedef int tile;
 typedef int pixel;
@@ -27,17 +29,32 @@ enum
 extern int state;
 extern const uint8_t * keys;
 
-extern char deathmsg[];
 extern int tics;
 
-void Error (const char * message);
-void Quit (void);
+void Quit (const char * error);
 void PlayLoop (void);
 void HUDMessage(const char * msg);
 
 
-// screens.c
+// -----------------------------------------------------------------------------
+// screen.c
+
+extern char deathmsg[];
+
 void S_Level (void);
 void S_GameOver (void);
+
+
+// -----------------------------------------------------------------------------
+// editor.c
+
+typedef enum {
+    LAYER_FG,
+    LAYER_BG,
+    LAYER_BOTH
+} layer_t;
+
+extern layer_t showlayer;
+void EditorLoop (void);
 
 #endif /* azki_h */

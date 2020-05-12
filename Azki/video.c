@@ -257,7 +257,7 @@ static void MaxWindowSize (int adjust)
     int scl;
     
     if (SDL_GetDisplayBounds(0, &screen_res) != 0)
-        Error("SDL_GetDisplayBounds failed: %s");
+        Quit("SDL_GetDisplayBounds failed: %s");
     printf("desktop resolution: %dx%d\n", screen_res.w, screen_res.h);
     
     scl = 1;
@@ -322,15 +322,15 @@ static void CreateFontTable (void)
 void StartVideo (void)
 {
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
-        Error("Could not initialize SDL!");
+        Quit("Could not initialize SDL!");
     
     window = SDL_CreateWindow("Game", 0, 0, game_res.w, game_res.h, 0);
     if (!window)
-        Error("Could not create game window!");
+        Quit("Could not create game window!");
     
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_TARGETTEXTURE);
     if (!renderer)
-        Error("Could not create game renderer!");
+        Quit("Could not create game renderer!");
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
     
     //MaxWindowSize(0); // TODO: uncomment

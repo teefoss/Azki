@@ -9,10 +9,10 @@
 #include <SDL2/SDL.h>
 #include <string.h>
 
-#include "editor.h"
 #include "azki.h"
 #include "video.h"
 #include "obj.h"
+#include "map.h"
 
 enum
 {
@@ -223,7 +223,7 @@ void DrawEditorHUD (SDL_Point *mousept, SDL_Point *mousetile)
     char mouseinfo[100];
     
     // layer
-    msg_x = TopHUD.x + maprect.w - (int)strlen(layer_msg[layer]) * GLYPH_SIZE;
+    msg_x = TopHUD.x + maprect.w - (int)strlen(layer_msg[layer]) * TILE_SIZE;
     TextColor(layer == LAYER_FG ? YELLOW : BROWN);
     PrintString(layer_msg[layer], msg_x, TopHUD.y);
                 
@@ -277,14 +277,14 @@ void DrawChars (SDL_Point *mousept)
 
 
 
-void EditorKeyDown (SDL_KeyCode key)
+void EditorKeyDown (SDL_Keycode key)
 {
     memset(lowermsg, 0, sizeof(lowermsg)); // clear the LOG message
     
     switch (key)
     {
         case SDLK_ESCAPE:
-            Quit();
+            Quit(NULL);
             break;
             
         // window scale
@@ -392,7 +392,7 @@ void EditorLoop (void)
     {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
-                Quit();
+                Quit(NULL);
             }
             else if (event.type == SDL_KEYDOWN) {
                 EditorKeyDown(event.key.keysym.sym);

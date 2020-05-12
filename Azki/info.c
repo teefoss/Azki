@@ -9,7 +9,6 @@
 #include "obj.h"
 #include "video.h"
 #include "glyph.h"
-#include "player.h"
 
 void A_UpdateWater (obj_t *water);
 void A_ExitContact (obj_t *exit, obj_t *hit);
@@ -24,6 +23,9 @@ void A_SpawnProjectile (objtype_t type, obj_t *src, obj_t *dst, int dx, int dy, 
 void A_UpdateProjectile (obj_t *b);
 void A_ProjectileContact (obj_t *b, obj_t *hit);
 
+void P_UpdatePlayer (obj_t * pl);
+void P_PlayerContact (obj_t *pl, obj_t *hit);
+void P_CollectItem (obj_t *item, obj_t *entity);
 
 
 objdef_t objdefs[NUMTYPES] =
