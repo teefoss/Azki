@@ -64,7 +64,7 @@ int LimitFrameRate (int fps)
 {
     int ms_per_frame;
     
-    ms_per_frame = roundf( 1000.0f / (float)fps );
+    ms_per_frame = 1000.0f / (float)fps;
     frame_end = SDL_GetTicks();
     
     dt = frame_end - frame_start;

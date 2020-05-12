@@ -67,7 +67,7 @@ void filebasename (char *path, char *dest, size_t size)
     while (*src && *src != '.')
     {
         if (++length == size + 1)
-            Quit ("Filename base of %s > %zu chars", path, size);
+            error ("Filename base of %s > %zu chars", path, size);
         *dest++ = toupper(*src++);
     }
 }

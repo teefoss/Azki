@@ -6,6 +6,8 @@
 //  Copyright © 2020 Thomas Foster. All rights reserved.
 //
 
+#include <string.h>
+#include <math.h>
 #include "obj.h"
 #include "player.h"
 #include "video.h"
@@ -156,7 +158,6 @@ List_AddObject (obj_t *add)
 {
     obj_t *new;
     
-    printf("adding object: %d\n", add->type);
     new = malloc(sizeof(obj_t));
     if (!new)
         Quit("List_AddObject: error, could not alloc mem");

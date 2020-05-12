@@ -10,7 +10,7 @@
 typedef unsigned char byte;
 
 #ifdef _WIN32
-    #define PATHSEPARATOR '\'
+    #define PATHSEPARATOR '\\'
 #else
     #define PATHSEPARATOR '/'
 #endif

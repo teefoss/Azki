@@ -11,6 +11,7 @@
 #include "video.h"
 #include "glyph.h"
 #include "map.h"
+#include "cmdlib.h"
 
 obj_t * player;
 playeritems_t items;
