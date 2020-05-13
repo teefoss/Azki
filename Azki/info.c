@@ -41,8 +41,8 @@ objdef_t objdefs[NUMTYPES] =
     },
     {   // TYPE_PLAYER,
         .glyph = { CHAR_FACE_SOLID, BRIGHTBLUE, TRANSP },
-        .flags = OF_ENTITY|OF_SOLID,
-        .maxhealth = 3,
+        .flags = OF_ENTITY,
+        .maxhealth = 4,
         .name = "Player",
         .hud = "",
         .update = P_UpdatePlayer,
@@ -173,7 +173,7 @@ objdef_t objdefs[NUMTYPES] =
     
     {   // TYPE_SPIDER
         .glyph = { '*', GRAY, TRANSP },
-        .flags = OF_ENTITY|OF_SOLID|OF_DAMAGING,
+        .flags = OF_ENTITY|OF_DAMAGING,
         .maxhealth = 1,
         .name = "Spider",
         .hud = "You were devoured by a giant spider!",
@@ -192,7 +192,7 @@ objdef_t objdefs[NUMTYPES] =
     },
     {   // TYPE_ORGE
         .glyph = { 148, BROWN, TRANSP },
-        .flags = OF_ENTITY|OF_SOLID|OF_DAMAGING,
+        .flags = OF_ENTITY|OF_DAMAGING,
         .maxhealth = 3,
         .name = "Orge",
         .hud = "You were thwumped by an ogre!",
@@ -277,7 +277,7 @@ objdef_t objdefs[NUMTYPES] =
     },
     {   // TYPE_BLOCK
         .glyph = { 254, BLACK, BROWN },
-        .flags = OF_PUSHABLE,
+        .flags = OF_PUSHABLE|OF_ENTITY|OF_SOLID,
         .maxhealth = 0,
         .name = "Bryte-Block",
         .hud = "",

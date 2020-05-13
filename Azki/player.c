@@ -15,7 +15,7 @@
 
 obj_t * player;
 playeritems_t items;
-int maxhealth = 5;
+int maxhealth = 10;
 dir_t player_sword;
 
 int hittics;    // enemy hit,
@@ -268,6 +268,12 @@ void P_CollectItem (obj_t *item, obj_t *entity)
 
 
 
+void P_TryPushObject(obj_t *obj, int dx, int dy)
+{
+    TryMove(obj, 0, 0);
+}
+
+
 
 
 #pragma mark - Player Action
@@ -275,7 +281,7 @@ void P_CollectItem (obj_t *item, obj_t *entity)
 void P_UpdatePlayer (obj_t * pl)
 {
     int newx, newy;
-    obj_t *contact;
+    obj_t *contact, *check;
     const int movedelay = 10;
 
     FlashObject(pl, &pl->hittimer, RED);
@@ -303,12 +309,27 @@ void P_UpdatePlayer (obj_t * pl)
 
         contact = &map.foreground[newy][newx];
 
-        if ( contact->type == TYPE_GOLDDOOR
-            || contact->type == TYPE_BLUEDOOR
-            || contact->type == TYPE_GREENDOOR )
+        switch (contact->type)
         {
-            P_TryOpenDoor(contact);
+            case TYPE_GOLDDOOR:
+            case TYPE_BLUEDOOR:
+            case TYPE_GREENDOOR:
+                P_TryOpenDoor(contact);
+                break;
+            default:
+                break;
         }
+        
+        check = objlist;
+        do
+        {
+            if ((check->flags & OF_PUSHABLE)
+                && check->x == newx && check->y == newy)
+            {
+                TryMove(check, check->x + pl->dx, check->y + pl->dy);
+            }
+            check = check->next;
+        } while(check);
         
         if ( !TryMove(pl, newx, newy) ) {
             if (contact->type == TYPE_WATER && items.boat) {
@@ -333,8 +354,11 @@ void P_PlayerContact (obj_t *pl, obj_t *hit)
         pl->hp -= hit->hp;
         hittics = 60;
     }
-    
-    //printf("player contact: hp %d\n", pl->hp);
+
+    if (hit->flags & OF_PUSHABLE)
+    {
+//        if (TryMove(hit, , <#tile y#>))
+    }
 }
 
 

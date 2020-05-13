@@ -71,21 +71,23 @@ bool TryMove (obj_t *obj, tile x, tile y)
     {
         return false;
     }
-    
-    // don't walk over solid entities
+        
+    // don't walk over solid entities, contact
+#if 1
     if ( obj->flags & OF_ENTITY )
     {
         check = objlist;
         do {
             if ( (check->flags & OF_SOLID) && check->x == x && check->y == y )
             {
-                if (obj->contact) 
-                    obj->contact(obj, check);
+//                if (obj->contact)
+//                    obj->contact(obj, check);
                 return false;
             }
             check = check->next;
         } while (check);
     }
+#endif
 
     obj->x = x;
     obj->y = y;
