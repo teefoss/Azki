@@ -32,9 +32,9 @@ typedef struct
 static grid_t grid;
 static objtype_t cursor = TYPE_PLAYER;
 static char lowermsg[100];
-static layer_t layer;
+static layerview_t activelayer;
 
-layer_t showlayer;
+layerview_t showlayer;
 
 static char *layer_msg[] = {
     "(Editing Foreground)",
@@ -64,6 +64,16 @@ void MakeSelectionGrid ()
 }
 
 
+obj_t *ObjectAtMapTile (SDL_Point *mousetile)
+{
+    return activelayer == LAYER_FG
+        ? &map.foreground[mousetile->y][mousetile->x]
+        : &map.background[mousetile->y][mousetile->x];
+}
+
+
+
+#pragma mark - Grid
 
 objtype_t TypeAtGridTile (SDL_Point * mousept)
 {
@@ -89,6 +99,39 @@ SDL_Point GridTileForType (objtype_t type)
 
 
 
+#pragma mark - Operations
+
+void FloodFill (tile x, tile y, objtype_t oldtype, objtype_t newtype)
+{
+    if (oldtype == newtype)
+        return;
+    
+    if (x < 0 || x >= MAP_W || y < 0 || y >= MAP_H)
+        return;
+    
+    switch (activelayer) {
+        case LAYER_FG:
+            if (map.foreground[y][x].type != oldtype)
+                return;
+            map.foreground[y][x] = NewObjectFromDef(newtype, x, y);
+            break;
+        case LAYER_BG:
+            if (map.background[y][x].type != oldtype)
+                return;
+            map.background[y][x] = NewObjectFromDef(newtype, x, y);
+            break;
+        default:
+            break;
+    }
+    
+    FloodFill(x, y + 1, oldtype, newtype);
+    FloodFill(x, y - 1, oldtype, newtype);
+    FloodFill(x - 1, y, oldtype, newtype);
+    FloodFill(x + 1, y, oldtype, newtype);
+}
+
+
+#pragma mark - Drawing
 
 //
 //  DrawSelectionGrid
@@ -174,46 +217,47 @@ void DrawSelectionGrid (SDL_Point * mousept)
 
 void DrawCursor (SDL_Point *mousetile)
 {
-
+    int sh;
+    
+    // display a helpful box so we know we're editing the bg
+    SDL_RenderSetViewport(renderer, &maprect);
+    if (activelayer == LAYER_BG)
     {
-        int sh;
-        
-        // display a helpful box so we know we're editing the bg
-        SDL_RenderSetViewport(renderer, &maprect);
-        if (layer == LAYER_BG)
-        {
-            SDL_Rect helpful = {
-                mousetile->x * TILE_SIZE - 2,
-                mousetile->y * TILE_SIZE - 2,
-                TILE_SIZE + 4,
-                TILE_SIZE + 4
-            };
-            SetPaletteColor(BROWN);
-            SDL_RenderDrawRect(renderer, &helpful);
-        }
-        
-        // draw cursor
-        if (cursor == TYPE_NONE)
-        {
-            SDL_Rect erasebox = {
-                mousetile->x * TILE_SIZE,
-                mousetile->y * TILE_SIZE,
-                TILE_SIZE,
-                TILE_SIZE
-            };
-            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-            SDL_RenderDrawRect(renderer, &erasebox);
-        }
-        else
-        {
-            sh = (SDL_GetTicks() % 600) < 300 ? RED : BLACK; // flip shadow
-            DrawGlyph(&objdefs[cursor].glyph,
-                      mousetile->x*TILE_SIZE,
-                      mousetile->y*TILE_SIZE,
-                      sh);
-        }
-        SDL_RenderSetViewport(renderer, NULL);
+        SDL_Rect helpful = {
+            mousetile->x * TILE_SIZE - 2,
+            mousetile->y * TILE_SIZE - 2,
+            TILE_SIZE + 4,
+            TILE_SIZE + 4
+        };
+        SetPaletteColor(BROWN);
+        SDL_RenderDrawRect(renderer, &helpful);
     }
+    
+    // draw cursor
+    if (cursor == TYPE_NONE || keys[SDL_SCANCODE_D])
+    {
+        SDL_Rect box = {
+            mousetile->x * TILE_SIZE,
+            mousetile->y * TILE_SIZE,
+            TILE_SIZE,
+            TILE_SIZE
+        };
+        if (keys[SDL_SCANCODE_D])
+            SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+        else
+            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+        SDL_RenderDrawRect(renderer, &box);
+    }
+    else
+    {
+        sh = (SDL_GetTicks() % 600) < 300 ? RED : BLACK; // flip shadow
+        DrawGlyph(&objdefs[cursor].glyph,
+                  mousetile->x*TILE_SIZE,
+                  mousetile->y*TILE_SIZE,
+                  sh);
+    }
+    SDL_RenderSetViewport(renderer, NULL);
+    
 }
 
 
@@ -223,9 +267,9 @@ void DrawEditorHUD (SDL_Point *mousept, SDL_Point *mousetile)
     char mouseinfo[100];
     
     // layer
-    msg_x = TopHUD.x + maprect.w - (int)strlen(layer_msg[layer]) * TILE_SIZE;
-    TextColor(layer == LAYER_FG ? YELLOW : BROWN);
-    PrintString(layer_msg[layer], msg_x, TopHUD.y);
+    msg_x = TopHUD.x + maprect.w - (int)strlen(layer_msg[activelayer]) * TILE_SIZE;
+    TextColor(activelayer == LAYER_FG ? YELLOW : BROWN);
+    PrintString(layer_msg[activelayer], msg_x, TopHUD.y);
                 
     // lower HUD
     TextColor(MAGENTA);
@@ -275,7 +319,7 @@ void DrawChars (SDL_Point *mousept)
 
 
 
-
+#pragma mark - Input
 
 void EditorKeyDown (SDL_Keycode key)
 {
@@ -313,7 +357,7 @@ void EditorKeyDown (SDL_Keycode key)
             
         // switch layer
         case SDLK_SPACE:
-            layer ^= 1;
+            activelayer ^= 1;
             break;
             
         // switch to erase
@@ -353,16 +397,17 @@ void EditorMouseDown (SDL_Point * mousept, SDL_Point * mousetile)
     // place an object on map if editing
     if (!grid.shown && SDL_PointInRect(mousept, &maprect))
     {
-        if (layer == LAYER_FG)
-        {
-            obj = &map.foreground[mousetile->y][mousetile->x];
+        obj = ObjectAtMapTile(mousetile);
+        if (keys[SDL_SCANCODE_F]) {
+            FloodFill(mousetile->x, mousetile->y, obj->type, cursor);
+        }
+        else if (keys[SDL_SCANCODE_D]) {
+            cursor = obj->type;
+        }
+        else {
             *obj = NewObjectFromDef(cursor, mousetile->x, mousetile->y);
         }
-        else if (layer == LAYER_BG)
-        {
-            obj = &map.background[mousetile->y][mousetile->x];
-            *obj = NewObjectFromDef(cursor, mousetile->x, mousetile->y);
-        }
+        
         mapdirty = true;
     }
     
@@ -374,7 +419,7 @@ void EditorMouseDown (SDL_Point * mousept, SDL_Point * mousetile)
 }
 
 
-
+#pragma mark -
 
 void EditorLoop (void)
 {
@@ -385,17 +430,27 @@ void EditorLoop (void)
     
     memset(lowermsg, 0, sizeof(lowermsg));
     MakeSelectionGrid();
-    layer = LAYER_FG;
+    activelayer = LAYER_FG;
     LoadMap(map.num, &map); // entities were removed in play, reload
         
     while (state == STATE_EDIT)
     {
+        mousestate = SDL_GetMouseState(&mousept.x, &mousept.y);
+        mousept.x /= windowed_scale; // TODO: fix for just current scale
+        mousept.y /= windowed_scale;
+        mousetile.x = (mousept.x - maprect.x) / TILE_SIZE;
+        mousetile.y = (mousept.y - maprect.y) / TILE_SIZE;
+
         while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) {
-                Quit(NULL);
-            }
-            else if (event.type == SDL_KEYDOWN) {
-                EditorKeyDown(event.key.keysym.sym);
+            switch (event.type) {
+                case SDL_QUIT:
+                    Quit(NULL);
+                    break;
+                case SDL_KEYDOWN:
+                    EditorKeyDown(event.key.keysym.sym);
+                    break;
+                default:
+                    break;
             }
         }
         
@@ -409,12 +464,6 @@ void EditorLoop (void)
         else
             showlayer = LAYER_BOTH;
         
-        mousestate = SDL_GetMouseState(&mousept.x, &mousept.y);
-        mousept.x /= windowed_scale; // TODO: fix for just current scale
-        mousept.y /= windowed_scale;
-        mousetile.x = (mousept.x - maprect.x) / TILE_SIZE;
-        mousetile.y = (mousept.y - maprect.y) / TILE_SIZE;
-
         if (mousestate & SDL_BUTTON_LMASK && view == VIEW_EDIT)
             EditorMouseDown(&mousept, &mousetile);
 

@@ -19,11 +19,13 @@
 #define MAP_H           29
 #define MAP_NAME_LEN    MAP_W
 
+typedef obj_t layer_t[MAP_H][MAP_W];
+
 typedef struct map_s
 {
     int num;
-    obj_t foreground[MAP_H][MAP_W];
-    obj_t background[MAP_H][MAP_W];
+    layer_t foreground;
+    layer_t background;
 } map_t;
 
 typedef struct

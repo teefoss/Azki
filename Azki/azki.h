@@ -52,9 +52,9 @@ typedef enum {
     LAYER_FG,
     LAYER_BG,
     LAYER_BOTH
-} layer_t;
+} layerview_t;
 
-extern layer_t showlayer;
+extern layerview_t showlayer;
 void EditorLoop (void);
 
 #endif /* azki_h */
