@@ -204,6 +204,21 @@ void GameKeyDown (SDL_Keycode key)
             printf("dist to (0,0): %d\n", dist);
             break;
         }
+        case SDLK_r: // reload level
+            if (CTRL) {
+                List_RemoveAll();
+                LoadMap(map.num, &map);
+                InitializeObjectList();
+                InitPlayer();
+            }
+            break;
+            
+        case SDLK_1:
+            P_SwitchWeapon(WEAPON_SWORD);
+            break;
+        case SDLK_2:
+            P_SwitchWeapon(WEAPON_BAZOOKA);
+            break;
             
         default:
             break;
@@ -234,7 +249,7 @@ void DoGameInput (void)
                     case SDLK_DOWN:
                     case SDLK_LEFT:
                     case SDLK_RIGHT:
-                        player_sword = DIR_NONE;
+                        sword_dir = DIR_NONE;
                         break;
                     default:
                         break;
@@ -275,7 +290,6 @@ void PlayLoop (void)
             obj = obj->next;
         } while (obj);
         
-#if 1
         // handle any collisions
         obj = objlist;
         do {
@@ -301,7 +315,6 @@ void PlayLoop (void)
             }
             obj = obj->next;
         } while (obj);
-#endif
 
         // remove removables
         obj = objlist;
@@ -337,7 +350,7 @@ void PlayLoop (void)
         Refresh();
         
         tics++;
-        LimitFrameRate(60);
+        LimitFrameRate(FRAME_RATE);
 
     } while (state == STATE_PLAY);
     

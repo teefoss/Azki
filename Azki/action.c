@@ -45,6 +45,29 @@ void A_ExitContact (obj_t *exit, obj_t *hit)
 }
 
 
+void A_Flicker (obj_t *obj)
+{
+    uint8_t *currentcolor;
+    uint8_t *originalcolor;
+    
+    if (--obj->updatedelay > 0)
+        return;
+    
+    currentcolor = &obj->glyph.fg_color;
+    originalcolor = &objdefs[obj->type].glyph.fg_color;
+    if (*currentcolor == *originalcolor) {
+        *currentcolor = BRIGHTWHITE;
+        obj->updatedelay = Random() % 5;
+    }
+    else {
+        *currentcolor = *originalcolor;
+        obj->updatedelay = (random() % 5) + 12;
+    }
+        
+}
+
+
+
 
 #pragma mark - Projectiles
 

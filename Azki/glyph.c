@@ -40,8 +40,16 @@ void DrawGlyph (glyph_t *glyph, pixel x, pixel y, int shadow_color)
     // background color
     if (glyph->bg_color != TRANSP)
     {
-        SetPaletteColor(glyph->bg_color);
-        FillRect(x, y, TILE_SIZE, TILE_SIZE);
+        // TODO: fix background blinking
+        if ((glyph->bg_color & BLINK) && SDL_GetTicks() % 600 < 300) {
+            SetPaletteColor(glyph->bg_color ^ 8);
+        }
+        else {
+            SetPaletteColor(glyph->bg_color);
+        }
+        dst.x = x;
+        dst.y = y;
+        SDL_RenderFillRect(renderer, &dst);
     }
     
     // glyph shadow (only on TRANPS bkgr)

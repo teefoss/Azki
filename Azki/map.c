@@ -26,8 +26,13 @@ char *mapnames[] =
 {
     " ",
     "Forest Edge",
-    "There is no level 2!",
-    "Test Map",
+    "The Dark Temple",
+    "Untitled",
+    "Untitled",
+    "Untitled",
+    "Untitled",
+    "Untitled",
+    "Untitled",
 };
 
 
@@ -229,39 +234,37 @@ bool NewMap (int num, map_t * map)
 
 
 
-void DrawMap (map_t *map)
+void DrawMapBackground (void)
 {
     const int   margin = 3;
+    int w, h;
     
-    obj_t *     obj;
-    obj_t *     bkg;
-    int         w, h;
-    int         i;
-    
-    // draw map background and shadow
     w = maprect.w + (margin * 2);
     h = maprect.h + (margin * 2);
     SetRGBColor(14, 14, 15);
     FillRect(maprect.x - margin + 2, maprect.y - margin + 2, w, h);
     SetPaletteColor(BLACK);
     FillRect(maprect.x - margin, maprect.y - margin, w, h);
+}
+
+
+
+void DrawMap (map_t *map)
+{
+    obj_t *     obj;
+    obj_t *     bkg;
+    int         i;
+    
+    DrawMapBackground();
     
     // draw all objects
     obj = &map->foreground[0][0];
     bkg = &map->background[0][0];
     for (i=0 ; i<MAP_W*MAP_H ; i++)
     {
-        if (state == STATE_PLAY)
-        {
-            DrawObject(bkg++);
-            DrawObject(obj++);
-        }
-        else if (state == STATE_EDIT)
-        {
-            if (showlayer == LAYER_BG || showlayer == LAYER_BOTH)
-                DrawObject(bkg++);
-            if (showlayer == LAYER_FG || showlayer == LAYER_BOTH)
-                DrawObject(obj++);
-        }
+        if (obj->update)
+            obj->update(obj);
+        DrawObject(bkg++);
+        DrawObject(obj++);
     }
 }

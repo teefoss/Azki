@@ -20,6 +20,13 @@ enum
     VIEW_CHARS      // table of ascii chars displayed
 } view;
 
+typedef enum {
+    LAYER_FG,
+    LAYER_BG,
+    LAYER_BOTH
+} layerview_t;
+
+
 // object selection grid
 typedef struct
 {
@@ -33,8 +40,7 @@ static grid_t grid;
 static objtype_t cursor = TYPE_PLAYER;
 static char lowermsg[100];
 static layerview_t activelayer;
-
-layerview_t showlayer;
+static layerview_t viewlayer;
 
 static char *layer_msg[] = {
     "(Editing Foreground)",
@@ -277,9 +283,9 @@ void DrawEditorHUD (SDL_Point *mousept, SDL_Point *mousetile)
     
     // print mouse map coordinates
     if (SDL_PointInRect(mousept, &maprect))
-        sprintf(mouseinfo, "%s (%2d, %2d)", show_msg[showlayer], mousetile->x, mousetile->y);
+        sprintf(mouseinfo, "%s (%2d, %2d)", show_msg[viewlayer], mousetile->x, mousetile->y);
     else
-        sprintf(mouseinfo, "%s (--, --)", show_msg[showlayer]);
+        sprintf(mouseinfo, "%s (--, --)", show_msg[viewlayer]);
     LOG(mouseinfo, BRIGHTWHITE);
 }
 
@@ -312,6 +318,26 @@ void DrawChars (SDL_Point *mousept)
     TextColor(RED);
     snprintf(buf, 4, "%d", r.y/TILE_SIZE * 16 + r.x/TILE_SIZE);
     PrintString(buf, 17*TILE_SIZE, 0);
+}
+
+
+
+void EditorDrawMap (map_t *map)
+{
+    obj_t *fg, *bg;
+    int i;
+    
+    DrawMapBackground();
+
+    fg = &map->foreground[0][0];
+    bg = &map->background[0][0];
+    for (i=0 ; i<MAP_W*MAP_H ; i++)
+    {
+        if (viewlayer == LAYER_BG || viewlayer == LAYER_BOTH)
+            DrawObject(bg++);
+        if (viewlayer == LAYER_FG || viewlayer == LAYER_BOTH)
+            DrawObject(fg++);
+    }
 }
 
 
@@ -435,6 +461,8 @@ void EditorLoop (void)
         
     while (state == STATE_EDIT)
     {
+        StartFrame();
+        
         mousestate = SDL_GetMouseState(&mousept.x, &mousept.y);
         mousept.x /= windowed_scale; // TODO: fix for just current scale
         mousept.y /= windowed_scale;
@@ -448,6 +476,8 @@ void EditorLoop (void)
                     break;
                 case SDL_KEYDOWN:
                     EditorKeyDown(event.key.keysym.sym);
+                    if (state == STATE_PLAY)
+                        return;
                     break;
                 default:
                     break;
@@ -458,11 +488,11 @@ void EditorLoop (void)
         view = keys[SDL_SCANCODE_G] ? VIEW_CHARS : VIEW_EDIT;
         
         if (keys[SDL_SCANCODE_F])
-            showlayer = LAYER_FG;
+            viewlayer = LAYER_FG;
         else if (keys[SDL_SCANCODE_B])
-            showlayer = LAYER_BG;
+            viewlayer = LAYER_BG;
         else
-            showlayer = LAYER_BOTH;
+            viewlayer = LAYER_BOTH;
         
         if (mousestate & SDL_BUTTON_LMASK && view == VIEW_EDIT)
             EditorMouseDown(&mousept, &mousetile);
@@ -471,7 +501,7 @@ void EditorLoop (void)
         
         if (view == VIEW_EDIT)
         {
-            DrawMap(&map);
+            EditorDrawMap(&map);
             DrawEditorHUD(&mousept, &mousetile);
             if (SDL_PointInRect(&mousept, &maprect))
                 DrawCursor(&mousetile);
@@ -486,6 +516,6 @@ void EditorLoop (void)
         }
 
         Refresh();
-        SDL_Delay(10);
+        LimitFrameRate(FRAME_RATE);
     }
 }

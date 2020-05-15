@@ -57,6 +57,7 @@ int main(int argc, char ** argv)
 {
     int i;
     int mapnum;
+    void EditorLoop (void);
     
 //    char buf[120];
 //    getcwd(buf, sizeof(buf));

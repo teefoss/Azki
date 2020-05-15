@@ -13,16 +13,31 @@
 #include "map.h"
 #include "cmdlib.h"
 
+typedef struct
+{
+    bool owned;
+    char name[40];
+    int damage;
+    int cost;
+} weapon_t;
+
 obj_t * player;
 playeritems_t items;
 int maxhealth = 10;
-dir_t player_sword;
+dir_t sword_dir;
 
 int hittics;    // enemy hit,
 int flashtics;  // item collect
+int shotdelay;
 
 void A_SpawnProjectile (objtype_t type, obj_t *src, obj_t *dst, int dx, int dy, int delay, int damage);
 
+weapontype_t current_weapon = WEAPON_SWORD;
+
+weapon_t weapons[WEAPON_COUNT] = {
+    { true, "Sword", 1, 0 },
+    { false, "Arcane Bazooka", 1, 0 }
+};
 
 void InitPlayer (void)
 {
@@ -31,9 +46,23 @@ void InitPlayer (void)
 
 
 
+
+#pragma mark - Weapons/Attack
+
+void P_SwitchWeapon (weapontype_t w)
+{
+    if (weapons[w].owned)
+    {
+        current_weapon = w;
+        HUDMessage(weapons[w].name);
+    }
+}
+
+
+
 void P_SwingSword (dir_t dir)
 {
-    player_sword = dir;
+    sword_dir = dir;
     int swordx = 0, swordy = 0;
     obj_t *listobj;
     obj_t *fg_hit;
@@ -93,6 +122,57 @@ void P_SwingSword (dir_t dir)
 
 
 
+void P_FireBullet (dir_t dir)
+{
+    int damage;
+    int dx, dy;
+    
+    if (shotdelay)
+        return;
+    
+    damage = Random() % 3 + 5;
+    dx = dy = 0;
+    
+    switch (dir)
+    {
+        case DIR_EAST:
+            dx = 1;
+            break;
+        case DIR_NORTH:
+            dy = -1;
+            break;
+        case DIR_WEST:
+            dx = -1;
+            break;
+        case DIR_SOUTH:
+            dy = 1;
+            break;
+        default:
+            break;
+    }
+    A_SpawnProjectile(TYPE_PROJ_BALL, player, NULL, dx, dy, 3, damage);
+    shotdelay = 15;
+}
+
+
+
+void P_Attack (dir_t dir)
+{
+    switch (current_weapon)
+    {
+        case WEAPON_SWORD:
+            if (!sword_dir)
+                P_SwingSword(dir);
+            break;
+        case WEAPON_BAZOOKA:
+            P_FireBullet(dir);
+            break;
+        default:
+            break;
+    }
+}
+
+
 
 void P_PlayerInput (void)
 {
@@ -124,61 +204,17 @@ void P_PlayerInput (void)
         player->dy = 1;
     }
         
-    
     // shoot
-#if 0
-    if (keys[SDL_SCANCODE_UP] && !player_sword)
-        P_FireBullet(DIR_NORTH);
-    if (keys[SDL_SCANCODE_DOWN] && !player_sword)
-        P_FireBullet(DIR_SOUTH);
-    if (keys[SDL_SCANCODE_LEFT] && !player_sword)
-        P_FireBullet(DIR_WEST);
-    if (keys[SDL_SCANCODE_RIGHT] && !player_sword)
-        P_FireBullet(DIR_EAST);
-#endif
-    if (player_sword == DIR_NONE) {
-        if (keys[SDL_SCANCODE_UP])
-            P_SwingSword(DIR_NORTH);
-        if (keys[SDL_SCANCODE_DOWN])
-            P_SwingSword(DIR_SOUTH);
-        if (keys[SDL_SCANCODE_LEFT])
-            P_SwingSword(DIR_WEST);
-        if (keys[SDL_SCANCODE_RIGHT])
-            P_SwingSword(DIR_EAST);
-    }
-
+    if (keys[SDL_SCANCODE_UP])
+        P_Attack(DIR_NORTH);
+    if (keys[SDL_SCANCODE_DOWN])
+        P_Attack(DIR_SOUTH);
+    if (keys[SDL_SCANCODE_LEFT])
+        P_Attack(DIR_WEST);
+    if (keys[SDL_SCANCODE_RIGHT])
+        P_Attack(DIR_EAST);
 }
 
-
-
-void P_FireBullet (dir_t dir)
-{
-    int damage;
-    int dx, dy;
-    
-    damage = Random() % 3 + 5;
-    dx = dy = 0;
-    
-    switch (dir)
-    {
-        case DIR_EAST:
-            dx = 1;
-            break;
-        case DIR_NORTH:
-            dy = -1;
-            break;
-        case DIR_WEST:
-            dx = -1;
-            break;
-        case DIR_SOUTH:
-            dy = 1;
-            break;
-        default:
-            break;
-    }
-    A_SpawnProjectile(TYPE_PROJ_BALL, player, NULL, dx, dy, 3, damage);
-    player->updatedelay = 20;
-}
 
 
 bool P_HasKey (obj_t *door)
@@ -237,7 +273,7 @@ void P_FlashPlayer (int *timer, int color)
 void P_CollectItem (obj_t *item, obj_t *entity)
 {
     if (entity->type != TYPE_PLAYER)
-        return;
+        return; // baddies can't collect items!
     
     switch (item->type)
     {
@@ -250,13 +286,15 @@ void P_CollectItem (obj_t *item, obj_t *entity)
         case TYPE_GREENKEY:
             items.greenkey = true;
             break;
-            
         case TYPE_HEART:
             if (++player->hp > maxhealth)
                 player->hp = maxhealth;
-            
         case TYPE_BOAT:
             items.boat = true;
+            break;
+        case TYPE_BAZOOKA:
+            weapons[WEAPON_BAZOOKA].owned = true;
+            break;
         default:
             break;
     }
@@ -300,6 +338,9 @@ void P_UpdatePlayer (obj_t * pl)
         pl->dx = 0;
         pl->dy = 0;
     }
+    
+    if (shotdelay > 0)
+        --shotdelay;
         
     // move player
     if ( (pl->dx || pl->dy) && !player->updatedelay )
@@ -315,6 +356,9 @@ void P_UpdatePlayer (obj_t * pl)
             case TYPE_BLUEDOOR:
             case TYPE_GREENDOOR:
                 P_TryOpenDoor(contact);
+                break;
+            case TYPE_DOOR:
+                RemoveObj(contact);
                 break;
             default:
                 break;
@@ -353,11 +397,6 @@ void P_PlayerContact (obj_t *pl, obj_t *hit)
     {
         pl->hp -= hit->hp;
         hittics = 60;
-    }
-
-    if (hit->flags & OF_PUSHABLE)
-    {
-//        if (TryMove(hit, , <#tile y#>))
     }
 }
 
@@ -447,7 +486,7 @@ void P_DrawSword (void)
 {
     glyph_t sword = { 0, WHITE, TRANSP };
     
-    switch (player_sword)
+    switch (sword_dir)
     {
         case DIR_NONE:
             return;

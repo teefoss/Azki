@@ -12,6 +12,7 @@
 
 void A_UpdateWater (obj_t *water);
 void A_ExitContact (obj_t *exit, obj_t *hit);
+void A_Flicker (obj_t *obj);
 
 void A_SpiderUpdate (obj_t *sp);
 void A_SpiderContact (obj_t *sp, obj_t *hit);
@@ -255,7 +256,7 @@ objdef_t objdefs[NUMTYPES] =
         .update = NULL,
         .contact = NULL
     },
-    {   // TYPE_GOLDDOOR
+    {   // TYPE_GREENDOOR
         .glyph = { 8, GRAY, BRIGHTGREEN },
         .flags = OF_SOLID,
         .maxhealth = 0,
@@ -264,6 +265,16 @@ objdef_t objdefs[NUMTYPES] =
         .update = NULL,
         .contact = NULL
     },
+    {   // TYPE_DOOR
+        .glyph = { 8, GRAY, BRIGHTWHITE },
+        .flags = OF_SOLID,
+        .maxhealth = 0,
+        .name = "Door",
+        .hud = "",
+        .update = NULL,
+        .contact = NULL
+    },
+
 
 
     {   // TYPE_SWITCH
@@ -304,8 +315,25 @@ objdef_t objdefs[NUMTYPES] =
         .update = NULL,
         .contact = P_CollectItem
     },
-
-
+    {// TYPE_CANDLE
+        .glyph = { 161, YELLOW, TRANSP },
+        .flags = OF_SOLID,
+        .maxhealth = 0,
+        .name = "Candle",
+        .hud = "",
+        .update = A_Flicker,
+        .contact = NULL
+    },
+ 
+    {   // TYPE_BAZOOKA
+        .glyph = { 12, MAGENTA, TRANSP },
+        .flags = OF_ITEM|OF_ENTITY,
+        .maxhealth = 0,
+        .name = "Arcane Bazooka",
+        .hud = "You got the Arcane Bazooka!",
+        .update = NULL,
+        .contact = P_CollectItem
+    },
 
     {   // TYPE_EXIT
         .glyph = { 239, MAGENTA|BLINK, TRANSP },

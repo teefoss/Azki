@@ -14,6 +14,7 @@
 #define DEVELOPMENT
 #define TILE_SIZE       8       // tiles are 8 x 8 pixels
 #define CTRL            (keys[SDL_SCANCODE_LCTRL] || keys[SDL_SCANCODE_RCTRL])
+#define FRAME_RATE      60
 
 typedef int tile;
 typedef int pixel;
@@ -43,18 +44,5 @@ extern char deathmsg[];
 
 void S_Level (void);
 void S_GameOver (void);
-
-
-// -----------------------------------------------------------------------------
-// editor.c
-
-typedef enum {
-    LAYER_FG,
-    LAYER_BG,
-    LAYER_BOTH
-} layerview_t;
-
-extern layerview_t showlayer;
-void EditorLoop (void);
 
 #endif /* azki_h */
