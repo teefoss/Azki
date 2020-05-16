@@ -25,7 +25,7 @@ bool mapdirty = false;
 char *mapnames[] =
 {
     " ",
-    "Forest Edge",
+    "The Lake of Fear",
     "The Dark Temple",
     "Untitled",
     "Untitled",
@@ -251,20 +251,20 @@ void DrawMapBackground (void)
 
 void DrawMap (map_t *map)
 {
-    obj_t *     obj;
-    obj_t *     bkg;
+    obj_t *     fg;
+    obj_t *     bg;
     int         i;
     
     DrawMapBackground();
     
     // draw all objects
-    obj = &map->foreground[0][0];
-    bkg = &map->background[0][0];
+    fg = &map->foreground[0][0];
+    bg = &map->background[0][0];
     for (i=0 ; i<MAP_W*MAP_H ; i++)
     {
-        if (obj->update)
-            obj->update(obj);
-        DrawObject(bkg++);
-        DrawObject(obj++);
+        if (fg->update)
+            fg->update(fg);
+        DrawObject(bg++);
+        DrawObject(fg++);
     }
 }

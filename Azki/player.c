@@ -15,33 +15,30 @@
 
 typedef struct
 {
-    bool owned;
     char name[40];
     int damage;
     int cost;
+    int delay;
 } weapon_t;
 
-obj_t * player;
-playeritems_t items;
-int maxhealth = 10;
+player_t player;
 dir_t sword_dir;
-
-int hittics;    // enemy hit,
-int flashtics;  // item collect
-int shotdelay;
 
 void A_SpawnProjectile (objtype_t type, obj_t *src, obj_t *dst, int dx, int dy, int delay, int damage);
 
-weapontype_t current_weapon = WEAPON_SWORD;
-
 weapon_t weapons[WEAPON_COUNT] = {
-    { true, "Sword", 1, 0 },
-    { false, "Arcane Bazooka", 1, 0 }
+    { "Sword", 1, 0, 0 },
+    { "Arcane Bazooka", 1, 0, 15 }
 };
+
+
 
 void InitPlayer (void)
 {
-    memset(&items, 0, sizeof(playeritems_t));
+    memset(&player, 0, sizeof(player));
+    player.maxhealth = 10;
+    player.weapons[WEAPON_SWORD] = true;
+    player.current_weapon = WEAPON_SWORD;
 }
 
 
@@ -51,9 +48,9 @@ void InitPlayer (void)
 
 void P_SwitchWeapon (weapontype_t w)
 {
-    if (weapons[w].owned)
+    if (player.weapons[w])
     {
-        current_weapon = w;
+        player.current_weapon = w;
         HUDMessage(weapons[w].name);
     }
 }
@@ -74,26 +71,26 @@ void P_SwingSword (dir_t dir)
     switch (dir)
     {
         case DIR_NORTH:
-            swordx = player->x;
-            swordy = player->y - 1;
+            swordx = player.obj->x;
+            swordy = player.obj->y - 1;
             if (swordy >= 0)
                 fg_hit = &map.foreground[swordy][swordx];
             break;
         case DIR_SOUTH:
-            swordx = player->x;
-            swordy = player->y + 1;
+            swordx = player.obj->x;
+            swordy = player.obj->y + 1;
             if (swordy <= MAP_H - 1)
                 fg_hit = &map.foreground[swordy][swordx];
             break;
         case DIR_EAST:
-            swordx = player->x + 1;
-            swordy = player->y;
+            swordx = player.obj->x + 1;
+            swordy = player.obj->y;
             if (swordx <= MAP_W - 1)
                 fg_hit = &map.foreground[swordy][swordx];
             break;
         case DIR_WEST:
-            swordx = player->x - 1;
-            swordy = player->y;
+            swordx = player.obj->x - 1;
+            swordy = player.obj->y;
             if (swordx >= 0)
                 fg_hit = &map.foreground[swordy][swordx];
             break;
@@ -106,7 +103,7 @@ void P_SwingSword (dir_t dir)
         printf("hit type: %s\n",ObjName(fg_hit));
         fg_hit->hp--;
         if ((fg_hit->flags & OF_BREAKABLE) && fg_hit->hp <= 0)
-            *fg_hit = NewObjectFromDef(TYPE_NONE, fg_hit->x, fg_hit->y); // remove it
+            RemoveObj(fg_hit);
     }
     
     listobj = objlist;
@@ -114,7 +111,7 @@ void P_SwingSword (dir_t dir)
     {
         if (listobj->x == swordx && listobj->y == swordy)
         {
-            DamageObj(player, listobj, 1);
+            DamageObj(player.obj, listobj, 1);
         }
         listobj = listobj->next;
     } while (listobj);
@@ -122,15 +119,15 @@ void P_SwingSword (dir_t dir)
 
 
 
-void P_FireBullet (dir_t dir)
+void P_FireBazooka (dir_t dir)
 {
     int damage;
     int dx, dy;
     
-    if (shotdelay)
+    if (player.shotdelay)
         return;
     
-    damage = Random() % 3 + 5;
+    damage = 2;
     dx = dy = 0;
     
     switch (dir)
@@ -150,22 +147,22 @@ void P_FireBullet (dir_t dir)
         default:
             break;
     }
-    A_SpawnProjectile(TYPE_PROJ_BALL, player, NULL, dx, dy, 3, damage);
-    shotdelay = 15;
+    A_SpawnProjectile(TYPE_PROJ_BALL, player.obj, NULL, dx, dy, 3, damage);
+    player.shotdelay = weapons[WEAPON_BAZOOKA].delay;
 }
 
 
 
 void P_Attack (dir_t dir)
 {
-    switch (current_weapon)
+    switch (player.current_weapon)
     {
         case WEAPON_SWORD:
             if (!sword_dir)
                 P_SwingSword(dir);
             break;
         case WEAPON_BAZOOKA:
-            P_FireBullet(dir);
+            P_FireBazooka(dir);
             break;
         default:
             break;
@@ -178,30 +175,30 @@ void P_PlayerInput (void)
 {
     // movement
     if (keys[SDL_SCANCODE_W])
-        player->dy = -1;
+        player.obj->dy = -1;
     if (keys[SDL_SCANCODE_S] || keys[SDL_SCANCODE_X])
-        player->dy = 1;
+        player.obj->dy = 1;
     if (keys[SDL_SCANCODE_A])
-        player->dx = -1;
+        player.obj->dx = -1;
     if (keys[SDL_SCANCODE_D])
-        player->dx = 1;
+        player.obj->dx = 1;
     
     // diagonals
     if (keys[SDL_SCANCODE_Q]) {
-        player->dx = -1;
-        player->dy = -1;
+        player.obj->dx = -1;
+        player.obj->dy = -1;
     }
     if (keys[SDL_SCANCODE_E]) {
-        player->dx = 1;
-        player->dy = -1;
+        player.obj->dx = 1;
+        player.obj->dy = -1;
     }
     if (keys[SDL_SCANCODE_Z]) {
-        player->dx = -1;
-        player->dy = 1;
+        player.obj->dx = -1;
+        player.obj->dy = 1;
     }
     if (keys[SDL_SCANCODE_C]) {
-        player->dx = 1;
-        player->dy = 1;
+        player.obj->dx = 1;
+        player.obj->dy = 1;
     }
         
     // shoot
@@ -222,15 +219,15 @@ bool P_HasKey (obj_t *door)
     switch (door->type)
     {
         case TYPE_GOLDDOOR:
-            if (items.goldkey)
+            if (player.items.goldkey)
                 return true;
             break;
         case TYPE_BLUEDOOR:
-            if (items.bluekey)
+            if (player.items.bluekey)
                 return true;
             break;
         case TYPE_GREENDOOR:
-            if (items.greenkey)
+            if (player.items.greenkey)
                 return true;
             break;
         default:
@@ -252,23 +249,6 @@ void P_TryOpenDoor (obj_t *door)
 
 
 
-void P_FlashPlayer (int *timer, int color)
-{
-    if (*timer)
-    {
-        (*timer)--;
-        if (SDL_GetTicks() % 2)
-            player->glyph.fg_color = color;
-        else
-            player->glyph.fg_color = player->info->glyph.fg_color;
-    }
-    else
-    {
-        player->glyph.fg_color = player->info->glyph.fg_color;
-    }
-}
-
-
 
 void P_CollectItem (obj_t *item, obj_t *entity)
 {
@@ -278,28 +258,28 @@ void P_CollectItem (obj_t *item, obj_t *entity)
     switch (item->type)
     {
         case TYPE_GOLDKEY:
-            items.goldkey = true;
+            player.items.goldkey = true;
             break;
         case TYPE_BLUEKEY:
-            items.bluekey = true;
+            player.items.bluekey = true;
             break;
         case TYPE_GREENKEY:
-            items.greenkey = true;
+            player.items.greenkey = true;
             break;
         case TYPE_HEART:
-            if (++player->hp > maxhealth)
-                player->hp = maxhealth;
+            if (++player.obj->hp > player.maxhealth)
+                player.obj->hp = player.maxhealth;
         case TYPE_BOAT:
-            items.boat = true;
+            player.items.boat = true;
             break;
         case TYPE_BAZOOKA:
-            weapons[WEAPON_BAZOOKA].owned = true;
+            player.weapons[WEAPON_BAZOOKA] = true;
             break;
         default:
             break;
     }
     
-    flashtics = 30;
+    player.itempickup = 30;
     HUDMessage(objdefs[item->type].hud);
     item->state = objst_remove;
 }
@@ -322,28 +302,27 @@ void P_UpdatePlayer (obj_t * pl)
     obj_t *contact, *check;
     const int movedelay = 10;
 
-    FlashObject(pl, &pl->hittimer, RED);
-    FlashObject(pl, &flashtics, BRIGHTGREEN);
+    FlashObject(pl, &player.cooldown, RED);
+    FlashObject(pl, &player.itempickup, BRIGHTGREEN);
     
-    if (player->hp <= 0)
+    if (player.obj->hp == 0)
     {
-        player->hp = 0;
         state = STATE_GAMEOVER;
         return;
     }
     
-    if (pl->updatedelay)
+    if (player.movedelay)
     {
-        pl->updatedelay--;
+        player.movedelay--;
         pl->dx = 0;
         pl->dy = 0;
     }
     
-    if (shotdelay > 0)
-        --shotdelay;
+    if (player.shotdelay > 0)
+        --player.shotdelay;
         
     // move player
-    if ( (pl->dx || pl->dy) && !player->updatedelay )
+    if ( (pl->dx || pl->dy) && !player.movedelay )
     {
         newx = pl->x + pl->dx;
         newy = pl->y + pl->dy;
@@ -376,13 +355,13 @@ void P_UpdatePlayer (obj_t * pl)
         } while(check);
         
         if ( !TryMove(pl, newx, newy) ) {
-            if (contact->type == TYPE_WATER && items.boat) {
-                player->x = newx;
-                player->y = newy;
-                player->updatedelay = movedelay * 2;
+            if (contact->type == TYPE_WATER && player.items.boat) {
+                player.obj->x = newx;
+                player.obj->y = newy;
+                player.movedelay = movedelay * 2;
             }
         }
-        player->updatedelay = movedelay;
+        player.movedelay = movedelay;
     }
         
     pl->dx = 0;
@@ -393,11 +372,13 @@ void P_UpdatePlayer (obj_t * pl)
 
 void P_PlayerContact (obj_t *pl, obj_t *hit)
 {
-    if (!hittics && hit->hp != 0) // enemy
-    {
-        pl->hp -= hit->hp;
-        hittics = 60;
-    }
+//    if (!player.cooldown && hit->hp != 0) // enemy
+//    {
+//        pl->hp -= hit->hp;
+//        if (pl->hp < 0)
+//            pl->hp = 0;
+//        player.cooldown = 60;
+//    }
 }
 
 
@@ -410,18 +391,20 @@ void P_PlayerContact (obj_t *pl, obj_t *hit)
 void P_DrawPlayer (void)
 {
     SDL_Rect raft;
+    obj_t *pl;
     
-    if (items.boat && map.foreground[player->y][player->x].type == TYPE_WATER)
+    pl = player.obj;
+    if (player.items.boat && map.foreground[pl->y][pl->x].type == TYPE_WATER)
     {
         SetPaletteColor(BROWN);
-        raft.x = player->x * TILE_SIZE + maprect.x - 1;
-        raft.y = player->y * TILE_SIZE + maprect.y - 1;
+        raft.x = pl->x * TILE_SIZE + maprect.x - 1;
+        raft.y = pl->y * TILE_SIZE + maprect.y - 1;
         raft.w = TILE_SIZE + 3;
         raft.h = TILE_SIZE + 3;
         SDL_RenderFillRect(renderer, &raft);
     }
     
-    DrawGlyphAtMapTile(&player->glyph, player->x, player->y, PITCHBLACK);
+    DrawGlyphAtMapTile(&pl->glyph, pl->x, pl->y, PITCHBLACK);
 }
 
 
@@ -435,13 +418,13 @@ void P_DrawInventory (void)
     x = maprect.x + maprect.w;
     
     x -= TILE_SIZE;
-    if (items.goldkey)
+    if (player.items.goldkey)
         DrawGlyph(&objdefs[TYPE_GOLDKEY].glyph, x, y, PITCHBLACK);
     x -= TILE_SIZE;
-    if (items.bluekey)
+    if (player.items.bluekey)
         DrawGlyph(&objdefs[TYPE_BLUEKEY].glyph, x, y, PITCHBLACK);
     x -= TILE_SIZE;
-    if (items.greenkey)
+    if (player.items.greenkey)
         DrawGlyph(&objdefs[TYPE_GREENKEY].glyph, x, y, PITCHBLACK);
     
     x -= TILE_SIZE * 5;
@@ -461,12 +444,12 @@ void P_DrawHealth (void)
     
     x = TopHUD.x + maprect.w - TILE_SIZE;
     y = TopHUD.y;
-    hp = player->hp;
-    for (i=0 ; i<maxhealth ; i++)
+    hp = player.obj->hp;
+    for (i=0 ; i<player.maxhealth ; i++)
     {
         if (hp) {
             // flash if health == 1
-            if (player->hp == 1 && SDL_GetTicks() % 600 < 300)
+            if (player.obj->hp == 1 && SDL_GetTicks() % 600 < 300)
                 DrawGlyph(&grayheart, x, y, BLACK);
             else
                 DrawGlyph(&redheart, x, y, BLACK);
@@ -485,34 +468,36 @@ void P_DrawHealth (void)
 void P_DrawSword (void)
 {
     glyph_t sword = { 0, WHITE, TRANSP };
+    obj_t *pl;
     
+    if (sword_dir == DIR_NONE)
+        return;
+    
+    pl = player.obj;
     switch (sword_dir)
     {
-        case DIR_NONE:
-            return;
-            
         case DIR_NORTH:
-            if (player->y >= 1) {
+            if (pl->y >= 1) {
                 sword.character = 179;
-                DrawGlyphAtMapTile(&sword, player->x, player->y - 1, PITCHBLACK);
+                DrawGlyphAtMapTile(&sword, pl->x, pl->y - 1, PITCHBLACK);
             }
             break;
         case DIR_SOUTH:
-            if (player->y <= MAP_H - 2) {
+            if (pl->y <= MAP_H - 2) {
                 sword.character = 179;
-                DrawGlyphAtMapTile(&sword, player->x, player->y + 1, PITCHBLACK);
+                DrawGlyphAtMapTile(&sword, pl->x, pl->y + 1, PITCHBLACK);
             }
             break;
         case DIR_EAST:
-            if (player->x <= MAP_W - 2) {
+            if (pl->x <= MAP_W - 2) {
                 sword.character = 196;
-                DrawGlyphAtMapTile(&sword, player->x+1, player->y, PITCHBLACK);
+                DrawGlyphAtMapTile(&sword, pl->x+1, pl->y, PITCHBLACK);
             }
             break;
         case DIR_WEST:
-            if (player->x >= 1) {
+            if (pl->x >= 1) {
                 sword.character = 196;
-                DrawGlyphAtMapTile(&sword, player->x-1, player->y, PITCHBLACK);
+                DrawGlyphAtMapTile(&sword, pl->x-1, pl->y, PITCHBLACK);
             }
             break;
             

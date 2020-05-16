@@ -38,6 +38,7 @@ void DrawGlyph (glyph_t *glyph, pixel x, pixel y, int shadow_color)
 #endif
     
     // background color
+#if 1
     if (glyph->bg_color != TRANSP)
     {
         // TODO: fix background blinking
@@ -51,8 +52,10 @@ void DrawGlyph (glyph_t *glyph, pixel x, pixel y, int shadow_color)
         dst.y = y;
         SDL_RenderFillRect(renderer, &dst);
     }
+#endif
     
     // glyph shadow (only on TRANPS bkgr)
+#if 1
     if (shadow_color != TRANSP && glyph->bg_color == TRANSP)
     {
         src.y = shadow_color * TILE_SIZE;
@@ -60,8 +63,10 @@ void DrawGlyph (glyph_t *glyph, pixel x, pixel y, int shadow_color)
         dst.y = y + 1;
         SDL_RenderCopy(renderer, font_table, &src, &dst);
     }
+#endif
         
     // glyph
+#if 1
     if (glyph->fg_color != TRANSP)
     {
         if (glyph->fg_color & BLINK) {
@@ -77,6 +82,7 @@ void DrawGlyph (glyph_t *glyph, pixel x, pixel y, int shadow_color)
         dst.y = y;
         SDL_RenderCopy(renderer, font_table, &src, &dst);
     }
+#endif
 }
 
 

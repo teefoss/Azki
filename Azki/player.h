@@ -17,7 +17,7 @@ typedef struct
     bool bluekey;
     bool greenkey;
     bool boat;
-} playeritems_t;
+} inventory_t;
 
 typedef enum
 {
@@ -26,15 +26,28 @@ typedef enum
     WEAPON_COUNT
 } weapontype_t;
 
-extern obj_t *player;
-extern playeritems_t items;
+typedef struct
+{
+    obj_t           *obj; // linked to player obj in objlist at start of level
+    inventory_t     items;
+    int             maxhealth;
+    bool            weapons[WEAPON_COUNT];
+    weapontype_t    current_weapon;
+    
+    // timers
+    int             movedelay;
+    int             shotdelay;
+    int             cooldown; // enemy hit
+    int             itempickup;
+    
+} player_t;
+
+extern player_t player;
 extern dir_t sword_dir;
-extern weapontype_t current_weapon;
 
 void InitPlayer (void);
 void P_PlayerInput (void);
 void P_SwitchWeapon (weapontype_t w);
-void P_FireBullet (dir_t dir);
 void P_DrawInventory (void);
 void P_DrawHealth (void);
 void P_DrawSword (void);

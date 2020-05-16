@@ -174,7 +174,7 @@ objdef_t objdefs[NUMTYPES] =
     
     {   // TYPE_SPIDER
         .glyph = { '*', GRAY, TRANSP },
-        .flags = OF_ENTITY|OF_DAMAGING,
+        .flags = OF_ENTITY|OF_DAMAGING|OF_SOLID,
         .maxhealth = 1,
         .name = "Spider",
         .hud = "You were devoured by a giant spider!",
@@ -193,7 +193,7 @@ objdef_t objdefs[NUMTYPES] =
     },
     {   // TYPE_ORGE
         .glyph = { 148, BROWN, TRANSP },
-        .flags = OF_ENTITY|OF_DAMAGING,
+        .flags = OF_ENTITY|OF_DAMAGING|OF_SOLID,
         .maxhealth = 3,
         .name = "Orge",
         .hud = "You were thwumped by an ogre!",

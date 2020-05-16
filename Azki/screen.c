@@ -61,8 +61,74 @@ void S_GameOver ()
     SDL_Event event;
     const int offset = 20;
     int y;
+    int wait = 120; // 2 seconds
     
     y = (game_res.h - TILE_SIZE) / 2;
+    
+    while (1)
+    {
+        if (wait > 0)
+            --wait;
+
+        while (SDL_PollEvent(&event)) {
+            switch (event.type) {
+                case SDL_QUIT:
+                    Quit(NULL);
+                    break;
+                case SDL_KEYDOWN:
+                    if (!wait) {
+                        state = STATE_LEVELSCREEN;
+                        return;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+        
+        Clear(0, 0, 0);
+        TextColor(RED);
+        PrintCenteredString(deathmsg, -1, y - offset);
+        
+        TextColor(RED+BLINK);
+        if (!wait)
+            PrintCenteredString("Press any key to continue", -1, y + offset);
+        
+        Refresh();
+    }
+}
+
+
+
+typedef struct
+{
+    char key[16];
+    char action[32];
+} control_t;
+
+control_t editorcontrols[] =
+{
+    { "`", "Switch between editor/game" },
+    { "F1", "Help Screen" },
+    { "+/-", "Increase/Decrease Window Size" },
+    { "CTRL-S", "Save Map" },
+    { "ESCAPE", "Save and Quit" },
+    { "--------", "--------" },
+    { "TAB", "Show Object Palette" },
+    { "L MOUSE", "Place Object" },
+    { "R MOUSE", "Dropper" },
+    { "SPACE", "Switch Layer" },
+    { "F", "Show Foreground Layer" },
+    { "S", "Show Background Layer" },
+    { "[ and ]", "Go Backward or Forward One Level" },
+    { "stop", "stop" }
+};
+
+void S_EditorControls (void)
+{
+    SDL_Event event;
+    control_t *cont;
+    int y;
     
     while (1)
     {
@@ -72,8 +138,9 @@ void S_GameOver ()
                     Quit(NULL);
                     break;
                 case SDL_KEYDOWN:
-                    state = STATE_LEVELSCREEN;
-                    return;
+                        state = STATE_EDIT;
+                        return;
+                    break;
                 default:
                     break;
             }
@@ -81,9 +148,20 @@ void S_GameOver ()
         
         Clear(0, 0, 0);
         TextColor(RED);
-        PrintCenteredString(deathmsg, -1, y - offset);
-        TextColor(RED+BLINK);
-        PrintCenteredString("Press any key to continue", -1, y + offset);
+        
+        y = TILE_SIZE;
+        cont = &editorcontrols[0];
+        do
+        {
+            TextColor(BRIGHTWHITE);
+            PrintString(cont->key, TILE_SIZE, y);
+            TextColor(RED);
+            PrintString(cont->action, 10*TILE_SIZE, y);
+            cont++;
+            y += TILE_SIZE;
+        } while (strcmp(cont->key, "stop"));
+                 
         Refresh();
     }
+
 }

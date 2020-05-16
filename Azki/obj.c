@@ -80,8 +80,8 @@ bool TryMove (obj_t *obj, tile x, tile y)
         do {
             if ( (check->flags & OF_SOLID) && check->x == x && check->y == y )
             {
-//                if (obj->contact)
-//                    obj->contact(obj, check);
+                if (obj->contact)
+                    obj->contact(obj, check);
                 return false;
             }
             check = check->next;
@@ -107,26 +107,26 @@ int ObjectDistance (obj_t *obj1, obj_t *obj2)
 }
 
 
-void DamageObj (obj_t *src, obj_t *target, int damage)
+void DamageObj (obj_t *inflicter, obj_t *hit, int damage)
 {
-    switch (target->type)
+    switch (hit->type)
     {
         case TYPE_PLAYER:
-            if (target->hittimer)
+            if (player.cooldown)
                 return;
-            target->hittimer = 60;
+            player.cooldown = 60;
             break;
             
         default:
-            target->hittimer = 30;
+            hit->hittimer = 30;
+            hit->updatedelay += 30;
             break;
     }
     
-    target->hp -= damage;
-    if (target->type == TYPE_PLAYER) {
-        if (target->hp <= 0) {
-            strncpy(deathmsg, src->info->hud, 80);
-        }
+    hit->hp -= damage;
+    if (hit->hp <= 0) {
+        hit->hp = 0;
+        UpdateDeathMessage(objdefs[inflicter->type].hud);
     }
 }
 
@@ -143,7 +143,7 @@ void FlashObject (obj_t *obj, int *timer, int color)
     if (*timer)
     {
         (*timer)--;
-        if (*timer % 2)
+        if (*timer % 4 >= 2)
             obj->glyph.fg_color = color;
         else
             obj->glyph.fg_color = obj->info->glyph.fg_color;
@@ -311,17 +311,13 @@ objtype_t List_ObjectAtXY (tile x, tile y)
 
 void DrawObject (obj_t *obj)
 {
-    int winx, winy;
-    
     if (obj->type == TYPE_NONE)
         return; // don't bother
     
     if ( !(obj->flags & OF_ENTITY) && obj->update)
         obj->update(obj); // update any fg/bg objects
         
-    winx = obj->x * TILE_SIZE + maprect.x; // draw loctions
-    winy = obj->y * TILE_SIZE + maprect.y;
-    DrawGlyph( &obj->glyph, winx, winy, PITCHBLACK );
+    DrawGlyph( &obj->glyph, draw_x(obj->x), draw_y(obj->y), PITCHBLACK );
 }
 
 

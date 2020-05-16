@@ -52,7 +52,6 @@ static const SDL_Color colors[] =
 
 
 static int frame_start;
-static int frame_end;
 static int dt;
 
 void StartFrame (void)
@@ -60,18 +59,13 @@ void StartFrame (void)
     frame_start = SDL_GetTicks();
 }
 
-int LimitFrameRate (int fps)
+int LimitFrameRate (int ms_per_frame)
 {
-    int ms_per_frame;
-    
-    ms_per_frame = 1000.0f / (float)fps;
-    frame_end = SDL_GetTicks();
-    
-    dt = frame_end - frame_start;
+    dt = SDL_GetTicks() - frame_start;
     if (dt < ms_per_frame)
         SDL_Delay(ms_per_frame - dt);
-    //else
-        //printf("frame took %d ms!\n", dt);
+    else if (dt > 30)
+        printf("frame took %d ms!\n", dt);
     
     return dt;
 }

@@ -29,6 +29,13 @@ void HUDMessage(const char * msg)
 }
 
 
+void UpdateDeathMessage (const char * msg)
+{
+    extern char deathmsg[];
+    strncpy(deathmsg, msg, 80);
+}
+
+
 
 //
 // InitializeObjectList
@@ -49,15 +56,15 @@ void InitializeObjectList (void)
             y = obj->y;
             
             if (obj->type == TYPE_PLAYER)
-                player = List_AddObject(obj);
+                player.obj = List_AddObject(obj);
             else
                 List_AddObject(obj);
             
-            *obj = NewObjectFromDef(TYPE_NONE, x, y); // remove it
+            RemoveObj(obj);
         }
     }
     
-    if (player == NULL)
+    if (player.obj == NULL)
         Quit("InitializeObjectList: oops! no player start?");
 }
 
@@ -69,6 +76,7 @@ void DrawCompass (void)
     int nlen, elen, slen, wlen;
     int centerx, centery;
     int nsmax, ewmax;
+    obj_t *pl;
     
     centerx = (game_res.w - TILE_SIZE) / 2;
     centery = (game_res.h - TILE_SIZE) / 2;
@@ -81,35 +89,37 @@ void DrawCompass (void)
     elen = 0;
     slen = 0;
     wlen = 0;
-    if (player->y >= 1)
+    
+    pl = player.obj;
+    if (pl->y >= 1)
     {
-        n = ObjectTypeAtXY(player->x, player->y - 1);
+        n = ObjectTypeAtXY(pl->x, pl->y - 1);
         if (n == TYPE_NONE) {
-            n = List_ObjectAtXY(player->x, player->y - 1);
+            n = List_ObjectAtXY(pl->x, pl->y - 1);
         }
         nlen = (n == TYPE_NONE) ? 0 : (int)strlen(objdefs[n].name);
     }
-    if (player->x <= MAP_W - 2)
+    if (pl->x <= MAP_W - 2)
     {
-        e = ObjectTypeAtXY(player->x + 1, player->y);
+        e = ObjectTypeAtXY(pl->x + 1, pl->y);
         if (e == TYPE_NONE) {
-            e = List_ObjectAtXY(player->x + 1, player->y);
+            e = List_ObjectAtXY(pl->x + 1, pl->y);
         }
         elen = (e == TYPE_NONE) ? 0 : (int)strlen(objdefs[e].name);
     }
-    if (player->y <= MAP_H - 2)
+    if (pl->y <= MAP_H - 2)
     {
-        s = ObjectTypeAtXY(player->x, player->y + 1);
+        s = ObjectTypeAtXY(pl->x, pl->y + 1);
         if (s == TYPE_NONE) {
-            s  = List_ObjectAtXY(player->x, player->y + 1);
+            s  = List_ObjectAtXY(pl->x, pl->y + 1);
         }
         slen = (s == TYPE_NONE) ? 0 : (int)strlen(objdefs[s].name);
     }
-    if (player->x >= 1)
+    if (pl->x >= 1)
     {
-        w = ObjectTypeAtXY(player->x - 1, player->y);
+        w = ObjectTypeAtXY(pl->x - 1, pl->y);
         if (w == TYPE_NONE) {
-            w = List_ObjectAtXY(player->x - 1, player->y);
+            w = List_ObjectAtXY(pl->x - 1, pl->y);
         }
         wlen = (w == TYPE_NONE) ? 0 : (int)strlen(objdefs[w].name);
     }
@@ -200,7 +210,7 @@ void GameKeyDown (SDL_Keycode key)
         case SDLK_i: {
             //printf("num list objects: %d\n", List_Count());
             obj_t *test = &map.foreground[0][0];
-            int dist = ObjectDistance(player, test);
+            int dist = ObjectDistance(player.obj, test);
             printf("dist to (0,0): %d\n", dist);
             break;
         }
@@ -270,14 +280,15 @@ void PlayLoop (void)
 {
     obj_t *obj, *check;
     
-    InitializeObjectList();
     InitPlayer();
+    InitializeObjectList();
     
     tics = 0;
     do
     {
         StartFrame();
         DoGameInput();
+        
         P_PlayerInput();
             
         // UPDATE
@@ -325,9 +336,8 @@ void PlayLoop (void)
                 obj = obj->next;
         } while (obj);
 
-        
         Clear(0, 0, 0);
-        TextColor(RED);
+//        TextColor(RED);
         
         if (hudtics)
         {
@@ -351,7 +361,6 @@ void PlayLoop (void)
         
         tics++;
         LimitFrameRate(FRAME_RATE);
-
     } while (state == STATE_PLAY);
     
     List_RemoveAll();

@@ -13,14 +13,16 @@
     Zelda, DOOM: Combat
  
  IDEAS:
-    Weapon: The Arcane Bazooka
     Weapon: Semi-automatic Nerf Gun
+    One-way doors, one-way blocks
+    "Falling" blocks
  
  TODO:
-    Handle player death - restart level
-    collectible items
  
  BUGS:
+ 
+ RESOURCES:
+ https://blog.wasin.io/2018/10/21/cross-compile-sdl2-library-and-app-on-windows-from-macos.html
  
  */
 
@@ -28,6 +30,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <SDL2/SDL.h>
+#include <unistd.h>
 
 #include "azki.h"
 #include "video.h"
@@ -59,9 +62,9 @@ int main(int argc, char ** argv)
     int mapnum;
     void EditorLoop (void);
     
-//    char buf[120];
-//    getcwd(buf, sizeof(buf));
-//    printf("current working directory: %s\n", buf);
+    char buf[120];
+    getcwd(buf, sizeof(buf));
+    printf("current working directory: %s\n", buf);
 
     myargc = argc;
     myargv = argv;

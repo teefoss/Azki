@@ -326,6 +326,7 @@ void EditorDrawMap (map_t *map)
 {
     obj_t *fg, *bg;
     int i;
+    void DrawMapBackground(void);
     
     DrawMapBackground();
 
@@ -349,6 +350,8 @@ void EditorDrawMap (map_t *map)
 
 void EditorKeyDown (SDL_Keycode key)
 {
+    void S_EditorControls (void);
+    
     memset(lowermsg, 0, sizeof(lowermsg)); // clear the LOG message
     
     switch (key)
@@ -406,6 +409,10 @@ void EditorKeyDown (SDL_Keycode key)
         case SDLK_BACKQUOTE:
             SaveMap(&map);
             state = STATE_PLAY;
+            break;
+            
+        case SDLK_F1:
+            S_EditorControls();
             break;
             
         default:

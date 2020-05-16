@@ -21,7 +21,7 @@ void A_UpdateWater (obj_t *water)
     water->glyph.character = CHAR_NUL;
     
     // draw a wave once and a while
-    if (Random() % 10000 < 10) // frequency of occurenc
+    if (Random() % 10000 < 7) // frequency of occurence
     {
         water->glyph.character = '~';
         water->tics = 50; // length wave stays
@@ -61,7 +61,7 @@ void A_Flicker (obj_t *obj)
     }
     else {
         *currentcolor = *originalcolor;
-        obj->updatedelay = (random() % 5) + 12;
+        obj->updatedelay = (Random() % 5) + 12;
     }
         
 }
@@ -140,16 +140,13 @@ void A_ProjectileContact (obj_t *proj, obj_t *hit)
         case TYPE_PLAYER:
             printf("player hit\n");
             break;
-        case TYPE_SPIDER:
-            hit->hp -= proj->hp ;
-            break;
             
         default:
+            DamageObj(proj->src, hit, proj->hp);
             break;
     }
     
-    hit->hp -= proj->hp;
-    printf("player hp: %d\n", player->hp);
+    //printf("player hp: %d\n", player->hp);
     proj->state = objst_remove;
 }
 
@@ -171,7 +168,7 @@ void A_SpiderUpdate (obj_t *sp)
     if (RunTimer(sp)) return;
     
     moved = false;
-    if (ObjectDistance(sp, player) > 5)
+    if (ObjectDistance(sp, player.obj) > 5)
     {
         dir = Random() % 4 + 1; // move spider in a Random direction
         switch (dir)
@@ -195,12 +192,12 @@ void A_SpiderUpdate (obj_t *sp)
         dir = Random() % 2; // pick a Random direction, x or y
         switch (dir) {
             case 0: { // move in x dir
-                int newx = sp->x + sign(player->x - sp->x);
+                int newx = sp->x + sign(player.obj->x - sp->x);
                 moved = TryMove(sp, newx, sp->y);
                 break;
             }
             case 1: { // move in y dir
-                int newy = sp->y + sign(player->y - sp->y);
+                int newy = sp->y + sign(player.obj->y - sp->y);
                 moved = TryMove(sp, sp->x, newy);
                 break;
             }
@@ -218,6 +215,8 @@ void A_SpiderContact (obj_t *sp, obj_t *hit)
     switch (hit->type) {
         case TYPE_PLAYER:
             DamageObj(sp, hit, 1);
+            if (hit->hp <= 0)
+                
             break;
             
         default:
@@ -257,7 +256,7 @@ void A_NessieUpdate (obj_t *n)
         n->glyph.character = objdefs[n->type].glyph.character;
         damage = 5 * ((Random() % 3) + 1);
         if (n->tics == NESSIE_TIME / 2)
-            A_SpawnProjectile(TYPE_PROJ_RING, n, player, 0, 0, 10, damage);
+            A_SpawnProjectile(TYPE_PROJ_RING, n, player.obj, 0, 0, 10, damage);
     }
     else if (n->state == objst_inactive)
     {
@@ -284,8 +283,8 @@ void A_OgreUpdate (obj_t *ogre)
     
     if (RunTimer(ogre)) return;
     
-    dx = sign(player->x - ogre->x);
-    dy = sign(player->y - ogre->y);
+    dx = sign(player.obj->x - ogre->x);
+    dy = sign(player.obj->y - ogre->y);
     if ( !TryMove(ogre, ogre->x + dx, ogre->y + dy) )
     {
         tries = 20;
