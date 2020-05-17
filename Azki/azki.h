@@ -51,5 +51,6 @@ void UpdateDeathMessage (const char * msg);
 void S_Level (void);
 void S_GameOver (void);
 void S_Controls (const char * title, control_t controls[]);
+void S_CharacterViewer (void);
 
 #endif /* azki_h */

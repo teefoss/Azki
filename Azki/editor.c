@@ -14,12 +14,6 @@
 #include "obj.h"
 #include "map.h"
 
-enum
-{
-    VIEW_EDIT,      // map visiable and editing
-    VIEW_CHARS      // table of ascii chars displayed
-} view;
-
 typedef enum {
     LAYER_FG,
     LAYER_BG,
@@ -62,6 +56,7 @@ control_t editorcontrols[] =
     { "+ and -", "Increase/Decrease window size" },
     { "[ and ]", "Save and previous/next level" },
     { "F1", "Show this screen!" },
+    { "F2", "Show Character Viewer"},
     { "CTRL-S", "Save map" },
     { "ESCAPE", "Save and Quit" },
     { "--------", "--------" },
@@ -324,37 +319,6 @@ void DrawEditorHUD (SDL_Point *mousept, SDL_Point *mousetile)
 }
 
 
-void DrawChars (SDL_Point *mousept)
-{
-    int x, y, c;
-    SDL_Rect r;
-    char buf[4];
-    
-    r.x = (mousept->x / TILE_SIZE) * TILE_SIZE;
-    r.y = (mousept->y / TILE_SIZE) * TILE_SIZE;
-    r.w = TILE_SIZE;
-    r.h = TILE_SIZE;
-    c = 0;
-    for ( y=0 ; y<16 ; y++ )
-    {
-        for ( x=0 ; x<16 ; x++)
-        {
-            TextColor(BRIGHTWHITE);
-            PrintChar(c++, x * TILE_SIZE, y * TILE_SIZE);
-            if (r.x < 128 && r.y < 128)
-            {
-                SetPaletteColor(RED);
-                SDL_RenderDrawRect(renderer, &r);
-            }
-        }
-    }
-    
-    TextColor(RED);
-    snprintf(buf, 4, "%d", r.y/TILE_SIZE * 16 + r.x/TILE_SIZE);
-    PrintString(buf, 17*TILE_SIZE, 0);
-}
-
-
 
 void EditorDrawMap (map_t *map)
 {
@@ -445,6 +409,10 @@ void EditorKeyDown (SDL_Keycode key)
             S_Controls("EDITOR CONTROLS", editorcontrols);
             break;
             
+        case SDLK_F2:
+            S_CharacterViewer();
+            break;
+            
         default:
             break;
     }
@@ -533,7 +501,6 @@ void EditorLoop (void)
         }
         
         grid.shown = keys[SDL_SCANCODE_TAB];
-        view = keys[SDL_SCANCODE_G] ? VIEW_CHARS : VIEW_EDIT;
         
         if (keys[SDL_SCANCODE_F])
             viewlayer = LAYER_FG;
@@ -542,27 +509,21 @@ void EditorLoop (void)
         else
             viewlayer = LAYER_BOTH;
         
-        if (mousestate & SDL_BUTTON_LMASK && view == VIEW_EDIT)
+        if (mousestate & SDL_BUTTON_LMASK)
             EditorMouseDown(&mousept, &mousetile);
-
+        
         Clear(0, 0, 0);
         
-        if (view == VIEW_EDIT)
-        {
-            EditorDrawMap(&map);
-            DrawEditorHUD(&mousept, &mousetile);
-            if (SDL_PointInRect(&mousept, &maprect))
-                DrawCursor(&mousetile);
-            if (grid.shown)
-                DrawSelectionGrid(&mousept);
-            else
-                PrintMapName();
-        }
-        else if (view == VIEW_CHARS)
-        {
-            DrawChars(&mousept);
-        }
-
+        EditorDrawMap(&map);
+        DrawEditorHUD(&mousept, &mousetile);
+        
+        if ( SDL_PointInRect(&mousept, &maprect) )
+            DrawCursor(&mousetile);
+        if ( grid.shown )
+            DrawSelectionGrid(&mousept);
+        else
+            PrintMapName();
+        
         Refresh();
         LimitFrameRate(FRAME_RATE);
     }
