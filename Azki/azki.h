@@ -15,9 +15,17 @@
 #define TILE_SIZE       8       // tiles are 8 x 8 pixels
 #define CTRL            (keys[SDL_SCANCODE_LCTRL] || keys[SDL_SCANCODE_RCTRL])
 #define FRAME_RATE      16
+#define CONTROL_KEY_LEN     12
+#define CONTROL_ACTION_LEN  32
 
 typedef int tile;
 typedef int pixel;
+
+typedef struct
+{
+    char key[CONTROL_KEY_LEN];
+    char action[CONTROL_ACTION_LEN];
+} control_t;
 
 enum
 {
@@ -42,5 +50,6 @@ void UpdateDeathMessage (const char * msg);
 
 void S_Level (void);
 void S_GameOver (void);
+void S_Controls (const char * title, control_t controls[]);
 
 #endif /* azki_h */

@@ -15,10 +15,10 @@ void A_ExitContact (obj_t *exit, obj_t *hit);
 void A_Flicker (obj_t *obj);
 
 void A_SpiderUpdate (obj_t *sp);
-void A_SpiderContact (obj_t *sp, obj_t *hit);
 void A_NessieUpdate (obj_t *n);
 void A_OgreUpdate (obj_t *ogre);
-void A_OgreContact (obj_t *ogre, obj_t *hit);
+void A_BlobUpdate (obj_t *sh);
+void A_EnemyContact (obj_t *enemy, obj_t *hit);
 
 void A_SpawnProjectile (objtype_t type, obj_t *src, obj_t *dst, int dx, int dy, int delay, int damage);
 void A_UpdateProjectile (obj_t *b);
@@ -179,7 +179,7 @@ objdef_t objdefs[NUMTYPES] =
         .name = "Spider",
         .hud = "You were devoured by a giant spider!",
         .update = A_SpiderUpdate,
-        .contact = A_SpiderContact
+        .contact = A_EnemyContact
     },
         
     {   // TYPE_NESSIE
@@ -198,8 +198,19 @@ objdef_t objdefs[NUMTYPES] =
         .name = "Orge",
         .hud = "You were thwumped by an ogre!",
         .update = A_OgreUpdate,
-        .contact = A_OgreContact
+        .contact = A_EnemyContact
     },
+    {   // TYPE_SHADE
+        .glyph = { 234, BRIGHTGREEN, TRANSP },
+        .flags = OF_ENTITY|OF_DAMAGING|OF_SOLID,
+        .maxhealth = 1,
+        .damage = 3,
+        .name = "Amorphous Shade",
+        .hud = "You were engulfed by an amorphous blob",
+        .update = A_BlobUpdate,
+        .contact = A_EnemyContact
+    },
+
     {   // TYPE_CORPSE
         .glyph = { '@', RED, TRANSP },
         .flags = OF_ENTITY,

@@ -28,6 +28,7 @@ typedef enum
     // layer types - appear in editor
     TYPE_NONE,
     TYPE_PLAYER,
+    
     TYPE_TREE,
     TYPE_ROCK1,
     TYPE_ROCK2,
@@ -41,10 +42,13 @@ typedef enum
     TYPE_STONE1,
     TYPE_STONE2,
     TYPE_DIRT,
+    
     TYPE_SPIDER,
     TYPE_NESSIE,
     TYPE_ORGE,
+    TYPE_BLOB,
     TYPE_CORPSE,
+    
     TYPE_GOLDKEY,
     TYPE_BLUEKEY,
     TYPE_GREENKEY,
@@ -52,8 +56,10 @@ typedef enum
     TYPE_BLUEDOOR,
     TYPE_GREENDOOR,
     TYPE_DOOR,
+    
     TYPE_SWITCH,
     TYPE_BLOCK,
+    
     TYPE_HEART,
     TYPE_BOAT,
     TYPE_CANDLE,
@@ -111,12 +117,15 @@ typedef struct obj_s
     
     // object's properties and stats
     int         flags;
-    int         hp;     // hit points (health or damage)
+    int         hp;     // hit points
     int         armor;
     
+    // how much damage this obj inflicts (enemies)
+    int         damage;
+    
     // animation and timers
-    int         tics;
-    int         updatedelay; // how many frames to wait
+    int         tics;           // update delay counter
+    int         updatedelay;    // total frames to wait before update
     int         hittimer;
     
     // update and contact functions, called every frame
@@ -140,6 +149,7 @@ typedef struct objdef_s
     glyph_t     glyph;
     objflags_t  flags;
     int         maxhealth;
+    int         damage;     // enemies/environment
     char        name[40]; // editor only
     char        hud[40]; // in-game info
     
@@ -153,8 +163,8 @@ extern objdef_t objdefs[];
 const char *    ObjName (obj_t *obj);
 const char *    ObjectNameAtXY (tile x, tile y);
 
-int         RunTimer (obj_t *obj);
 bool        TryMove (obj_t *obj, tile x, tile y);
+bool        TryMoveRandom4 (obj_t *obj);
 objtype_t   ObjectTypeAtXY (tile x, tile y);
 glyph_t *   ObjectGlyphAtXY (tile x, tile y);
 bool        ObjectsOverlap (obj_t *obj1, obj_t *obj2);

@@ -372,13 +372,14 @@ void P_UpdatePlayer (obj_t * pl)
 
 void P_PlayerContact (obj_t *pl, obj_t *hit)
 {
-//    if (!player.cooldown && hit->hp != 0) // enemy
-//    {
-//        pl->hp -= hit->hp;
-//        if (pl->hp < 0)
-//            pl->hp = 0;
-//        player.cooldown = 60;
-//    }
+    switch (hit->type) {
+        case TYPE_BLOB:
+            hit->state = objst_remove;
+            break;
+            
+        default:
+            break;
+    }
 }
 
 

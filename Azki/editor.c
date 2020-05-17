@@ -52,6 +52,29 @@ static char *show_msg[] = {
     "Showing: FG BG"
 };
 
+control_t editorcontrols[] =
+{
+    { " ", " " },
+    { " ", " "},
+    { "KEY", "ACTION" },
+    { "--------", "--------" },
+    { "`", "Save and play level" },
+    { "+ and -", "Increase/Decrease window size" },
+    { "[ and ]", "Save and previous/next level" },
+    { "F1", "Show this screen!" },
+    { "CTRL-S", "Save map" },
+    { "ESCAPE", "Save and Quit" },
+    { "--------", "--------" },
+    { "TAB", "Show Object Palette" },
+    { "L MOUSE", "Place object" },
+    { "R MOUSE", "\"Pick up\" object" },
+    { "SPACE", "Switch layer" },
+    { "F", "Show foreground layer only" },
+    { "S", "Show background layer only" },
+    { "stop", "stop" }
+};
+
+
 
 
 
@@ -107,6 +130,16 @@ SDL_Point GridTileForType (objtype_t type)
 
 #pragma mark - Operations
 
+void EditorSaveMap (void)
+{
+    if ( SaveMap(&map) )
+        strcpy(lowermsg, "Map saved!");
+    else
+        strcpy(lowermsg, "Error saving map!");
+}
+
+
+
 void FloodFill (tile x, tile y, objtype_t oldtype, objtype_t newtype)
 {
     if (oldtype == newtype)
@@ -135,6 +168,7 @@ void FloodFill (tile x, tile y, objtype_t oldtype, objtype_t newtype)
     FloodFill(x - 1, y, oldtype, newtype);
     FloodFill(x + 1, y, oldtype, newtype);
 }
+
 
 
 #pragma mark - Drawing
@@ -350,13 +384,12 @@ void EditorDrawMap (map_t *map)
 
 void EditorKeyDown (SDL_Keycode key)
 {
-    void S_EditorControls (void);
-    
     memset(lowermsg, 0, sizeof(lowermsg)); // clear the LOG message
     
     switch (key)
     {
         case SDLK_ESCAPE:
+            EditorSaveMap();
             Quit(NULL);
             break;
             
@@ -378,9 +411,11 @@ void EditorKeyDown (SDL_Keycode key)
             
         // level select
         case SDLK_LEFTBRACKET:
+            SaveMap(&map);
             NextLevel(-1);
             break;
         case SDLK_RIGHTBRACKET:
+            SaveMap(&map);
             NextLevel(+1);
             break;
             
@@ -397,12 +432,7 @@ void EditorKeyDown (SDL_Keycode key)
         // save map
         case SDLK_s:
             if (CTRL)
-            {
-                if ( SaveMap(&map) )
-                    strcpy(lowermsg, "Map saved!");
-                else
-                    strcpy(lowermsg, "Error saving map!");
-            }
+                EditorSaveMap();
             break;
             
         // switch to play
@@ -412,7 +442,7 @@ void EditorKeyDown (SDL_Keycode key)
             break;
             
         case SDLK_F1:
-            S_EditorControls();
+            S_Controls("EDITOR CONTROLS", editorcontrols);
             break;
             
         default:
@@ -434,9 +464,9 @@ void EditorMouseDown (SDL_Point * mousept, SDL_Point * mousetile)
         if (keys[SDL_SCANCODE_F]) {
             FloodFill(mousetile->x, mousetile->y, obj->type, cursor);
         }
-        else if (keys[SDL_SCANCODE_D]) {
-            cursor = obj->type;
-        }
+//        else if (keys[SDL_SCANCODE_D]) {
+//            cursor = obj->type;
+//        }
         else {
             *obj = NewObjectFromDef(cursor, mousetile->x, mousetile->y);
         }
@@ -486,6 +516,17 @@ void EditorLoop (void)
                     if (state == STATE_PLAY)
                         return;
                     break;
+                case SDL_MOUSEBUTTONDOWN:
+                    switch (event.button.button) {
+                        case SDL_BUTTON_RIGHT:
+                        {
+                            obj_t *obj = ObjectAtMapTile(&mousetile);
+                            cursor = obj->type;
+                        } break;
+                            
+                        default:
+                            break;
+                    }
                 default:
                     break;
             }

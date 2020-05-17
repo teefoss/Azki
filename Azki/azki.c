@@ -21,6 +21,25 @@ int tics;
 char hudmsg[40];
 int hudtics;
 
+control_t gamecontrols[] =
+{
+    { " ", " " },
+    { " ", " "},
+    { "KEY", "ACTION" },
+    { "--------", "--------" },
+    { "ESCAPE", "Quit" },
+    { "+ and -", "Change window size" },
+    { "CTRL-R", "Restart level" },
+    { "1-9", "Switch weapon" },
+    { "2", "" },
+    { "WASD", "Move up/left/down/right" },
+    { "QEZC", "Move diagonally NW/NE/SW/SE" },
+    { "Arrows", "Shoot up/down/left/right" },
+    { "TAB", "Show compass" },
+    { "stop", "stop" },
+};
+
+
 
 void HUDMessage(const char * msg)
 {
@@ -228,6 +247,10 @@ void GameKeyDown (SDL_Keycode key)
             break;
         case SDLK_2:
             P_SwitchWeapon(WEAPON_BAZOOKA);
+            break;
+            
+        case SDLK_F1:
+            S_Controls("GAME CONTROLS", gamecontrols);
             break;
             
         default:

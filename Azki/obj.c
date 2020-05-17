@@ -12,6 +12,7 @@
 #include "player.h"
 #include "video.h"
 #include "map.h"
+#include "cmdlib.h"
 
 // singly linked list of active (mobile) entities
 obj_t *objlist;
@@ -49,16 +50,43 @@ bool ObjectsOverlap (obj_t *obj1, obj_t *obj2)
 }
 
 
-
-int RunTimer (obj_t *obj)
+//
+// return true if obj can move to map tile (x, y)
+//
+bool CanMove (obj_t *obj, tile x, tile y)
 {
-    if (obj->tics)
-        obj->tics--;
-    return obj->tics;
+    obj_t *check;
+    
+    // off map?
+    if ( x < 0 || x >= MAP_W || y < 0 || y >= MAP_H )
+        return false;
+
+    if ( (map.foreground[y][x].flags & OF_SOLID) )
+    {
+        return false;
+    }
+        
+    // solid entity there?
+    if ( obj->flags & OF_ENTITY )
+    {
+        check = objlist;
+        do {
+            if ( (check->flags & OF_SOLID) && check->x == x && check->y == y )
+                return false;
+            check = check->next;
+        } while (check);
+    }
+
+    return true;
 }
 
 
 
+//
+// TryMove
+// check that obj can move to (x, y) and move there if so.
+// trigger a contact if obj tried to move spot occupied by a solid entity
+//
 bool TryMove (obj_t *obj, tile x, tile y)
 {
     obj_t *check;
@@ -73,7 +101,6 @@ bool TryMove (obj_t *obj, tile x, tile y)
     }
         
     // don't walk over solid entities, contact
-#if 1
     if ( obj->flags & OF_ENTITY )
     {
         check = objlist;
@@ -87,12 +114,36 @@ bool TryMove (obj_t *obj, tile x, tile y)
             check = check->next;
         } while (check);
     }
-#endif
 
     obj->x = x;
     obj->y = y;
 
     return true;
+}
+
+
+bool TryMoveRandom4 (obj_t *obj)
+{
+    dir_t dir;
+
+    dir = Random() % 4 + 1; // move spider in a Random direction
+    switch (dir)
+    {
+        case DIR_EAST:
+            return TryMove(obj, obj->x + 1, obj->y);
+            break;
+        case DIR_NORTH:
+            return TryMove(obj, obj->x, obj->y - 1);
+            break;
+        case DIR_WEST:
+            return TryMove(obj, obj->x - 1, obj->y);
+            break;
+        case DIR_SOUTH:
+            return TryMove(obj, obj->x, obj->y + 1);
+            break;
+        default:
+            return false; // should never reach here
+    }
 }
 
 
@@ -349,6 +400,7 @@ obj_t NewObjectFromDef (objtype_t type, tile x, tile y)
     }
 #endif
     new.hp = info->maxhealth;
+    new.damage = info->damage;
     new.flags = info->flags;
     new.update = info->update;
     new.contact = info->contact;
@@ -368,3 +420,5 @@ void ChangeObject (obj_t *obj, objtype_t type, int state)
     obj->next = next;
     obj->state = state;
 }
+
+

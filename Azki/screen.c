@@ -100,35 +100,13 @@ void S_GameOver ()
 
 
 
-typedef struct
-{
-    char key[16];
-    char action[32];
-} control_t;
-
-control_t editorcontrols[] =
-{
-    { "`", "Switch between editor/game" },
-    { "F1", "Help Screen" },
-    { "+/-", "Increase/Decrease Window Size" },
-    { "CTRL-S", "Save Map" },
-    { "ESCAPE", "Save and Quit" },
-    { "--------", "--------" },
-    { "TAB", "Show Object Palette" },
-    { "L MOUSE", "Place Object" },
-    { "R MOUSE", "Dropper" },
-    { "SPACE", "Switch Layer" },
-    { "F", "Show Foreground Layer" },
-    { "S", "Show Background Layer" },
-    { "[ and ]", "Go Backward or Forward One Level" },
-    { "stop", "stop" }
-};
-
-void S_EditorControls (void)
+void S_Controls (const char * title, control_t controls[])
 {
     SDL_Event event;
     control_t *cont;
     int y;
+    
+    strncpy(controls[0].action, title, CONTROL_ACTION_LEN);
     
     while (1)
     {
@@ -138,7 +116,6 @@ void S_EditorControls (void)
                     Quit(NULL);
                     break;
                 case SDL_KEYDOWN:
-                        state = STATE_EDIT;
                         return;
                     break;
                 default:
@@ -150,7 +127,7 @@ void S_EditorControls (void)
         TextColor(RED);
         
         y = TILE_SIZE;
-        cont = &editorcontrols[0];
+        cont = &controls[0];
         do
         {
             TextColor(BRIGHTWHITE);
